@@ -1,23 +1,16 @@
-/* Loaded only when JavaScript is off (see <noscript> in Base.astro). The hero becomes a
-   static, finished cutout instead of a scroll-driven scene. */
-.hero__track {
+/* Loaded only when JavaScript is off (see <noscript> in Base.astro). Scroll scenes become
+   ordinary sections showing their finished state; nothing is hidden. */
+[data-scene] {
   height: auto !important;
 }
 
-.hero__sticky {
+.pin {
   position: relative !important;
   height: auto !important;
-  padding-block: 32px 64px;
+  min-height: 100svh;
 }
 
-.stage__static {
+.reveal-pending {
   opacity: 1 !important;
-}
-
-.steps li {
-  color: #0d1020 !important;
-}
-
-.steps li::after {
-  width: 100% !important;
+  transform: none !important;
 }

@@ -10,7 +10,7 @@ attacked; all tests ran locally.
 |---|---|
 | Hosting | GitHub Pages, static files only. No server code, database, forms, cookies or accounts. |
 | Runtime origins | One: the site itself. No CDNs, fonts, analytics or third-party scripts. |
-| Client JavaScript | Own code only: 4.5 KiB site + 10.8 KiB WebGL scene (gzip). No framework runtime. |
+| Client JavaScript | Own code only: 5.3 KiB site + 3.6 KiB WebGL hero (gzip, the latter loaded on first interaction). No framework runtime. |
 | Build-time network | `scripts/sync-release.mjs` reads `api.github.com` (repository metadata, releases) and the release's `SHA256SUMS.txt`. Read-only. |
 | CI/CD | GitHub Actions: `check.yml` (PRs/branches), `deploy.yml` (main → Pages), `codeql.yml`. |
 | Secrets | None. Workflows use only the automatic `GITHUB_TOKEN`, scoped per job. |

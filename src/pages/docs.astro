@@ -12,6 +12,7 @@ const toc = [
   ['export', 'Export and projects'],
   ['shortcuts', 'Keyboard shortcuts'],
   ['troubleshooting', 'Troubleshooting'],
+  ['faq', 'Questions'],
   ['platforms', 'Platforms'],
   ['security', 'Security'],
   ['bugs', 'Reporting problems'],
@@ -34,12 +35,12 @@ const toc = [
     {
       isReleased ? (
         <p>
-          Download <a href={mac.url}>{mac.file}</a> ({formatBytes(mac.size)}, version {mac.version}) from the <a href={`${base}#download`}>download section</a> or the{' '}
+          Download <a href={mac.url}>{mac.file}</a> ({formatBytes(mac.size)}, version {mac.version}) from the <a href={`${base}#get`}>download section</a> or the{' '}
           <a href={mac.releaseUrl} rel="noopener">release page</a>.
         </p>
       ) : (
         <p class="note">
-          The first public build is being prepared. Once it is published on GitHub Releases, the <a href={`${base}#download`}>download section</a> links to it with its
+          The first public build is being prepared. Once it is published on GitHub Releases, the <a href={`${base}#get`}>download section</a> links to it with its
           size and checksum. The steps below already apply.
         </p>
       )
@@ -147,6 +148,21 @@ const toc = [
     <h3>macOS says CutOut “is damaged”</h3>
     <p>The file was changed or corrupted on the way. Delete it, download it again, and compare its checksum before opening it.</p>
 
+    <h2 id="faq">Questions</h2>
+    <h3>Is CutOut really free?</h3>
+    <p>Yes. No price, trial, subscription, in-app purchase, account or advertising.</p>
+    <h3>Does it upload my images?</h3>
+    <p>No. Everything happens on your Mac. The app makes no network requests unless you start a model download yourself, and the full download already contains the model.</p>
+    <h3>How well does it handle hair, fur — and glass?</h3>
+    <p>
+      Fur and hair work well; compare them on the home page and zoom in. Truly transparent things such as glass are harder: the model decides what is subject and what
+      isn’t, so it can’t make glass half-transparent. Finish those with Refine Edges, the Magic Eraser or the Restore brush.
+    </p>
+    <h3>What can I paste the result into?</h3>
+    <p>Anything that accepts images from the clipboard. Copy puts a PNG with transparency on the clipboard, plus a TIFF that keeps the alpha channel. Copy as JPEG is there too, with a warning, because JPEG can’t keep transparency.</p>
+    <h3>Is there a Windows or Intel Mac version?</h3>
+    <p>Not yet. The engine is portable Rust so a Windows app can reuse it, but neither a Windows nor an Intel build exists. This site will offer them only when real, tested builds do.</p>
+
     <h2 id="platforms">Platforms</h2>
     <ul>
       <li><strong>Mac with Apple silicon</strong>, {requirements.os}: supported.</li>
@@ -199,16 +215,29 @@ const toc = [
     <ul>
       <li>Background removal model: <a href="https://github.com/ZhengPeng7/BiRefNet" rel="noopener">BiRefNet</a> by Peng Zheng et al., MIT licence.</li>
       <li>
-        Cat photo: “Young Tabby Cat Portrait” by TudorTulok, <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="license noopener">CC BY-SA 4.0</a>, via{' '}
-        <a href="https://commons.wikimedia.org/wiki/File:Young_Tabby_Cat_Portrait.jpg" rel="noopener">Wikimedia Commons</a>. The cutout and mask versions on this site
-        were made with CutOut and are shared under the same licence.
+        Machined crankset (home page title image): “Crank Set” by Romantiker,
+        <a href="https://creativecommons.org/licenses/by-sa/3.0/" rel="license noopener">CC BY-SA 3.0</a>, via
+        <a href="https://commons.wikimedia.org/wiki/File:Crank_Set.jpg" rel="noopener">Wikimedia Commons</a>. The cutout, mask, shadow and traced outline
+        made from it with CutOut are shared under the same licence.
       </li>
       <li>
-        Mug and cup: “Mug vs cup” by Викидим, <a href="https://creativecommons.org/publicdomain/zero/1.0/" rel="license noopener">CC0</a>, via{' '}
-        <a href="https://commons.wikimedia.org/wiki/File:Mug_vs_cup.jpg" rel="noopener">Wikimedia Commons</a>.
+        Golden retriever puppy: “Golden Retriever puppy standing” by Scott,
+        <a href="https://creativecommons.org/licenses/by/2.0/" rel="license noopener">CC BY 2.0</a>, via
+        <a href="https://commons.wikimedia.org/wiki/File:Golden_Retriever_puppy_standing.jpg" rel="noopener">Wikimedia Commons</a>; its cutout and the app
+        screenshots that show it were made with CutOut.
       </li>
       <li>
-        Dandelion: “Seed head of a dandelion” by Adesolive, <a href="https://creativecommons.org/publicdomain/zero/1.0/" rel="license noopener">CC0</a>, via{' '}
+        Hex bolts: “Hex head bolt” by Susan Wright, public domain, via
+        <a href="https://commons.wikimedia.org/wiki/File:Hex_head_bolt.tif" rel="noopener">Wikimedia Commons</a>.
+      </li>
+      <li>
+        Bolt skyline: “Sechskantschrauben” by Dietmar Rabich,
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="license noopener">CC BY-SA 4.0</a>, via
+        <a href="https://commons.wikimedia.org/wiki/File:Sechskantschrauben_--_2020_--_3985-8.jpg" rel="noopener">Wikimedia Commons</a>; the cutout is shared
+        under the same licence.
+      </li>
+      <li>
+        Dandelion: “Seed head of a dandelion” by Adesolive, <a href="https://creativecommons.org/publicdomain/zero/1.0/" rel="license noopener">CC0</a>, via
         <a href="https://commons.wikimedia.org/wiki/File:Seed_head_of_a_dandelion,_specifically_Taraxacum_officinale.jpg" rel="noopener">Wikimedia Commons</a>.
       </li>
       <li>

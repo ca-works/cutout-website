@@ -36,7 +36,7 @@ const { title, lede, toc = [] } = Astro.props;
 
 <style>
   .doc {
-    padding-block: clamp(var(--s-7), 6vw, var(--s-9)) var(--section);
+    padding-block: calc(var(--nav-h) + clamp(var(--s-7), 6vw, var(--s-9))) var(--section);
   }
 
   .doc__head {

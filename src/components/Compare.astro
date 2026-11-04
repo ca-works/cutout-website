@@ -1,117 +1,48 @@
 ---
 import { Picture } from 'astro:assets';
-import cat from '../assets/generated/samples/cat.jpg';
-import catCut from '../assets/generated/samples/cat-cutout.png';
-import mug from '../assets/generated/samples/mug.jpg';
-import mugCut from '../assets/generated/samples/mug-cutout.png';
+import Split from './Split.astro';
+import golden from '../assets/generated/samples/golden.jpg';
+import goldenCut from '../assets/generated/samples/golden-cutout.png';
+import bolt from '../assets/generated/samples/bolt.jpg';
+import boltCut from '../assets/generated/samples/bolt-cutout.png';
+import crankset from '../assets/generated/samples/crankset.jpg';
+import cranksetCut from '../assets/generated/samples/crankset-cutout.png';
 import dandelion from '../assets/generated/samples/dandelion.jpg';
 import dandelionCut from '../assets/generated/samples/dandelion-cutout.png';
 
 const samples = [
-  {
-    id: 'fur',
-    tab: 'Fur',
-    original: cat,
-    cutout: catCut,
-    alt: 'tabby cat',
-    caption: 'Fur and whiskers against a soft, busy background.',
-    credit: { who: 'TudorTulok', licence: 'CC BY-SA 4.0', url: 'https://commons.wikimedia.org/wiki/File:Young_Tabby_Cat_Portrait.jpg' },
-  },
-  {
-    id: 'white',
-    tab: 'White on grey',
-    original: mug,
-    cutout: mugCut,
-    alt: 'black mug and white cup',
-    caption: 'A white cup on a pale grey surface — little contrast to work with.',
-    credit: { who: 'Викидим', licence: 'CC0', url: 'https://commons.wikimedia.org/wiki/File:Mug_vs_cup.jpg' },
-  },
-  {
-    id: 'fine',
-    tab: 'Fine detail',
-    original: dandelion,
-    cutout: dandelionCut,
-    alt: 'dandelion seed head',
-    caption: 'A dandelion seed head: hundreds of fine, partly translucent filaments.',
-    credit: { who: 'Adesolive', licence: 'CC0', url: 'https://commons.wikimedia.org/wiki/File:Seed_head_of_a_dandelion,_specifically_Taraxacum_officinale.jpg' },
-  },
+  { id: 'fur', tab: 'Fur', original: golden, cutout: goldenCut, alt: 'golden retriever puppy', credit: { who: 'Scott', licence: 'CC BY 2.0', url: 'https://commons.wikimedia.org/wiki/File:Golden_Retriever_puppy_standing.jpg' } },
+  { id: 'threads', tab: 'Threads', original: bolt, cutout: boltCut, alt: 'three hex bolts', credit: { who: 'Susan Wright', licence: 'public domain', url: 'https://commons.wikimedia.org/wiki/File:Hex_head_bolt.tif' } },
+  { id: 'gaps', tab: 'Gaps', original: crankset, cutout: cranksetCut, alt: 'machined bicycle crankset', credit: { who: 'Romantiker', licence: 'CC BY-SA 3.0', url: 'https://commons.wikimedia.org/wiki/File:Crank_Set.jpg' } },
+  { id: 'seeds', tab: 'Seeds', original: dandelion, cutout: dandelionCut, alt: 'dandelion seed head', credit: { who: 'Adesolive', licence: 'CC0', url: 'https://commons.wikimedia.org/wiki/File:Seed_head_of_a_dandelion,_specifically_Taraxacum_officinale.jpg' } },
 ];
 const widths = [640, 960, 1280, 1600, 2000];
-const sizes = '(max-width: 819px) calc(100vw - 40px), min(1080px, 88vw)';
+const sizes = '(max-width: 819px) 100vw, min(1320px, 92vw)';
 const backdrops = [
   { id: 'grid', label: 'Grid' },
-  { id: 'white', label: 'White' },
   { id: 'black', label: 'Black' },
-  { id: 'sand', label: 'Sand' },
+  { id: 'white', label: 'White' },
+  { id: 'violet', label: 'Violet' },
 ];
 ---
 
-<section class="section compare" id="compare" aria-labelledby="compare-title">
+<section class="cmp-section" id="compare" aria-labelledby="compare-title">
   <div class="wrap">
-    <header class="section-head" data-reveal>
-      <p class="eyebrow">Before and after</p>
-      <h2 class="h2" id="compare-title">Look closely. The edge is the product.</h2>
-      <p class="lede">Unretouched results from CutOut's Best Quality mode. Drag across the picture — or focus the handle and use the arrow keys.</p>
+    <header class="cmp-head">
+      <Split as="h2" id="compare-title" class="title" text={'Every hair.\nEvery thread.'} />
+      <p class="sub" data-reveal>Real CutOut results, untouched. Drag across.</p>
     </header>
 
     <div class="cmp" data-compare data-bg="grid" data-reveal>
-      <div class="cmp__bar">
-        <div class="seg" role="tablist" aria-label="Example image" data-tabs>
-          {
-            samples.map((s, i) => (
-              <button
-                class="seg__btn"
-                type="button"
-                role="tab"
-                id={`cmp-tab-${s.id}`}
-                aria-controls={`cmp-panel-${s.id}`}
-                aria-selected={i === 0 ? 'true' : 'false'}
-                tabindex={i === 0 ? 0 : -1}
-              >
-                {s.tab}
-              </button>
-            ))
-          }
-        </div>
-        <div class="seg seg--small" role="radiogroup" aria-label="Background behind the cutout" data-backdrops>
-          {
-            backdrops.map((b, i) => (
-              <button class="seg__btn" type="button" role="radio" aria-checked={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-value={b.id}>
-                <span class={`swatch swatch--${b.id}`} aria-hidden="true" />
-                {b.label}
-              </button>
-            ))
-          }
-        </div>
-      </div>
-
       {
         samples.map((s, i) => (
           <div class={`cmp__panel cmp__panel--${s.id}`} id={`cmp-panel-${s.id}`} role="tabpanel" aria-labelledby={`cmp-tab-${s.id}`} data-panel>
             <div class="cmp__frame" data-frame>
               <div class="cmp__layer">
-                <Picture
-                  src={s.original}
-                  widths={widths}
-                  sizes={sizes}
-                  formats={['avif', 'webp']}
-                  fallbackFormat="jpg"
-                  alt={`Original photo: ${s.alt}.`}
-                  loading="lazy"
-                  decoding="async"
-                />
+                <Picture src={s.original} widths={widths} sizes={sizes} formats={['avif', 'webp']} fallbackFormat="jpg" alt={`Original photo: ${s.alt}.`} loading="lazy" decoding="async" />
               </div>
               <div class="cmp__layer cmp__after">
-                <Picture
-                  src={s.cutout}
-                  widths={widths}
-                  sizes={sizes}
-                  formats={['avif', 'webp']}
-                  fallbackFormat="webp"
-                  alt={`The ${s.alt} after CutOut removed the background.`}
-                  loading="lazy"
-                  decoding="async"
-                />
+                <Picture src={s.cutout} widths={widths} sizes={sizes} formats={['avif', 'webp']} fallbackFormat="webp" alt={`The ${s.alt} after CutOut removed the background.`} loading="lazy" decoding="async" />
               </div>
               <span class="cmp__label cmp__label--before" aria-hidden="true">Original</span>
               <span class="cmp__label cmp__label--after" aria-hidden="true">CutOut</span>
@@ -127,112 +58,98 @@ const backdrops = [
                 data-handle
               >
                 <span class="cmp__grip" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="m9 7-5 5 5 5M15 7l5 5-5 5" />
-                  </svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m9 7-5 5 5 5M15 7l5 5-5 5" /></svg>
                 </span>
               </div>
             </div>
-            <p class="cmp__caption small">
-              {s.caption}
-              <span class="cmp__credit">
-                Photo: <a href={s.credit.url} rel="noopener">{s.credit.who}</a>, {s.credit.licence}.
-              </span>
+            <p class="cmp__credit">
+              Photo: <a href={s.credit.url} rel="noopener">{s.credit.who}</a>, {s.credit.licence}
             </p>
           </div>
         ))
       }
 
-      <div class="cmp__tools">
-        <button class="cmp__zoom" type="button" aria-pressed="false" data-zoom hidden>
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
-            <circle cx="10.5" cy="10.5" r="6"></circle><path d="m15 15 5 5M10.5 8v5M8 10.5h5"></path>
-          </svg>
-          <span>Inspect the edge</span>
-        </button>
+      <div class="cmp__bar">
+        <div class="seg" role="tablist" aria-label="Example" data-tabs>
+          {
+            samples.map((s, i) => (
+              <button class="seg__btn" type="button" role="tab" id={`cmp-tab-${s.id}`} aria-controls={`cmp-panel-${s.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
+                {s.tab}
+              </button>
+            ))
+          }
+        </div>
+        <div class="cmp__tools">
+          <div class="seg seg--dots" role="radiogroup" aria-label="Background behind the cutout" data-backdrops>
+            {
+              backdrops.map((b, i) => (
+                <button class="seg__btn seg__btn--dot" type="button" role="radio" aria-checked={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-value={b.id} aria-label={b.label} title={b.label}>
+                  <span class={`swatch swatch--${b.id}`} aria-hidden="true" />
+                </button>
+              ))
+            }
+          </div>
+          <button class="cmp__zoom" type="button" aria-pressed="false" data-zoom hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"></circle><path d="m15 15 5 5M10.5 8v5M8 10.5h5"></path></svg>
+            <span>Zoom</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <style>
+  .cmp-section {
+    padding-block: clamp(96px, 12vw, 200px) clamp(80px, 10vw, 160px);
+  }
+
+  .cmp-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px 48px;
+    margin-bottom: clamp(40px, 5vw, 72px);
+  }
+
+  .cmp-head .sub {
+    max-width: 24ch;
+  }
+
   .cmp {
     --pos: 50%;
     display: grid;
-    gap: var(--s-5);
+    gap: 20px;
   }
 
   .cmp:not(.is-enhanced) .cmp__bar {
     display: none;
   }
 
-  .cmp__bar {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--s-4);
-  }
-
-  .swatch {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    box-shadow: inset 0 0 0 1px rgb(13 16 32 / 0.25);
-  }
-
-  .swatch--grid {
-    background: conic-gradient(#d6d7dd 25%, #fff 0 50%, #d6d7dd 0 75%, #fff 0) 0 0 / 7px 7px;
-  }
-
-  .swatch--white {
-    background: #fff;
-  }
-
-  .swatch--black {
-    background: #0d1020;
-  }
-
-  .swatch--sand {
-    background: #e6d8bf;
+  :global(.cmp.is-enhanced) .cmp__panel:not(.is-current) {
+    display: none;
   }
 
   .cmp__panel {
     display: grid;
-    gap: var(--s-4);
-    justify-items: center;
-  }
-
-  :global(.cmp.is-enhanced) .cmp__panel:not(.is-current) {
-    display: none;
+    gap: 12px;
   }
 
   .cmp__frame {
     position: relative;
     width: 100%;
-    border-radius: var(--r-media);
+    aspect-ratio: 16 / 9;
+    max-height: 78svh;
+    border-radius: 24px;
     overflow: hidden;
-    box-shadow: var(--shadow-2);
+    background: var(--bg-2);
     touch-action: pan-y;
     user-select: none;
     -webkit-user-select: none;
     cursor: ew-resize;
     isolation: isolate;
-  }
-
-  .cmp__panel--fur .cmp__frame {
-    aspect-ratio: 1;
-    max-width: min(820px, 78svh);
-  }
-
-  .cmp__panel--white .cmp__frame {
-    aspect-ratio: 1993 / 1244;
-    max-width: calc(min(78svh, 820px) * 1.602);
-  }
-
-  .cmp__panel--fine .cmp__frame {
-    aspect-ratio: 1440 / 1800;
-    max-width: calc(min(78svh, 820px) * 0.8);
+    box-shadow: inset 0 0 0 1px var(--line);
   }
 
   .cmp__layer,
@@ -247,24 +164,33 @@ const backdrops = [
   .cmp__layer :global(img) {
     -webkit-user-drag: none;
     object-fit: cover;
-    transition: transform var(--t-slow) var(--ease-in-out);
-    transform-origin: var(--focus, 50% 50%);
+    object-position: var(--focus, 50% 50%);
+    transition: transform 900ms var(--ease-io);
+    transform-origin: var(--zoom-at, 50% 50%);
   }
 
   .cmp__panel--fur {
-    --focus: 74% 26%;
+    --focus: 50% 40%;
+    --zoom-at: 64% 26%;
   }
 
-  .cmp__panel--white {
-    --focus: 93% 52%;
+  .cmp__panel--threads {
+    --focus: 50% 50%;
+    --zoom-at: 28% 78%;
   }
 
-  .cmp__panel--fine {
-    --focus: 46% 34%;
+  .cmp__panel--gaps {
+    --focus: 50% 50%;
+    --zoom-at: 30% 48%;
+  }
+
+  .cmp__panel--seeds {
+    --focus: 50% 35%;
+    --zoom-at: 50% 32%;
   }
 
   :global(.cmp.is-zoomed) .cmp__layer :global(img) {
-    transform: scale(2.2);
+    transform: scale(2.4);
   }
 
   .cmp__after {
@@ -272,47 +198,45 @@ const backdrops = [
   }
 
   .cmp[data-bg='grid'] .cmp__after {
-    background-color: #fff;
-    background-image: conic-gradient(#e4e5ea 25%, transparent 0 50%, #e4e5ea 0 75%, transparent 0);
-    background-size: 24px 24px;
+    background-color: var(--checker-a);
+    background-image: conic-gradient(var(--checker-b) 25%, transparent 0 50%, var(--checker-b) 0 75%, transparent 0);
+    background-size: 28px 28px;
+  }
+
+  .cmp[data-bg='black'] .cmp__after {
+    background: #000;
   }
 
   .cmp[data-bg='white'] .cmp__after {
     background: #fff;
   }
 
-  .cmp[data-bg='black'] .cmp__after {
-    background: #0d1020;
-  }
-
-  .cmp[data-bg='sand'] .cmp__after {
-    background: #e6d8bf;
+  .cmp[data-bg='violet'] .cmp__after {
+    background: radial-gradient(120% 120% at 30% 20%, #8f84ff, #3a2db8 60%, #1a1550);
   }
 
   .cmp__label {
     position: absolute;
-    top: var(--s-4);
+    top: 18px;
     z-index: 2;
-    padding: 5px 10px;
+    padding: 6px 12px;
     border-radius: 999px;
     font-size: 0.8125rem;
     font-weight: 600;
-    letter-spacing: 0.01em;
-    background: rgb(13 16 32 / 0.62);
+    background: rgb(0 0 0 / 0.55);
     color: #fff;
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    transition: opacity var(--t-fast) linear;
     pointer-events: none;
   }
 
   .cmp__label--before {
-    left: var(--s-4);
+    left: 18px;
     opacity: var(--before-label, 1);
   }
 
   .cmp__label--after {
-    right: var(--s-4);
+    right: 18px;
     opacity: var(--after-label, 1);
   }
 
@@ -339,20 +263,20 @@ const backdrops = [
     width: 2px;
     margin-left: -1px;
     background: #fff;
-    box-shadow: 0 0 0 0.5px rgb(13 16 32 / 0.25), 0 0 12px rgb(13 16 32 / 0.25);
+    box-shadow: 0 0 14px rgb(143 132 255 / 0.9);
   }
 
   .cmp__grip {
     position: relative;
     display: grid;
     place-items: center;
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     background: #fff;
-    color: var(--ink);
-    box-shadow: 0 0 0 0.5px rgb(13 16 32 / 0.2), 0 6px 16px -4px rgb(13 16 32 / 0.45);
-    transition: transform var(--t-fast) var(--ease-out), box-shadow var(--t-fast) linear;
+    color: #000;
+    box-shadow: 0 0 0 6px rgb(255 255 255 / 0.14), 0 10px 30px -6px rgb(0 0 0 / 0.6);
+    transition: transform 200ms var(--ease);
   }
 
   .cmp__grip svg {
@@ -361,68 +285,106 @@ const backdrops = [
   }
 
   .cmp__handle:focus-visible .cmp__grip {
-    box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--cut), 0 6px 16px -4px rgb(13 16 32 / 0.45);
+    box-shadow: 0 0 0 3px #000, 0 0 0 5px var(--cut);
   }
 
   :global(.cmp.is-dragging) .cmp__grip {
-    transform: scale(1.08);
-  }
-
-  .cmp__caption {
-    color: var(--ink-2);
-    text-align: center;
-    max-width: 60ch;
+    transform: scale(1.1);
   }
 
   .cmp__credit {
-    color: var(--ink-3);
-    margin-left: 0.35em;
+    font-size: 0.8125rem;
+    color: var(--fg-3);
   }
 
   .cmp__credit a {
     color: inherit;
   }
 
+  .cmp__bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    order: -1;
+  }
+
   .cmp__tools {
     display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .seg--dots .seg__btn--dot {
+    width: 40px;
+    padding: 0;
     justify-content: center;
-    margin-top: calc(-1 * var(--s-2));
+  }
+
+  .seg--dots .seg__btn--dot[aria-checked='true'] {
+    background: rgb(255 255 255 / 0.16);
+  }
+
+  .swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3);
+  }
+
+  .swatch--grid {
+    background: conic-gradient(#3a3a44 25%, #1a1a20 0 50%, #3a3a44 0 75%, #1a1a20 0) 0 0 / 9px 9px;
+  }
+
+  .swatch--black {
+    background: #000;
+  }
+
+  .swatch--white {
+    background: #fff;
+  }
+
+  .swatch--violet {
+    background: linear-gradient(135deg, #8f84ff, #3a2db8);
   }
 
   .cmp__zoom {
     display: inline-flex;
     align-items: center;
-    gap: var(--s-2);
-    min-height: 44px;
-    padding: 0 var(--s-5);
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 18px;
     border: 0;
     border-radius: 999px;
-    background: var(--paper-raised);
-    box-shadow: inset 0 0 0 1px var(--rule-strong);
+    background: rgb(255 255 255 / 0.06);
+    box-shadow: inset 0 0 0 1px var(--line);
     font-size: 0.9375rem;
-    font-weight: 600;
+    font-weight: 560;
     cursor: pointer;
   }
 
   .cmp__zoom svg {
-    width: 20px;
-    height: 20px;
+    width: 19px;
+    height: 19px;
   }
 
   .cmp__zoom[aria-pressed='true'] {
-    background: var(--ink);
-    color: #fff;
-    box-shadow: none;
+    background: var(--fg);
+    color: var(--bg);
   }
 
   @media (max-width: 819px) {
+    .cmp__frame {
+      aspect-ratio: 4 / 5;
+      border-radius: 18px;
+    }
+
     .cmp__bar {
       justify-content: center;
     }
 
-    .cmp__panel--fur .cmp__frame,
-    .cmp__panel--white .cmp__frame,
-    .cmp__panel--fine .cmp__frame {
+    .cmp-head .sub {
       max-width: none;
     }
   }

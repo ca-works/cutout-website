@@ -1,25 +1,23 @@
 ---
 import { Image } from 'astro:assets';
 import icon from '../assets/generated/brand/icon.png';
-import { isReleased } from '../data/release';
 
 const base = import.meta.env.BASE_URL;
 const home = Astro.url.pathname === base;
 const at = (hash: string) => (home ? hash : `${base}${hash}`);
 const links = [
-  { href: at('#compare'), label: 'Compare' },
-  { href: at('#interface'), label: 'The app' },
-  { href: at('#features'), label: 'Features' },
+  { href: at('#compare'), label: 'Results' },
+  { href: at('#app'), label: 'The app' },
   { href: at('#privacy'), label: 'Privacy' },
   { href: `${base}docs/`, label: 'Guide' },
 ];
 const current = (href: string) => (Astro.url.pathname === href ? 'page' : undefined);
 ---
 
-<header class="nav" data-nav>
+<header class:list={['nav', { 'nav--solid': !home }]} data-nav>
   <div class="nav__inner wrap">
     <a class="nav__brand" href={base} aria-label="CutOut home">
-      <Image src={icon} alt="" width={28} height={28} densities={[1, 2]} loading="eager" />
+      <Image src={icon} alt="" width={30} height={30} densities={[1, 2]} loading="eager" />
       <span>CutOut</span>
     </a>
     <nav class="nav__links" aria-label="Main">
@@ -27,21 +25,16 @@ const current = (href: string) => (Astro.url.pathname === href ? 'page' : undefi
         {links.map((l) => <li><a href={l.href} aria-current={current(l.href)}>{l.label}</a></li>)}
       </ul>
     </nav>
-    <div class="nav__end">
-      <a class="nav__cta" href={at('#download')}>{isReleased ? 'Download' : 'Get CutOut'}</a>
-      <button class="nav__menu-btn" type="button" popovertarget="nav-menu" aria-label="Menu">
-        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
-          <path d="M4 8h16M4 16h16"></path>
-        </svg>
-      </button>
-    </div>
+    <a class="nav__cta" href={at('#get')}>Get CutOut</a>
+    <button class="nav__menu-btn" type="button" popovertarget="nav-menu" aria-label="Menu">
+      <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M4 9h16M4 15h16"></path></svg>
+    </button>
   </div>
   <div class="nav__sheet" id="nav-menu" popover>
     <nav aria-label="Main (menu)">
       <ul role="list">
         {links.map((l) => <li><a href={l.href} aria-current={current(l.href)}>{l.label}</a></li>)}
-        <li><a href={at('#download')}>Download</a></li>
-        <li><a href={at('#faq')}>Questions</a></li>
+        <li><a href={at('#get')}>Get CutOut</a></li>
       </ul>
     </nav>
     <button class="nav__close" type="button" popovertarget="nav-menu" popovertargetaction="hide">Close menu</button>
@@ -50,50 +43,49 @@ const current = (href: string) => (Astro.url.pathname === href ? 'page' : undefi
 
 <style>
   .nav {
-    position: sticky;
-    top: 0;
+    position: fixed;
+    inset: 0 0 auto;
     z-index: 50;
     height: var(--nav-h);
-    background: rgb(243 243 240 / 0.94);
-    -webkit-backdrop-filter: saturate(1.4) blur(18px);
-    backdrop-filter: saturate(1.4) blur(18px);
-    box-shadow: 0 1px 0 transparent;
-    transition: box-shadow var(--t-med) linear;
+    transition: background-color 400ms linear, box-shadow 400ms linear, backdrop-filter 400ms linear;
   }
 
-  :global(.nav.is-scrolled) {
-    box-shadow: 0 1px 0 var(--rule);
+  :global(.nav.is-scrolled),
+  .nav--solid {
+    background: rgb(5 5 7 / 0.72);
+    -webkit-backdrop-filter: saturate(1.6) blur(20px);
+    backdrop-filter: saturate(1.6) blur(20px);
+    box-shadow: 0 1px 0 var(--line);
   }
 
   .nav__inner {
     height: 100%;
     display: flex;
     align-items: center;
-    gap: var(--s-6);
+    gap: 24px;
   }
 
   .nav__brand {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    font-weight: 680;
-    font-size: 1.125rem;
-    letter-spacing: -0.03em;
-    text-decoration: none;
     margin-right: auto;
-    padding: 6px 4px;
-    margin-left: -4px;
+    padding: 6px 2px;
+    font-weight: 720;
+    font-stretch: 110%;
+    font-size: 1.125rem;
+    letter-spacing: -0.035em;
+    text-decoration: none;
   }
 
   .nav__brand img {
-    width: 28px;
-    height: 28px;
-    filter: drop-shadow(0 1px 1.5px rgb(13 16 32 / 0.25));
+    width: 30px;
+    height: 30px;
   }
 
   .nav__links ul {
     display: flex;
-    gap: var(--s-1);
+    gap: 4px;
   }
 
   .nav__links a,
@@ -101,44 +93,37 @@ const current = (href: string) => (Astro.url.pathname === href ? 'page' : undefi
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    padding: 0 var(--s-3);
+    padding: 0 14px;
     border-radius: 999px;
     font-size: 0.9375rem;
     font-weight: 520;
-    color: var(--ink-2);
+    color: var(--fg-2);
     text-decoration: none;
-    transition: color var(--t-fast) linear, background-color var(--t-fast) linear;
+    transition: color 200ms linear;
   }
 
   .nav__links a[aria-current='page'] {
-    color: var(--ink);
+    color: var(--fg);
   }
 
   @media (hover: hover) {
     .nav__links a:hover {
-      color: var(--ink);
-      background: rgb(13 16 32 / 0.05);
+      color: var(--fg);
     }
-  }
-
-  .nav__end {
-    display: flex;
-    align-items: center;
-    gap: var(--s-2);
   }
 
   .nav__cta {
     display: inline-flex;
     align-items: center;
-    min-height: 36px;
-    padding: 0 var(--s-4);
+    min-height: 38px;
+    padding: 0 18px;
     border-radius: 999px;
-    background: var(--ink);
-    color: #fff;
+    background: var(--fg);
+    color: var(--bg);
     font-size: 0.9375rem;
-    font-weight: 600;
+    font-weight: 620;
     text-decoration: none;
-    transition: box-shadow var(--t-med) var(--ease-out);
+    transition: box-shadow 300ms var(--ease);
   }
 
   @media (hover: hover) {
@@ -166,45 +151,41 @@ const current = (href: string) => (Astro.url.pathname === href ? 'page' : undefi
 
   .nav__sheet {
     margin: 0;
-    inset: var(--s-2) var(--s-2) auto auto;
+    inset: 8px 8px auto auto;
     width: min(320px, calc(100vw - 16px));
-    padding: var(--s-4);
+    padding: 16px;
     border: 0;
-    border-radius: 20px;
-    background: var(--paper-raised);
-    color: var(--ink);
-    box-shadow: var(--shadow-3), 0 0 0 1px var(--rule);
+    border-radius: 22px;
+    background: var(--bg-3);
+    color: var(--fg);
+    box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.9), 0 0 0 1px var(--line-2);
   }
 
   .nav__sheet::backdrop {
-    background: rgb(13 16 32 / 0.18);
+    background: rgb(0 0 0 / 0.5);
   }
 
   .nav__sheet ul {
     display: grid;
     gap: 2px;
-    margin-bottom: var(--s-3);
+    margin-bottom: 12px;
   }
 
   .nav__sheet a {
     display: flex;
     width: 100%;
     font-size: 1.0625rem;
-    color: var(--ink);
-    border-radius: 12px;
-    padding: 0 var(--s-4);
-  }
-
-  .nav__sheet a:active {
-    background: rgb(13 16 32 / 0.06);
+    color: var(--fg);
+    border-radius: 14px;
+    padding: 0 16px;
   }
 
   .nav__close {
     width: 100%;
     min-height: 44px;
     border: 0;
-    border-radius: 12px;
-    background: var(--paper-sunk);
+    border-radius: 14px;
+    background: rgb(255 255 255 / 0.08);
     font-weight: 600;
     cursor: pointer;
   }
@@ -217,13 +198,9 @@ const current = (href: string) => (Astro.url.pathname === href ? 'page' : undefi
     .nav__menu-btn {
       display: inline-grid;
     }
-  }
 
-  @media (prefers-reduced-transparency: reduce) {
-    .nav {
-      background: var(--paper);
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
+    .nav__inner {
+      gap: 12px;
     }
   }
 </style>

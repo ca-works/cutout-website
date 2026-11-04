@@ -2,19 +2,18 @@
 import Base from '../layouts/Base.astro';
 import Hero from '../components/Hero.astro';
 import Compare from '../components/Compare.astro';
-import Showcase from '../components/Showcase.astro';
-import Workflow from '../components/Workflow.astro';
-import Features from '../components/Features.astro';
-import Privacy from '../components/Privacy.astro';
-import Free from '../components/Free.astro';
-import Downloads from '../components/Downloads.astro';
-import Faq from '../components/Faq.astro';
-import photo1024 from '../assets/generated/hero/photo-1024.avif?url';
-import photo1536 from '../assets/generated/hero/photo-1536.avif?url';
+import Keys from '../components/Keys.astro';
+import AppWindow from '../components/AppWindow.astro';
+import Numbers from '../components/Numbers.astro';
+import Tools from '../components/Tools.astro';
+import Private from '../components/Private.astro';
+import Get from '../components/Get.astro';
+import photo960 from '../assets/generated/hero/photo-960.avif?url';
+import photo1400 from '../assets/generated/hero/photo-1400.avif?url';
+import photo1800 from '../assets/generated/hero/photo-1800.avif?url';
 
-const title = 'CutOut — Background removal for Mac, free and offline';
-const description =
-  'CutOut removes backgrounds in seconds — fur, hair and fine edges included — then lets you refine, layer and copy the result. Free, and it runs entirely on your Mac.';
+const title = 'CutOut — Background removal for Mac. Free and offline.';
+const description = 'Keep the subject. Lose the background. CutOut cuts out machined parts, fur and fine detail in seconds, entirely on your Mac. Free.';
 ---
 
 <Base
@@ -22,21 +21,20 @@ const description =
   description={description}
   preload={[
     {
-      href: photo1536,
+      href: photo1400,
       as: 'image',
       type: 'image/avif',
-      imagesrcset: `${photo1024} 1024w, ${photo1536} 1536w`,
-      imagesizes: '(max-width: 819px) calc(100vw - 40px), min(44vw, 620px)',
+      imagesrcset: `${photo960} 960w, ${photo1400} 1400w, ${photo1800} 1800w`,
+      imagesizes: '(max-width: 819px) 88vw, min(88vw, 1200px)',
     },
   ]}
 >
   <Hero />
   <Compare />
-  <Showcase />
-  <Workflow />
-  <Features />
-  <Privacy />
-  <Free />
-  <Downloads />
-  <Faq />
+  <Keys />
+  <AppWindow />
+  <Numbers />
+  <Tools />
+  <Private />
+  <Get />
 </Base>

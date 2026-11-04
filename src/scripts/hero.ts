@@ -1,145 +1,86 @@
-// Hero controller. Decides how the signature scene runs and feeds it scroll progress.
-//
-//   reduced motion  → static finished cutout + "Show original" toggle (no scroll track)
-//   no WebGL 2      → "lite": the two real images dissolve with scroll
-//   otherwise       → the WebGL scene (loaded lazily as its own module)
-//
-// Scrolling is never intercepted: progress is read from the track's position and the visual
-// state follows it with a short critically damped lag.
+// Hero controller.
+//   reduced motion → static depth composition + a "Remove background" button
+//   no WebGL 2     → "lite": the print falls away with the scroll (CSS only)
+//   otherwise      → the WebGL print peels off (hero-gl.ts, loaded on first interaction)
+// The cut line, the lift, the shadow and the wordmark are DOM/SVG driven by the scene's CSS
+// variables (see scenes.ts), so they work in every mode.
+import { onScene } from './scenes';
 
-import { clamp, ease, span, STEPS } from './hero-timeline';
+const clamp = (v: number, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+export const span = (p: number, a: number, b: number) => clamp((p - a) / (b - a));
 
 export function initHero() {
   const found = document.querySelector<HTMLElement>('[data-hero]');
   if (!found) return;
   const hero: HTMLElement = found;
-  const track = hero.querySelector<HTMLElement>('[data-hero-track]')!;
-  const canvas = hero.querySelector<HTMLCanvasElement>('[data-stage-canvas]')!;
-  const poster = hero.querySelector<HTMLImageElement>('[data-stage-poster]')!;
-  const staticLayer = hero.querySelector<HTMLElement>('[data-stage-static]')!;
-  const toggle = hero.querySelector<HTMLButtonElement>('[data-stage-toggle]')!;
-  const steps = [...hero.querySelectorAll<HTMLElement>('[data-step]')];
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const canvas = hero.querySelector<HTMLCanvasElement>('[data-gl]')!;
+  const poster = hero.querySelector<HTMLImageElement>('[data-poster]')!;
+  const toggle = hero.querySelector<HTMLButtonElement>('[data-toggle]')!;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ---- static mode toggle (reduced motion; also used if everything else fails) ----
-  toggle.addEventListener('click', () => {
-    const showOriginal = toggle.getAttribute('aria-pressed') !== 'true';
-    toggle.setAttribute('aria-pressed', String(showOriginal));
-    toggle.textContent = showOriginal ? 'Show cutout' : 'Show original';
-    hero.dataset.show = showOriginal ? 'original' : 'cutout';
-  });
-
-  function enterStatic() {
-    hero.classList.remove('is-live', 'is-ready', 'is-lite');
+  if (reduced) {
     toggle.hidden = false;
-  }
-
-  if (reduced.matches) {
-    enterStatic();
+    toggle.addEventListener('click', () => {
+      const off = toggle.getAttribute('aria-pressed') !== 'true';
+      toggle.setAttribute('aria-pressed', String(off));
+      toggle.textContent = off ? 'Show original' : 'Remove background';
+      hero.dataset.bg = off ? 'off' : 'on';
+    });
     return;
   }
 
-  // ---- scroll progress ----
-  let target = 0;
-  let current = 0;
-  let visible = true;
-  let mode: 'live' | 'lite' = 'lite';
-  let render: ((p: number, dt: number) => boolean) | null = null;
-  let raf = 0;
-  let last = 0;
+  hero.classList.add('is-lite');
 
-  const measure = () => {
-    const r = track.getBoundingClientRect();
-    const travel = r.height - innerHeight;
-    target = travel > 0 ? clamp(-r.top / travel) : 0;
-  };
-
-  const paintSteps = (p: number) => {
-    STEPS.forEach(([a, b], i) => {
-      const f = span(p, a, b);
-      steps[i].style.setProperty('--fill', f.toFixed(3));
-      steps[i].classList.toggle('is-active', f > 0 && f < 1);
-      steps[i].classList.toggle('is-done', f >= 1);
+  // Gentle pointer parallax between the layers (fine pointers only).
+  if (matchMedia('(pointer: fine)').matches) {
+    let tx = 0, ty = 0, x = 0, y = 0, raf = 0;
+    const step = () => {
+      x += (tx - x) * 0.08;
+      y += (ty - y) * 0.08;
+      hero.style.setProperty('--mx', x.toFixed(3));
+      hero.style.setProperty('--my', y.toFixed(3));
+      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.002 ? requestAnimationFrame(step) : 0;
+    };
+    hero.addEventListener('pointermove', (e) => {
+      tx = clamp((e.clientX / innerWidth) * 2 - 1, -1, 1);
+      ty = clamp((e.clientY / innerHeight) * 2 - 1, -1, 1);
+      if (!raf) raf = requestAnimationFrame(step);
     });
-  };
+    hero.addEventListener('pointerleave', () => {
+      tx = ty = 0;
+      if (!raf) raf = requestAnimationFrame(step);
+    });
+  }
 
-  const frame = (now: number) => {
-    raf = 0;
-    const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016);
-    last = now;
-    // Critically damped follow (τ ≈ 90 ms): smooth, but never far behind the scrollbar.
-    current += (target - current) * (1 - Math.exp(-dt / 0.09));
-    if (Math.abs(target - current) < 0.0005) current = target;
-    paintSteps(current);
-    let keepGoing = current !== target;
-    if (mode === 'lite') {
-      staticLayer.style.setProperty('--lite', ease(span(current, 0.3, 0.7)).toFixed(3));
-    } else if (render) {
-      keepGoing = render(current, dt) || keepGoing;
-    }
-    if (keepGoing && visible) schedule();
-    else last = 0;
-  };
+  if (!('WebGL2RenderingContext' in window)) return;
 
-  const schedule = () => {
-    if (!raf) raf = requestAnimationFrame(frame);
-  };
-
-  const onScroll = () => {
-    measure();
-    schedule();
-  };
-
-  addEventListener('scroll', onScroll, { passive: true });
-  addEventListener('resize', onScroll, { passive: true });
-  new IntersectionObserver(([e]) => {
-    visible = e.isIntersecting;
-    if (visible) onScroll();
-  }).observe(track);
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) onScroll();
+  let progress = 0;
+  let draw: ((p: number) => void) | null = null;
+  onScene(hero, (p) => {
+    progress = p;
+    draw?.(p);
   });
 
-  reduced.addEventListener('change', () => location.reload());
-
-  // ---- choose the renderer ----
-  // Creating a WebGL context just to test for one is expensive (≈1 s on software GL), so only
-  // the API's presence is checked here; createScene() falls back to lite if a context fails.
-  const gl2 = 'WebGL2RenderingContext' in window;
-
-  hero.classList.add('is-lite');
-  measure();
-  schedule();
-  if (!gl2) return;
-
-  const start = () => {
-    import('./hero-scene')
-      .then(async ({ createScene }) => {
-        const scene = await createScene(canvas, poster, hero);
-        hero.classList.remove('is-lite');
-        hero.classList.add('is-live');
-        mode = 'live';
-        render = (p, dt) => scene.frame(p, dt);
-        scene.onLost(() => {
-          mode = 'lite';
-          render = null;
-          hero.classList.remove('is-live', 'is-ready');
+  const start = () =>
+    import('./hero-gl')
+      .then(async ({ createPrint }) => {
+        const print = await createPrint(canvas, poster, hero.querySelector<HTMLElement>('[data-stage]')!);
+        draw = (p) => print.draw({ lift: span(p, 0.27, 0.42), peel: span(p, 0.4, 0.86) });
+        print.onLost(() => {
+          draw = null;
+          hero.classList.remove('is-live');
           hero.classList.add('is-lite');
-          schedule();
         });
+        draw(progress);
         requestAnimationFrame(() => {
-          hero.classList.add('is-ready');
-          schedule();
+          hero.classList.remove('is-lite');
+          hero.classList.add('is-live');
         });
       })
-      .catch((err) => {
-        console.warn('CutOut hero: WebGL scene unavailable, using the simple version.', err);
-      });
-  };
+      .catch((err) => console.warn('CutOut hero: WebGL unavailable, using the simple version.', err));
 
-  // The scene's first frame is identical to the poster, so it is only built once the visitor
-  // shows intent (scroll, pointer, key or touch) — never during the initial load. Until it is
-  // ready, the lite dissolve covers the same scroll range.
+  // The scene's first frame equals the poster, so it is built only when the visitor shows intent
+  // — never during the initial load (keeps total blocking time at zero).
   let started = false;
   const intents = ['scroll', 'wheel', 'pointermove', 'pointerdown', 'keydown', 'touchstart'] as const;
   const kick = () => {
@@ -151,5 +92,5 @@ export function initHero() {
     else poster.addEventListener('load', go, { once: true });
   };
   for (const t of intents) addEventListener(t, kick, { passive: true });
-  if (target > 0) kick(); // reloaded part-way down the page
+  if (scrollY > 0) kick();
 }

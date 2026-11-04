@@ -1,0 +1,74 @@
+---
+import Split from './Split.astro';
+---
+
+<section class="private" id="privacy" aria-labelledby="private-title">
+  <div class="wrap private__inner">
+    <div class="private__mark" aria-hidden="true">
+      <svg viewBox="0 0 120 120" fill="none">
+        <rect x="10" y="10" width="100" height="100" rx="26" class="private__dash"></rect>
+        <path d="M44 56v-8a16 16 0 0 1 32 0v8" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path>
+        <rect x="36" y="56" width="48" height="36" rx="9" fill="currentColor"></rect>
+      </svg>
+    </div>
+    <Split as="h2" id="private-title" class="title" text={'Nothing leaves\nyour Mac.'} />
+    <ul class="private__facts" role="list" data-reveal>
+      <li>Processed on your Mac</li>
+      <li>No account</li>
+      <li>No tracking</li>
+      <li>Works offline</li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .private {
+    padding-block: clamp(120px, 14vw, 240px);
+    text-align: center;
+  }
+
+  .private__inner {
+    display: grid;
+    justify-items: center;
+    gap: clamp(28px, 3vw, 44px);
+  }
+
+  .private__mark {
+    width: clamp(88px, 9vw, 120px);
+    color: var(--fg);
+  }
+
+  .private__dash {
+    stroke: var(--cut);
+    stroke-width: 2.5;
+    stroke-dasharray: 9 8;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .private__dash {
+      animation: dash 1.2s linear infinite;
+    }
+  }
+
+  @keyframes dash {
+    to {
+      stroke-dashoffset: -17;
+    }
+  }
+
+  .private__facts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .private__facts li {
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.05);
+    box-shadow: inset 0 0 0 1px var(--line);
+    color: var(--fg-2);
+    font-size: 0.9375rem;
+  }
+</style>

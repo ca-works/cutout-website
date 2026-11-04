@@ -1,0 +1,86 @@
+---
+import { measured, testMachine } from '../data/facts';
+
+const fmt = (n: number) => n.toLocaleString('en-GB', { maximumFractionDigits: 1, minimumFractionDigits: n % 1 ? 1 : 0 });
+const figures = [
+  { value: Math.round(measured.launchMs / 100) / 10, unit: 's', label: 'to launch' },
+  { value: measured.bestSeconds, unit: 's', label: 'per cutout, Best Quality' },
+  { value: 0, unit: '', label: 'images uploaded. Ever.' },
+];
+---
+
+<section class="nums" aria-labelledby="nums-title">
+  <div class="wrap">
+    <h2 class="visually-hidden" id="nums-title">Measured speed</h2>
+    <dl class="nums__list">
+      {
+        figures.map((f) => (
+          <div class="nums__item" data-reveal>
+            <dt class="nums__label">{f.label}</dt>
+            <dd class="nums__value">
+              {fmt(f.value)}
+              {f.unit && <span class="nums__unit">{f.unit}</span>}
+            </dd>
+          </div>
+        ))
+      }
+    </dl>
+    <p class="nums__note dim">Measured on an {testMachine}. Your times will vary with the image and the Mac.</p>
+  </div>
+</section>
+
+<style>
+  .nums {
+    padding-block: clamp(96px, 12vw, 200px);
+    border-block: 1px solid var(--line);
+    background: radial-gradient(60% 100% at 50% 0%, rgb(143 132 255 / 0.07), transparent 70%);
+  }
+
+  .nums__list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 32px;
+    margin: 0 0 40px;
+  }
+
+  .nums__item {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .nums__value {
+    margin: 0;
+    font-size: clamp(4rem, 2rem + 8vw, 11rem);
+    font-weight: 760;
+    font-stretch: 112%;
+    letter-spacing: -0.06em;
+    line-height: 0.9;
+    background: linear-gradient(180deg, #fff 30%, rgb(255 255 255 / 0.45));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .nums__unit {
+    font-size: 0.4em;
+    letter-spacing: -0.02em;
+    margin-left: 0.1em;
+  }
+
+  .nums__label {
+    font-size: 1.0625rem;
+    color: var(--fg-2);
+  }
+
+  .nums__note {
+    font-size: 0.8125rem;
+  }
+
+  @media (max-width: 819px) {
+    .nums__list {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 48px;
+    }
+  }
+</style>

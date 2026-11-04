@@ -1,0 +1,339 @@
+---
+import { Picture } from 'astro:assets';
+import bolt from '../assets/generated/samples/bolt.jpg';
+import boltCut from '../assets/generated/samples/bolt-cutout.png';
+import { measured } from '../data/facts';
+
+const steps = [
+  { key: 'V', word: 'Paste.', line: 'A screenshot, a photo, anything on the clipboard.' },
+  { key: 'B', word: 'Remove.', line: `About ${measured.bestSeconds} seconds, on your Mac.` },
+  { key: 'C', word: 'Copy.', line: 'A transparent PNG, ready for any app.' },
+];
+---
+
+<section class="keys" data-scene data-keys aria-labelledby="keys-title">
+  <div class="pin keys__pin">
+    <div class="wrap keys__grid">
+      <div class="keys__text">
+        <h2 class="visually-hidden" id="keys-title">Three keys: paste, remove, copy</h2>
+        <ol class="keys__words" role="list">
+          {
+            steps.map((s, i) => (
+              <li class="keys__word" data-i={i}>
+                <span class="keys__big">{s.word}</span>
+                <span class="keys__line">{s.line}</span>
+              </li>
+            ))
+          }
+        </ol>
+        <div class="keys__caps" aria-hidden="true">
+          <span class="cap">⌘</span>
+          <span class="cap cap--letter">
+            {steps.map((s, i) => <span data-i={i}>{s.key}</span>)}
+          </span>
+        </div>
+      </div>
+
+      <div class="keys__visual" aria-hidden="true">
+        <div class="card">
+          <div class="card__grid"></div>
+          <Picture class="card__photo" src={bolt} widths={[640, 960, 1280]} sizes="(max-width: 819px) 86vw, 44vw" formats={['avif', 'webp']} fallbackFormat="jpg" alt="" loading="lazy" decoding="async" />
+          <Picture class="card__cut" src={boltCut} widths={[640, 960, 1280]} sizes="(max-width: 819px) 86vw, 44vw" formats={['avif', 'webp']} fallbackFormat="webp" alt="" loading="lazy" decoding="async" />
+        </div>
+        <div class="toast">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"></path></svg>
+          Copied — PNG with transparency
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .keys {
+    height: 330svh;
+  }
+
+  .keys__pin {
+    display: grid;
+    align-items: center;
+  }
+
+  .keys__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(32px, 6vw, 120px);
+    align-items: center;
+  }
+
+  .keys__words {
+    display: grid;
+    gap: 6px;
+  }
+
+  .keys__word {
+    display: grid;
+    gap: 6px;
+    transition: opacity 600ms var(--ease);
+    /* Dimmed, but still ≥ 3:1 against the background (large text). */
+    opacity: 0.4;
+  }
+
+  .keys__big {
+    font-size: clamp(3rem, 1.4rem + 6vw, 7.5rem);
+    font-weight: 760;
+    font-stretch: 115%;
+    letter-spacing: -0.055em;
+    line-height: 0.95;
+  }
+
+  .keys__line {
+    font-size: 1.0625rem;
+    color: var(--fg-2);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 600ms var(--ease), opacity 600ms var(--ease);
+    opacity: 0;
+  }
+
+  :global(.keys[data-step='0']) .keys__word[data-i='0'],
+  :global(.keys[data-step='1']) .keys__word[data-i='1'],
+  :global(.keys[data-step='2']) .keys__word[data-i='2'] {
+    opacity: 1;
+  }
+
+  :global(.keys[data-step='0']) .keys__word[data-i='0'] .keys__line,
+  :global(.keys[data-step='1']) .keys__word[data-i='1'] .keys__line,
+  :global(.keys[data-step='2']) .keys__word[data-i='2'] .keys__line {
+    max-height: 3em;
+    opacity: 1;
+  }
+
+  .keys__caps {
+    display: flex;
+    gap: 12px;
+    margin-top: clamp(28px, 4vw, 48px);
+  }
+
+  .cap {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: clamp(64px, 6vw, 88px);
+    aspect-ratio: 1;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #23232b, #15151b);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.12),
+      inset 0 -3px 0 rgb(0 0 0 / 0.5),
+      0 0 0 1px rgb(255 255 255 / 0.06),
+      0 18px 40px -16px rgb(0 0 0 / 0.9);
+    font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+    font-weight: 560;
+    color: var(--fg);
+    overflow: hidden;
+  }
+
+  .cap--letter span {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    transition: translate 500ms var(--ease), opacity 500ms var(--ease);
+    translate: 0 100%;
+    opacity: 0;
+  }
+
+  :global(.keys[data-step='0']) .cap--letter span[data-i='0'],
+  :global(.keys[data-step='1']) .cap--letter span[data-i='1'],
+  :global(.keys[data-step='2']) .cap--letter span[data-i='2'] {
+    translate: 0 0;
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.keys.is-pressing) .cap {
+      animation: press 420ms var(--ease);
+    }
+  }
+
+  @keyframes press {
+    35% {
+      translate: 0 3px;
+      box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.08),
+        inset 0 -1px 0 rgb(0 0 0 / 0.5),
+        0 0 0 1px rgb(143 132 255 / 0.5),
+        0 0 0 6px rgb(143 132 255 / 0.18),
+        0 8px 20px -10px rgb(0 0 0 / 0.9);
+    }
+  }
+
+  /* ---- visual ---- */
+  .keys__visual {
+    position: relative;
+    aspect-ratio: 1920 / 1389;
+  }
+
+  .card {
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+    overflow: hidden;
+    transition: translate 900ms var(--ease), scale 900ms var(--ease), rotate 900ms var(--ease), opacity 700ms var(--ease), box-shadow 900ms var(--ease);
+    box-shadow: 0 40px 100px -30px rgb(0 0 0 / 0.95), 0 0 0 1px var(--line);
+    translate: 0 40px;
+    scale: 0.92;
+    opacity: 0;
+  }
+
+  .card__grid,
+  .card :global(picture),
+  .card :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card__grid {
+    background-color: var(--checker-a);
+    background-image: conic-gradient(var(--checker-b) 25%, transparent 0 50%, var(--checker-b) 0 75%, transparent 0);
+    background-size: 28px 28px;
+  }
+
+  .card :global(.card__photo) {
+    transition: opacity 800ms var(--ease), filter 800ms var(--ease);
+  }
+
+  :global(.keys[data-step='0']) .card,
+  :global(.keys[data-step='1']) .card {
+    translate: 0 0;
+    scale: 1;
+    opacity: 1;
+  }
+
+  :global(.keys[data-step='1']) .card :global(.card__photo),
+  :global(.keys[data-step='2']) .card :global(.card__photo) {
+    opacity: 0;
+    filter: blur(8px);
+  }
+
+  :global(.keys[data-step='2']) .card {
+    translate: 8% -10%;
+    scale: 0.6;
+    rotate: -4deg;
+    opacity: 1;
+    box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.9), 0 0 0 1px rgb(143 132 255 / 0.5);
+  }
+
+  .toast {
+    position: absolute;
+    left: 50%;
+    bottom: 6%;
+    translate: -50% 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.08);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    font-size: 0.9375rem;
+    font-weight: 560;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 500ms var(--ease) 250ms, translate 500ms var(--ease) 250ms;
+  }
+
+  .toast svg {
+    width: 18px;
+    height: 18px;
+    color: var(--cut);
+  }
+
+  :global(.keys[data-step='2']) .toast {
+    opacity: 1;
+    translate: -50% 0;
+  }
+
+  /* Reduced motion / no JavaScript: the three steps as a simple list, the finished cutout. */
+  :global(.keys:not([data-step])) .keys__word,
+  :global(.keys:not([data-step])) .keys__line {
+    opacity: 1;
+    max-height: none;
+  }
+
+  :global(.keys:not([data-step])) .card {
+    translate: 0 0;
+    scale: 1;
+    opacity: 1;
+  }
+
+  :global(.keys:not([data-step])) .card :global(.card__photo) {
+    opacity: 0;
+  }
+
+  :global(.keys:not([data-step])) .cap--letter span[data-i='1'] {
+    translate: 0 0;
+    opacity: 1;
+  }
+
+  @media (max-width: 819px) {
+    .keys {
+      height: 300svh;
+    }
+
+    .keys__grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 28px;
+    }
+
+    .keys__visual {
+      order: -1;
+      width: 86%;
+      justify-self: center;
+    }
+
+    .keys__big {
+      font-size: 3.25rem;
+    }
+
+    .keys__caps {
+      margin-top: 20px;
+    }
+
+    .cap {
+      width: 56px;
+      border-radius: 14px;
+      font-size: 1.4rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .keys__pin {
+      padding-block: 96px;
+    }
+  }
+</style>
+
+<script>
+  import { onScene } from '../scripts/scenes';
+  const el = document.querySelector<HTMLElement>('[data-keys]');
+  if (el && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let step = -1;
+    el.dataset.step = '0';
+    onScene(el, (p) => {
+      const next = p < 0.34 ? 0 : p < 0.67 ? 1 : 2;
+      if (next === step) return;
+      step = next;
+      el.dataset.step = String(next);
+      el.classList.remove('is-pressing');
+      void el.offsetWidth; // restart the key-press animation
+      el.classList.add('is-pressing');
+    });
+  }
+</script>

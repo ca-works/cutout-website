@@ -24,11 +24,24 @@ function watch(page: Page) {
 
 async function scrollThrough(page: Page) {
   const height = await page.evaluate(() => document.documentElement.scrollHeight);
-  for (let y = 0; y < height; y += 700) {
+  for (let y = 0; y < height; y += 600) {
     await page.evaluate((y) => window.scrollTo(0, y), y);
-    await page.waitForTimeout(60);
+    await page.waitForTimeout(50);
   }
   await page.evaluate(() => window.scrollTo(0, 0));
+}
+
+/** Scrolls to a fraction (0–1) of a scroll scene's track. */
+async function scrollScene(page: Page, selector: string, fraction: number) {
+  await page.evaluate(
+    ([sel, f]) => {
+      const el = document.querySelector(sel as string)!;
+      const top = el.getBoundingClientRect().top + scrollY;
+      window.scrollTo(0, top + (el.getBoundingClientRect().height - innerHeight) * (f as number));
+    },
+    [selector, fraction],
+  );
+  await page.waitForTimeout(700);
 }
 
 for (const path of PAGES) {
@@ -46,7 +59,6 @@ for (const path of PAGES) {
   test(`"/${path}" has no detectable WCAG 2.2 A/AA violations`, async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto(path);
-    // Reveal everything that would normally be shown on scroll.
     await scrollThrough(page);
     const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
     expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
@@ -68,7 +80,7 @@ test('downloads only ever point at verified GitHub release assets', async ({ pag
   const hrefs = await page.locator('a[href*="/releases/download/"]').evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href));
   if (release.status !== 'available') {
     expect(hrefs).toEqual([]);
-    await expect(page.locator('#download')).toContainText('Coming soon');
+    await expect(page.locator('#get')).toContainText('Coming soon');
   } else {
     for (const h of hrefs) expect(h.startsWith(`https://github.com/${APP_REPO}/releases/download/`)).toBe(true);
   }
@@ -76,12 +88,16 @@ test('downloads only ever point at verified GitHub release assets', async ({ pag
 
 test('the source-code claim matches the repository state', async ({ page }) => {
   await page.goto('');
-  const free = page.locator('#free');
+  const get = page.locator('#get');
   if (release.repo.public) {
-    await expect(free).toContainText('open source', { ignoreCase: true });
+    await expect(get.getByRole('link', { name: /source code/i })).toHaveAttribute('href', `https://github.com/${APP_REPO}`);
   } else {
-    await expect(free).toContainText('being prepared for publication');
-    await expect(free.getByRole('link', { name: /source code on github/i })).toHaveCount(0);
+    await expect(get).toContainText('Source code: with the first release');
+    // Exactly the app repository (not, say, ca-works/cutout-website).
+    const appLinks = await page
+      .locator('a[href^="https://github.com/"]')
+      .evaluateAll((as, repo) => as.map((a) => (a as HTMLAnchorElement).href).filter((h) => h === `https://github.com/${repo}` || h.startsWith(`https://github.com/${repo}/`)), APP_REPO);
+    expect(appLinks).toEqual([]);
   }
 });
 
@@ -107,7 +123,7 @@ test.describe('before/after comparison', () => {
     await page.goto('');
     const frame = page.locator('#cmp-panel-fur [data-frame]');
     await frame.evaluate((e) => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(1200);
     const box = (await frame.boundingBox())!;
     await page.mouse.move(box.x + box.width * 0.5, box.y + box.height * 0.5);
     await page.mouse.down();
@@ -121,68 +137,82 @@ test.describe('before/after comparison', () => {
   test('tabs switch samples; radios switch the backdrop', async ({ page }) => {
     await page.goto('#compare');
     await expect(page.locator('#cmp-panel-fur')).toBeVisible();
-    await page.getByRole('tab', { name: 'Fine detail' }).click();
-    await expect(page.locator('#cmp-panel-fine')).toBeVisible();
+    await page.getByRole('tab', { name: 'Threads' }).click();
+    await expect(page.locator('#cmp-panel-threads')).toBeVisible();
     await expect(page.locator('#cmp-panel-fur')).toBeHidden();
-    await page.keyboard.press('ArrowLeft');
-    await expect(page.locator('#cmp-panel-white')).toBeVisible();
+    await page.keyboard.press('ArrowRight');
+    await expect(page.locator('#cmp-panel-gaps')).toBeVisible();
     await page.getByRole('radio', { name: 'Black' }).click();
     await expect(page.locator('[data-compare]')).toHaveAttribute('data-bg', 'black');
   });
 });
 
 test.describe('hero', () => {
-  test('with reduced motion it is static, shows the finished cutout and can show the original', async ({ page }) => {
-    await page.emulateMedia({ reducedMotion: 'reduce' });
+  test('the wordmark sits between the photo and the cutout', async ({ page }) => {
     await page.goto('');
-    const toggle = page.getByRole('button', { name: 'Show original' });
-    await expect(toggle).toBeVisible();
-    await expect(page.locator('[data-hero]')).not.toHaveClass(/is-live/);
-    await toggle.click();
-    await expect(page.locator('[data-hero]')).toHaveAttribute('data-show', 'original');
-    await expect(page.getByRole('button', { name: 'Show cutout' })).toHaveAttribute('aria-pressed', 'true');
-    const trackHeight = await page.locator('[data-hero-track]').evaluate((e) => e.getBoundingClientRect().height);
-    expect(trackHeight).toBeLessThan(page.viewportSize()!.height * 1.5);
+    const z = await page.evaluate(() => {
+      const order = ['.hero__poster', '.hero__word', '.hero__subject'].map((s) => document.querySelector(s)!);
+      return order.map((el) => [...el.parentElement!.children].indexOf(el));
+    });
+    expect(z[0]).toBeLessThan(z[1]);
+    expect(z[1]).toBeLessThan(z[2]);
   });
 
   test('the primary call to action is visible in the first viewport', async ({ page }) => {
     await page.goto('');
-    await expect(page.locator('[data-primary-cta]')).toBeInViewport();
+    await expect(page.locator('[data-primary-cta]')).toBeInViewport({ ratio: 1 });
   });
 
-  test('the scroll-driven scene runs and reaches its final step', async ({ page, browserName }) => {
-    test.skip(browserName === 'firefox', 'headless Firefox has no WebGL 2 on some CI hosts; lite mode is covered below');
+  test('with reduced motion it is static and "Remove background" works', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('');
-    const hero = page.locator('[data-hero]');
-    await expect(hero).toHaveClass(/is-(live|lite)/);
-    const track = page.locator('[data-hero-track]');
-    const end = await track.evaluate((e) => e.getBoundingClientRect().bottom + scrollY - innerHeight);
-    await page.evaluate((y) => window.scrollTo(0, y), end - 2);
-    await expect(page.locator('[data-step="2"]')).toHaveClass(/is-done|is-active/);
+    const toggle = page.getByRole('button', { name: 'Remove background' });
+    await expect(toggle).toBeVisible();
+    await toggle.click();
+    await expect(page.locator('[data-hero]')).toHaveAttribute('data-bg', 'off');
+    await expect(page.getByRole('button', { name: 'Show original' })).toHaveAttribute('aria-pressed', 'true');
+    const height = await page.locator('[data-hero]').evaluate((e) => e.getBoundingClientRect().height);
+    expect(height).toBeLessThan(page.viewportSize()!.height * 1.6);
   });
 
-  test('without WebGL it falls back to the simple dissolve', async ({ page }) => {
+  test('scrolling through the hero cuts, lifts and peels', async ({ page }) => {
+    await page.goto('');
+    await scrollScene(page, '[data-hero]', 0.98);
+    const v = await page.locator('[data-hero]').evaluate((e) => ['--cut', '--lift', '--peel'].map((n) => Number(getComputedStyle(e).getPropertyValue(n))));
+    for (const x of v) expect(x).toBeGreaterThan(0.95);
+    await expect(page.locator('[data-hero]')).toHaveClass(/is-(live|lite)/);
+  });
+
+  test('without WebGL it falls back to the simple version', async ({ page }) => {
     await page.addInitScript(() => {
-      const orig = HTMLCanvasElement.prototype.getContext;
-      // @ts-expect-error test override
-      HTMLCanvasElement.prototype.getContext = function (type: string, ...rest: unknown[]) {
-        return type === 'webgl2' ? null : orig.call(this, type, ...(rest as []));
-      };
+      // @ts-expect-error test override: pretend WebGL 2 does not exist
+      delete window.WebGL2RenderingContext;
     });
     await page.goto('');
     await expect(page.locator('[data-hero]')).toHaveClass(/is-lite/);
   });
 });
 
+test('the key sequence steps through paste, remove and copy', async ({ page }) => {
+  await page.goto('');
+  const keys = page.locator('[data-keys]');
+  await scrollScene(page, '[data-keys]', 0.1);
+  await expect(keys).toHaveAttribute('data-step', '0');
+  await scrollScene(page, '[data-keys]', 0.5);
+  await expect(keys).toHaveAttribute('data-step', '1');
+  await scrollScene(page, '[data-keys]', 0.95);
+  await expect(keys).toHaveAttribute('data-step', '2');
+});
+
 test.describe('without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
-  test('content, navigation and the finished cutout are all there', async ({ page }) => {
+  test('content, the depth composition and all samples are there', async ({ page }) => {
     await page.goto('');
     await expect(page.locator('h1')).toContainText('Keep the subject');
-    await expect(page.locator('[data-stage-static]')).toBeVisible();
-    await expect(page.locator('#download')).toBeVisible();
-    // All three comparison samples are shown, stacked.
-    await expect(page.locator('[data-panel]')).toHaveCount(3);
+    await expect(page.locator('[data-poster]')).toBeVisible();
+    await expect(page.locator('[data-subject]')).toBeVisible();
+    await expect(page.locator('#get')).toBeVisible();
+    await expect(page.locator('[data-panel]')).toHaveCount(4);
     for (const p of await page.locator('[data-panel]').all()) await expect(p).toBeVisible();
   });
 });
@@ -194,8 +224,8 @@ test.describe('phone navigation', () => {
     await page.getByRole('button', { name: 'Menu' }).click();
     const sheet = page.locator('#nav-menu');
     await expect(sheet).toBeVisible();
-    await sheet.getByRole('link', { name: 'Features' }).click();
+    await sheet.getByRole('link', { name: 'Privacy' }).click();
     await expect(sheet).toBeHidden();
-    await expect(page).toHaveURL(/#features$/);
+    await expect(page).toHaveURL(/#privacy$/);
   });
 });

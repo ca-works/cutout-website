@@ -1,0 +1,182 @@
+---
+import { Image } from 'astro:assets';
+import icon from '../assets/generated/brand/icon.png';
+import { release, mac, universal, windows, isReleased, sourcePublic, formatBytes, formatDate } from '../data/release';
+import { requirements } from '../data/facts';
+
+const base = import.meta.env.BASE_URL;
+const licence = release.repo.license;
+---
+
+<section class="get" id="get" aria-labelledby="get-title">
+  <div class="wrap get__inner">
+    <div class="get__icon" data-tilt aria-hidden="true">
+      <Image src={icon} alt="" width={220} height={220} densities={[1, 2]} loading="lazy" />
+    </div>
+    <h2 class="title" id="get-title">Get CutOut.</h2>
+
+    {
+      isReleased ? (
+        <div class="get__action">
+          <a class="btn get__btn" href={mac.url} download data-magnetic>
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" />
+            </svg>
+            Download for Mac
+            <span class="btn__meta">{mac.version} · {formatBytes(mac.size)}</span>
+          </a>
+          {mac.preview && <span class="pill">Preview</span>}
+          <p class="get__sha dim">
+            SHA-256 <code id="sha-mac">{mac.sha256}</code>{' '}
+            <button class="get__copy" type="button" data-copy="sha-mac" hidden>
+              Copy
+            </button>
+          </p>
+          <p class="get__meta dim">Released {formatDate(mac.published)} · <a href={mac.releaseUrl} rel="noopener">Release notes</a></p>
+        </div>
+      ) : (
+        <div class="get__action">
+          <span class="pill pill--soon">Coming soon</span>
+          <p class="sub get__soon">The first public build is being prepared. It will appear right here, straight from GitHub Releases.</p>
+        </div>
+      )
+    }
+
+    <p class="get__reqs">Free · {requirements.os.replace(' Sonoma', '')} · Apple silicon</p>
+    <p class="get__more dim">
+      <a href={`${base}docs/#install`}>How to install</a>
+      <span aria-hidden="true">·</span>
+      <a href={`${base}docs/#security`}>Verify the download</a>
+      <span aria-hidden="true">·</span>
+      {sourcePublic ? <a href={release.repo.url} rel="noopener">Source code{licence ? ` (${licence.spdx})` : ''}</a> : <span>Source code: with the first release</span>}
+    </p>
+    <p class="get__other dim">
+      {universal.available ? 'Intel Macs: Universal build available. ' : 'No Intel Mac build yet. '}
+      {windows.available ? 'Windows build available.' : 'Windows: planned, not built.'}
+    </p>
+  </div>
+</section>
+
+<style>
+  .get {
+    padding-block: clamp(120px, 14vw, 220px);
+    text-align: center;
+    background: radial-gradient(50% 60% at 50% 30%, rgb(88 71 240 / 0.16), transparent 70%);
+  }
+
+  .get__inner {
+    display: grid;
+    justify-items: center;
+    gap: 22px;
+  }
+
+  .get__icon {
+    width: clamp(150px, 16vw, 220px);
+    perspective: 800px;
+    margin-bottom: 8px;
+  }
+
+  .get__icon img {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 40px 50px rgb(0 0 0 / 0.8)) drop-shadow(0 0 60px rgb(143 132 255 / 0.25));
+    transform: rotateX(var(--ty, 0deg)) rotateY(var(--tx, 0deg));
+    transition: transform 500ms var(--ease);
+  }
+
+  .get__action {
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+  }
+
+  .get__btn {
+    min-height: 60px;
+    padding: 0 32px;
+    font-size: 1.125rem;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.06);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    font-weight: 600;
+  }
+
+  .pill--soon::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--cut);
+    box-shadow: 0 0 12px var(--cut);
+  }
+
+  .get__soon {
+    max-width: 34ch;
+  }
+
+  .get__sha {
+    font-size: 0.8125rem;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .get__sha code {
+    font-family: var(--mono);
+    color: var(--fg-2);
+  }
+
+  .get__copy {
+    margin-left: 6px;
+    padding: 4px 10px;
+    border: 0;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.08);
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .get__reqs {
+    font-size: 1.0625rem;
+    font-weight: 560;
+  }
+
+  .get__more {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 12px;
+    font-size: 0.9375rem;
+  }
+
+  .get__more a {
+    color: var(--fg-2);
+  }
+
+  .get__other {
+    font-size: 0.8125rem;
+  }
+</style>
+
+<script>
+  // The icon tilts towards the pointer.
+  const el = document.querySelector<HTMLElement>('[data-tilt]');
+  if (el && matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    el.closest('section')!.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - (r.left + r.width / 2)) / innerWidth;
+      const y = (e.clientY - (r.top + r.height / 2)) / innerHeight;
+      el.style.setProperty('--tx', `${(x * 30).toFixed(2)}deg`);
+      el.style.setProperty('--ty', `${(-y * 30).toFixed(2)}deg`);
+    });
+    el.closest('section')!.addEventListener('pointerleave', () => {
+      el.style.setProperty('--tx', '0deg');
+      el.style.setProperty('--ty', '0deg');
+    });
+  }
+</script>

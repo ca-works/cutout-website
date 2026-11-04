@@ -24,10 +24,12 @@ time) comes with Astro. 701 packages in the full tree; `npm audit`: 0 vulnerabil
 Three.js (MIT), GSAP (Standard No-Charge licence), Motion (MIT), Anime.js (MIT), Tailwind CSS
 (MIT), React-based component galleries (Kokonut UI, React Bits, Cult UI, Skiper UI, Watermelon UI,
 shadcn/ui). Reasons are in `docs/HANDBOOK_MATRIX.md`: in short, the site needs one shader scene
-and a few interactions, which its own ~15 KiB of code covers without a framework runtime.
+and a few scroll scenes, which its own ≈ 9 KiB (gzip) of code covers without a framework runtime.
 
 ## Fonts and images
 
-* Mona Sans: SIL OFL 1.1, "Mona" is a Reserved Font Name; the Fontsource subset is used unmodified.
-* Photographs: see `design/sources/README.md` (CC BY-SA 4.0 and CC0).
+* Mona Sans: SIL OFL 1.1, "Mona" is a Reserved Font Name; the Fontsource "standard" Latin file
+  (weight and width axes, 98 KB) is used unmodified.
+* Photographs: see `design/sources/README.md` (CC BY 2.0, CC BY-SA 3.0, CC BY-SA 4.0, CC0 and
+  public domain, all from Wikimedia Commons).
 * CutOut icon and screenshots: © ca-works, not under the MIT licence.

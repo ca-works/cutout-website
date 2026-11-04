@@ -2,116 +2,132 @@
 
 ## The brief in one line
 
-Make people feel CutOut's precision before they read a word — and never show them anything the
+Make people feel CutOut's precision before they read a word, and never show them anything the
 app cannot actually do.
 
-## Three directions that were explored
+## Version 2 (current) and why it replaced version 1
 
-| | A. The Clean Cut (chosen) | B. Layers in Space | C. Clipboard Theatre |
+Version 1 was a pale "paper and ink" page: a headline on the left, the image on the right, black pill
+buttons, a lot of explanatory text. The owner's review: too close to the ENG Drawing Viewer site,
+too much text, not epic. Version 2 keeps everything that was true and verified (real mattes, real
+app renders, measured numbers, fail-closed downloads) and changes the presentation completely.
+
+Inspiration was studied, not copied. Sources were the Apple MacBook Pro page (black stage, one
+product at a time, sticky scroll scenes, huge type), Awwwards *Sites of the Day* (oversized
+wordmarks, depth through layering, marquees), React Bits (word-split reveals, magnetic buttons)
+and the handbook's motion and UI references (see `HANDBOOK_MATRIX.md`). No layouts, assets,
+typefaces or code were taken from any of them.
+
+## Directions explored for version 2
+
+| | A. Cut from the word (chosen) | B. Studio light table | C. Exploded layers |
 |---|---|---|---|
-| Idea | A real photograph lies on a pale table like a print. Scrolling traces a cut along the subject's true outline, the subject lifts, and the background peels away like a sticker backing — the icon's own metaphor (dashed cut, curled violet sheet, checkerboard) brought to life. | The page is a dark 3D space in which a composition's layers (photo, cutout, text, arrow) float apart in depth and reassemble as you scroll. | The real app window is the protagonist: a scroll-driven re-enactment of paste → remove → copy, ending in a slide in another app. |
-| Originality | High: the peel is specific to CutOut and its icon. | Medium: exploded layer stacks are a common "3D product" trope. | Low–medium: screen-recording style pages are common. |
-| Understood in 2 s? | Yes — the background literally comes off. | Partly — reads as "layers", not "background removal". | Yes, but slowly; needs reading. |
-| Truthfulness | Uses CutOut's real matte for the cut, the hole and the subject. | Would need invented compositions. | Would need a fabricated destination app UI (Keynote etc.) — rejected. |
-| Performance | One WebGL2 canvas, 2 textures, ~10 KB JS; poster image is the LCP. | Three.js + several textures, heavier on phones. | Video or image sequences: several MB. |
-| Mobile | Works as a square stage under the headline. | Depth reads poorly on small screens. | Small UI text is illegible on phones. |
-| Accessibility | Static final state for reduced motion; no scroll hijacking. | Motion-heavy. | Motion-heavy; long sticky sections. |
-| Maintainability | Assets regenerate from any photo + matte with one script. | Many hand-tuned layers. | Every UI change needs re-recording. |
+| Idea | A black stage. A giant **CutOut** wordmark sits *between* a photo and its subject: the subject is in front of the word, the background is behind it. Scrolling traces the cut, the subject lifts and the print peels off the screen. | A photographer's light table: prints slide in, the cut is drawn with a scalpel cursor. | The photo, matte and cutout float apart in 3D depth as you scroll. |
+| Epic, at a glance | Yes: the depth trick reads instantly and only works *because* the background was removed. | Calm, editorial; closer to version 1. | Spectacular but a common "3D product" trope. |
+| Truthful | Uses CutOut's real matte for the hole, the cut line and the subject. | Same. | Needs invented intermediate layers. |
+| Cost | One small WebGL 2 canvas (3.6 KiB gzip), DOM layers for the rest. | CSS only. | Three.js or similar, heavier on phones. |
+| Distinct from ENG | Completely (dark, centred, type-as-image). | Partly (light, editorial). | Yes. |
 
-**Decision: A.** It is the only direction whose signature moment is both unique to CutOut and a
-literal, truthful demonstration of the product. B's depth idea survives in a restrained form (the
-cut subject floats above the sheet and casts a real shadow); C's honesty about the real interface
-survives in the interface showcase, which uses only genuine app renders.
+**Decision: A.** The hero subject is a machined bicycle crankset, not an animal: the owner asked
+for a non-living subject for the title, and its chainring gaps show CutOut handling holes, which
+a solid object could not. The golden retriever puppy leads the results section instead.
 
 ## Art direction
 
-* **Paper and ink.** The page is mostly a pale, slightly cool paper (`--paper`) with near-black navy
-  ink (`--ink`). Dark is used deliberately, twice: the interface showcase ("the studio") and the
-  footer — not as a default theme. This avoids the dark-gradient look of generic AI-made sites and
-  lets the transparency checkerboard read naturally.
-* **One accent: the cut.** The icon's indigo→violet appears only where something is *cut* or
-  *selected*: the cut line, focus rings, the slider handle, the curl's underside. Buttons are ink.
-* **Negative space is the subject.** Checkerboards appear only where pixels are genuinely
-  transparent.
-* **Measured claims, set in tabular figures** with their test machine named next to them.
+* **A black stage, one subject at a time.** Near-black (`--bg`) everywhere, so cutouts float and
+  transparency (the checkerboard) reads as a material. Sections are full-viewport scenes with one
+  idea each.
+* **Type as image.** Headlines are huge and few: *Every hair. Every thread.*, *Paste. Remove.
+  Copy.*, *A real Mac app.*, *Nothing leaves your Mac.*, *Get CutOut.* Body text is one line where
+  possible; details live in the Guide.
+* **One accent: the cut.** Violet appears only where something is cut or selected: the marching
+  ants, focus rings, the slider handle, key-press glows.
+* **Real pixels only.** Every product image is CutOut's own, unretouched output or a window the
+  app rendered itself. The checkerboard appears only where pixels are transparent.
+
+## The home page, scene by scene
+
+| Section | What happens | Scroll length |
+|---|---|---|
+| Hero | Crankset photo on the stage, the wordmark behind its subject (difference blend). Scroll: marching ants trace the outline (outer edge plus 15 inner holes), the subject lifts with a shadow, the print curls back from its corner (white paper underside) and is pulled off the screen, leaving the subject on the transparency grid. | 300 svh (240 on phones) |
+| Results (`#compare`) | *Every hair. Every thread.* A before/after slider with four real samples (Fur: golden retriever puppy; Threads: hex bolts; Gaps: the crankset; Seeds: a dandelion), four backdrops and a zoom. | normal |
+| Keys | *Paste. Remove. Copy.* pinned; a ⌘ key with the letter rolling V → B → C, the bolt photo dissolving into its cutout, then shrinking away with a "Copied" toast. | 330 svh (300) |
+| The app (`#app`) | A genuine CutOut window rises and tilts upright, then swaps from the simple view to the full tool panel. | 260 svh (220) |
+| Numbers | Three measured figures: 0.5 s to launch, 2.5 s per cutout, 0 images uploaded. | normal |
+| Tools | Two opposing marquees: real cutouts, then tool names with their shortcut keys. | normal |
+| Privacy (`#privacy`) | *Nothing leaves your Mac.* and four short facts. | normal |
+| Get (`#get`) | The icon, *Get CutOut.*, the download (or *Coming soon* until a public release exists), requirements. | normal |
+| Footer | Links, a giant outline wordmark, credits. | normal |
 
 ## Design system
 
-### Colour tokens (`src/styles/tokens.css`)
+### Colour tokens (`src/styles/global.css`)
 
-| Token | Value | Use |
-|---|---|---|
-| `--paper` | `#f3f3f0` | Page background |
-| `--paper-raised` | `#fbfbf9` | Raised surfaces on paper |
-| `--ink` | `#0d1020` | Text, primary buttons |
-| `--ink-2` | `#4a4e60` | Secondary text (7.4:1 on paper) |
-| `--ink-3` | `#666a7a` | Tertiary text, meta (4.8:1 on paper) |
-| `--rule` | `rgb(13 16 32 / 0.12)` | Hairlines |
-| `--night` | `#0a0d18` | Studio and footer background |
-| `--night-2` | `#121628` | Raised surfaces on night |
-| `--on-night` | `#eceef6` | Text on night |
-| `--on-night-2` | `#a3a8bd` | Secondary text on night (8.2:1) |
-| `--cut` | `#5847f0` | The cut line, focus rings, links (5.3:1 on paper) |
-| `--cut-bright` | `#8f84ff` | Cut accent on night (6.4:1) |
-| `--checker-a/b` | `#ffffff` / `#e4e5ea` | Transparency grid |
+| Token | Value | Use | Contrast on `--bg` |
+|---|---|---|---|
+| `--bg` | `#050507` | Page background | — |
+| `--bg-2` / `--bg-3` | `#0c0c10` / `#16161c` | Raised surfaces | — |
+| `--fg` | `#f5f5f7` | Text, primary buttons | 18.7:1 |
+| `--fg-2` | `#a6a6b3` | Secondary text | 8.5:1 |
+| `--fg-3` | `#7d7d89` | Meta, captions | 5.0:1 |
+| `--line` / `--line-2` | white at 10 % / 18 % | Hairlines, control borders | — |
+| `--cut` | `#8f84ff` | The cut, focus rings, accents | 6.7:1 |
+| `--cut-2` | `#5847f0` | Deep accent (glows, the icon's violet) | decorative |
+| `--checker-a/b` | `#17171d` / `#0f0f13` | Transparency grid | — |
 
-Contrast ratios were computed with the WCAG relative-luminance formula; the automated axe checks
-in `tests/e2e` guard them.
+The dimmed words in the key sequence are `--fg` at 40 % opacity, which is 3.5:1. That passes for
+their size (large text, at least 48 px). Ratios use the WCAG relative-luminance formula, and the
+axe checks in `tests/e2e` guard them.
 
-The colour-distance illustration in Features uses `#d9cbb0` (beige), `#d1c3a8` (beige in shadow,
-CIEDE2000 1.98 from it) and `#f0eee9` (white part, 11.82). The app's Magic Eraser default tolerance
-of 8 ΔE (visible in its screenshot) separates them as described.
+The Guide, privacy and 404 pages use the same tokens through compatibility aliases (`--ink*`,
+`--s-*`, `--step-*`) defined at the end of `global.css`.
 
 ### Typography
 
-* **Mona Sans** (variable, weight axis only, Latin subset, 40 KB, SIL OFL 1.1) for everything —
-  one file, self-hosted, `font-display: swap`, preloaded. It is GitHub's open-source typeface,
-  a quiet nod to where CutOut lives.
-* `ui-monospace` stack for checksums and file names (no download).
-* Scale (fluid with `clamp()`): display 44→120 px, h2 34→72 px, h3 22→28 px, body 17→19 px,
-  small 14–15 px. Display tracking −0.045em, h2 −0.035em; body +0.
-* `text-wrap: balance` for headings, `text-wrap: pretty` for paragraphs (progressive).
-* `font-variant-numeric: tabular-nums` wherever numbers are compared or measured.
+* **Mona Sans** variable (weight 200–900 and width 75–125 % axes, Latin subset, 98 KB, SIL OFL
+  1.1), self-hosted and preloaded. The width axis carries the brand: the wordmark is set at
+  `font-stretch: 125%`, weight 800, tracking −0.065em.
+* Headlines (`.title`) are 44 to 120 px fluid (`.title--m` 36 to 80 px), weight 720, width
+  112 %, tracking −0.05em, `text-wrap: balance`. Body text is 16 to 18 px, weight 430.
+* `ui-monospace` for checksums and file names.
 
-### Grid and spacing
+### Layout
 
-* 12-column grid, max content width 1240 px, gutters `clamp(20px, 4vw, 48px)`.
-* Spacing scale (px): 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 176. Section rhythm uses the top three.
-* Breakpoints: 560 (large phone), 820 (tablet portrait), 1080 (laptop), 1440 (desktop).
-
-### Shape, depth and light
-
-* Radii: 6 (chips), 12 (controls), 18 (media), 28 (stage). Continuous-looking corners via
-  generous radii on large surfaces only; small controls stay crisp.
-* One light source, top-left, everywhere: hero shadows, window shadows and the icon agree.
-* Shadows are layered (ambient + key) and tinted with ink, never pure black.
+* Content width 1320 px, gutter `clamp(20px, 4vw, 56px)`, fixed 64 px navigation.
+* Breakpoints: 820 px (phone ↔ tablet; two-column layouts stack, scenes shorten) and 1080 px.
+* Scenes are a tall `section[data-scene]` with a sticky `.pin` child (`100svh`, overflow clipped).
 
 ### Motion principles
 
-1. **Motion explains.** Every animation shows cause and effect (cutting, lifting, peeling,
-   revealing). Nothing loops for attention.
-2. **Scroll is the timeline, never hijacked.** Native scrolling drives progress; we only smooth the
-   visual response (critically damped, ~120 ms).
-3. **Easing:** `--ease-out: cubic-bezier(0.2, 0.7, 0.1, 1)` for entrances,
-   `--ease-in-out: cubic-bezier(0.6, 0, 0.2, 1)` for state changes. Durations 180–700 ms.
-4. **Interruptible:** slider and tabs animate from their current value, not from a reset.
-5. **Reduced motion:** the hero shows its finished state with a tap-to-compare, reveals become
-   instant, and parallax is off. Nothing essential depends on animation.
+1. **Scroll is the timeline, never hijacked.** Native scrolling drives every scene. `scenes.ts`
+   only *reads* the position and writes it as CSS variables (`--p` and named ranges such as
+   `--cut`, `--lift`, `--peel`), smoothed with a critically damped follower (τ ≈ 80 ms).
+   Scrolling back plays everything in reverse.
+2. **Motion explains.** The cut is traced, the subject lifts, the background is pulled away, the
+   key is pressed. Loops (marching ants, marquees) are slow and pause on hover.
+3. **Easing:** `--ease: cubic-bezier(0.2, 0.7, 0.1, 1)` for entrances and state changes,
+   `--ease-io: cubic-bezier(0.65, 0, 0.25, 1)` for loops. Durations 420 to 900 ms.
+4. **Small delights, never in the way.** Words rise into place once (`Split.astro`, the
+   `data-split` attribute). The primary button leans slightly towards the pointer (`data-magnetic`).
+   The hero layers parallax a few pixels with the pointer, on fine pointers only.
+5. **Reduced motion:** scenes collapse to normal-height sections showing their finished state. The
+   hero becomes a static depth composition with a *Remove background* button. Reveals are instant
+   and marquees become wrapped lists. Nothing essential depends on animation.
 
 ### Interaction states
 
 | State | Treatment |
 |---|---|
-| Hover (pointer devices only) | 2–4 % lift in tone; buttons gain a 1 px inner highlight |
-| Active | 0.98 scale, 90 ms |
-| Focus-visible | 2 px `--cut` ring with 3 px offset (on night: `--cut-bright`) |
-| Disabled / unavailable | Text label says why ("Not available yet"); never a dead button |
+| Hover (pointer devices) | Slight tone lift; magnetic lean on the primary button; marquees pause |
+| Active | 0.97 scale (buttons) |
+| Focus-visible | 2 px `--cut` outline, 3 px offset |
+| Unavailable | Said plainly (*Coming soon*, *Windows: planned, not built*), never a dead button |
 
 ### Responsive behaviour
 
-* **Phones:** the hero headline and buttons come first; the stage follows full-bleed and becomes
-  sticky for a shorter scroll (180 svh). The before/after slider is full width; tabs scroll.
-  The interface showcase crops to the canvas and toolbar rather than shrinking a whole window to
-  unreadable size.
-* **Tablets:** two-column layouts collapse at 820 px; touch targets ≥ 44 px.
-* **Desktop:** the headline and the stage share one sticky viewport (260 vh scroll).
+* **Phones:** the hero keeps the part's own shape so the whole crankset stays visible. The
+  wordmark sits on the frame's top edge, and the headline and a full-width button sit at the
+  bottom. The slider frame is 4:5. The key sequence puts the image above the words.
+* **Tablets and up:** two-column scenes from 820 px. The hero frame grows to 1200 px.
+* Touch: every control is at least 44 px. The slider takes horizontal drags while vertical swipes
+  still scroll.

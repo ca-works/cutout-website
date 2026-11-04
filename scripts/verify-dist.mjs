@@ -81,7 +81,7 @@ for (const file of files) {
     for (const re of SECRET_PATTERNS) if (re.test(text)) fail(file, `matches secret pattern ${re}`);
     if (name.endsWith('.js')) {
       const size = gzipSync(text).length;
-      if (name.includes('hero-scene')) heroJs += size;
+      if (name.includes('hero-gl')) heroJs += size;
       else js += size;
       if (/\beval\(|new Function\(/.test(text)) fail(file, 'eval/new Function in bundle');
       if (/\.innerHTML\s*=|outerHTML\s*=|insertAdjacentHTML|document\.write/.test(text)) fail(file, 'HTML injection sink in bundle');

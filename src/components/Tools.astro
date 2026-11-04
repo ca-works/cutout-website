@@ -1,0 +1,173 @@
+---
+import { Image } from 'astro:assets';
+import Split from './Split.astro';
+import golden from '../assets/generated/samples/golden-cutout.png';
+import bolt from '../assets/generated/samples/bolt-cutout.png';
+import crankset from '../assets/generated/samples/crankset-cutout.png';
+import dandelion from '../assets/generated/samples/dandelion-cutout.png';
+import bolts from '../assets/generated/samples/bolts-cutout.png';
+
+// Tools that exist in CutOut 0.1, with their single-key shortcuts (CutOutApp.swift / README).
+const tools: [string, string][] = [
+  ['Magic Eraser', 'E'],
+  ['Quick Selection', 'Q'],
+  ['Magic Wand', 'W'],
+  ['Lasso', 'L'],
+  ['Polygon', 'P'],
+  ['Eraser', 'X'],
+  ['Restore', 'R'],
+  ['Brush', 'B'],
+  ['Text', 'T'],
+  ['Shapes', 'U'],
+  ['Crop', 'C'],
+  ['Refine Edges', ''],
+  ['Layers', '⌥⌘L'],
+  ['Adjustments', ''],
+  ['Eyedropper', 'I'],
+  ['Paint bucket', 'G'],
+];
+const things = [
+  { src: golden, alt: 'Golden retriever puppy, cut out' },
+  { src: crankset, alt: 'Machined crankset, cut out' },
+  { src: bolt, alt: 'Three hex bolts, cut out' },
+  { src: dandelion, alt: 'Dandelion seed head, cut out' },
+  { src: bolts, alt: 'A skyline of bolts, cut out' },
+];
+---
+
+<section class="tools" aria-labelledby="tools-title">
+  <div class="wrap tools__head">
+    <Split as="h2" id="tools-title" class="title title--m" text={'Everything else,\none shortcut away.'} />
+  </div>
+
+  <div class="marquee marquee--things">
+    <ul class="marquee__track" role="list">
+      {things.map((t) => <li><Image src={t.src} alt={t.alt} height={260} densities={[1, 2]} loading="lazy" decoding="async" /></li>)}
+      {things.map((t) => <li aria-hidden="true"><Image src={t.src} alt="" height={260} densities={[1, 2]} loading="lazy" decoding="async" /></li>)}
+    </ul>
+  </div>
+
+  <div class="marquee marquee--tools">
+    <ul class="marquee__track" role="list" aria-label="Tools in CutOut">
+      {tools.map(([name, key]) => <li>{name}{key && <kbd>{key}</kbd>}</li>)}
+      {tools.map(([name, key]) => <li aria-hidden="true">{name}{key && <kbd>{key}</kbd>}</li>)}
+    </ul>
+  </div>
+  <p class="wrap tools__note dim">Plus layers, masks, selections that add and subtract, Undo for everything, and <code>.cutout</code> projects that keep it all editable.</p>
+</section>
+
+<style>
+  .tools {
+    padding-block: clamp(96px, 12vw, 200px);
+    overflow: hidden;
+  }
+
+  .tools__head {
+    margin-bottom: clamp(40px, 5vw, 80px);
+  }
+
+  .marquee {
+    --gap: clamp(24px, 4vw, 64px);
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  }
+
+  .marquee__track {
+    display: flex;
+    flex: none;
+    gap: var(--gap);
+    padding-right: var(--gap);
+    align-items: center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee__track {
+      animation: marquee 48s linear infinite;
+    }
+
+    .marquee--tools .marquee__track {
+      animation-duration: 60s;
+      animation-direction: reverse;
+    }
+
+    .marquee:hover .marquee__track {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes marquee {
+    to {
+      translate: -50% 0;
+    }
+  }
+
+  .marquee--things img {
+    height: clamp(150px, 18vw, 260px);
+    width: auto;
+    filter: drop-shadow(0 30px 30px rgb(0 0 0 / 0.7));
+  }
+
+  .marquee--tools {
+    margin-top: clamp(40px, 5vw, 72px);
+  }
+
+  .marquee--tools li {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: clamp(1.75rem, 1rem + 2.6vw, 3.5rem);
+    font-weight: 640;
+    font-stretch: 110%;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+    color: var(--fg-2);
+  }
+
+  .marquee--tools li::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    margin-left: var(--gap);
+    border-radius: 50%;
+    border: 1.5px dashed var(--cut);
+  }
+
+  .marquee--tools kbd {
+    font-family: var(--font);
+    font-size: 0.42em;
+    font-weight: 600;
+    letter-spacing: 0;
+    padding: 4px 10px;
+    border-radius: 9px;
+    background: rgb(255 255 255 / 0.07);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    color: var(--fg);
+  }
+
+  .tools__note {
+    margin-top: clamp(40px, 5vw, 72px);
+    max-width: 60ch;
+  }
+
+  .tools__note code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    color: var(--fg-2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      mask-image: none;
+    }
+
+    .marquee__track {
+      flex-wrap: wrap;
+      padding-inline: var(--gutter);
+    }
+
+    .marquee__track li[aria-hidden='true'] {
+      display: none;
+    }
+  }
+</style>

@@ -1,9 +1,10 @@
 // Site-wide progressive enhancements. Everything works without this file.
+import { initScenes } from './scenes';
 
-// Nav hairline once the page has scrolled.
+// Nav: transparent over the hero, solid once the page has scrolled past it.
 const nav = document.querySelector<HTMLElement>('[data-nav]');
 if (nav) {
-  const onScroll = () => nav.classList.toggle('is-scrolled', scrollY > 8);
+  const onScroll = () => nav.classList.toggle('is-scrolled', scrollY > innerHeight * 0.6);
   addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 }
@@ -26,13 +27,26 @@ if (!matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObse
         }
       }
     },
-    { rootMargin: '0px 0px -8% 0px' },
+    { rootMargin: '0px 0px -10% 0px' },
   );
-  for (const el of document.querySelectorAll<HTMLElement>('[data-reveal]')) {
-    if (el.getBoundingClientRect().top > innerHeight) {
+  for (const el of document.querySelectorAll<HTMLElement>('[data-reveal], [data-split]')) {
+    if (el.getBoundingClientRect().top > innerHeight * 0.9) {
       el.classList.add('reveal-pending');
       io.observe(el);
     }
+  }
+}
+
+// Magnetic buttons: a gentle pull towards the pointer (fine pointers only).
+if (matchMedia('(hover: hover) and (pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  for (const el of document.querySelectorAll<HTMLElement>('[data-magnetic]')) {
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - (r.left + r.width / 2)) * 0.18;
+      const y = (e.clientY - (r.top + r.height / 2)) * 0.28;
+      el.style.translate = `${x.toFixed(1)}px ${y.toFixed(1)}px`;
+    });
+    el.addEventListener('pointerleave', () => (el.style.translate = ''));
   }
 }
 
@@ -56,3 +70,5 @@ for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
     setTimeout(() => (btn.textContent = label), 1800);
   });
 }
+
+initScenes();

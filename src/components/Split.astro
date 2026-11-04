@@ -1,0 +1,31 @@
+---
+// Renders text as words that rise into place when scrolled into view (global.css .split).
+// Splitting happens at build time, so there is no layout work in the browser and the full text
+// stays readable (and selectable) without JavaScript or with reduced motion.
+interface Props {
+  text: string;
+  as?: 'h1' | 'h2' | 'h3' | 'p' | 'span';
+  class?: string;
+  id?: string;
+}
+const { text, as: Tag = 'h2', class: cls = '', id } = Astro.props;
+const lines = text.split('\n');
+---
+
+<Tag class={`split ${cls}`} id={id} data-split>
+  {
+    lines.map((line, li) => (
+      <>
+        {line.split(' ').map((word, i, all) => (
+          <>
+            <span class="w">
+              <span>{word}</span>
+            </span>
+            {i < all.length - 1 ? ' ' : ''}
+          </>
+        ))}
+        {li < lines.length - 1 && <br />}
+      </>
+    ))
+  }
+</Tag>

@@ -3,9 +3,13 @@
 # CutOut website
 
 The website for **CutOut**, the free, offline background-removal and image editor for Mac.
-A static [Astro](https://astro.build/) site, hosted free on GitHub Pages, with one signature WebGL
-scene: a real photograph is traced along CutOut's own matte, the subject lifts out, and the
-background peels away like a sticker backing — the app icon's motif, brought to life.
+A static [Astro](https://astro.build/) site on a black, cinematic stage, hosted free on GitHub
+Pages. In the opening scene a machined crankset sits in front of a giant **CutOut** wordmark
+while its background sits behind it. As you scroll, marching ants trace CutOut's own matte, the
+part lifts, and the photo peels off the screen like a print (raw WebGL 2, 3.6 KiB). After that
+come real before/after results (a golden retriever puppy, threaded bolts, the crankset, a
+dandelion), a pinned *Paste. Remove. Copy.* sequence and genuine app windows. Every image is
+CutOut's unretouched output.
 
 * Live address (after the first deployment): `https://ca-works.github.io/cutout-website/`
 * Application repository: `ca-works/cutout` (downloads come only from its GitHub Releases)
@@ -36,6 +40,7 @@ Open `http://127.0.0.1:4321/cutout-website/`. `npm run dev` gives a live-reloadi
 | Command | What it does |
 |---|---|
 | `npm run assets` | Rebuilds demo images, hero textures, the traced outline and favicons from `design/` |
+| `node scripts/import-screens.mjs <dir>` | Imports app windows from a CutOut self-test run (see MAINTENANCE) |
 | `npm run sync` | Reads the app repository's public release state into `src/data/release.json` |
 | `npm run check` | Astro/TypeScript type check |
 | `npm run build` | Builds `dist/` and runs `scripts/verify-dist.mjs` (CSP, links, hosts, budgets, secrets) |
@@ -47,8 +52,8 @@ Open `http://127.0.0.1:4321/cutout-website/`. `npm run dev` gives a live-reloadi
 
 | Document | Contents |
 |---|---|
-| [docs/DESIGN.md](docs/DESIGN.md) | Creative directions considered, the chosen one, the design system |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Structure, the hero scene, progressive enhancement, performance |
+| [docs/DESIGN.md](docs/DESIGN.md) | Creative directions, the scene-by-scene page, the design system |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Structure, scroll scenes, the hero layers, progressive enhancement, performance |
 | [docs/SECURITY.md](docs/SECURITY.md) | Threat model, controls, GitHub Pages limits, audit record, owner actions |
 | [docs/RELEASING.md](docs/RELEASING.md) | Deploying the site; publishing app releases so downloads appear |
 | [docs/MAINTENANCE.md](docs/MAINTENANCE.md) | Updating copy, screenshots, demo images, platforms; known limitations |

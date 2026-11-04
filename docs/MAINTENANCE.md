@@ -7,14 +7,34 @@ document it came from. Change it only together with new evidence in the applicat
 (`docs/TESTING.md`, `docs/PERFORMANCE.md`, `README.md`). Do not add features that are planned but
 not built; the site states unavailable things plainly ("Not available yet").
 
-## Updating screenshots
+## Updating the app screenshots
 
-1. In the application repository, run the self-test that renders them (`scripts/selftest.sh`,
-   light and dark appearance) — see its `docs/TESTING.md`.
-2. Copy the six files into `src/assets/screens/` with the same names:
-   `{light,dark}-{1-empty,2-removed,3-advanced-tools}.png`.
-3. If what they show changes, update the captions and alt text in
-   `src/components/Showcase.astro`.
+The two windows in *A real Mac app.* are genuine CutOut 0.1 windows that the app rendered itself,
+showing the golden retriever photo. To refresh them without changing any app code:
+
+1. In the application repository, build the app as usual (`dist/CutOut.app`).
+2. Copy its `bench/all` folder somewhere temporary and replace `cat_fur.jpg` in the copy with the
+   photo to show (`design/sources/golden.jpg`). The self-test removes that file's background
+   with Best Quality.
+3. Run the self-test in dark appearance, then restore the preference:
+
+   ```bash
+   defaults write com.ca-works.cutout appearance dark
+   ```
+
+   ```bash
+   CUTOUT_SELFTEST=<out> CUTOUT_SELFTEST_BENCH=<bench copy> CUTOUT_SELFTEST_COPYCLOSE=1 dist/CutOut.app/Contents/MacOS/CutOut
+   ```
+
+   ```bash
+   defaults delete com.ca-works.cutout appearance
+   ```
+
+   Check that `<out>/selftest.json` reports no failures (21/21 on 4 November 2026).
+4. Back in this repository, run `node scripts/import-screens.mjs <out>`. It copies
+   `05-best-removed-layers.png` → `app-removed.png` and `08-magic-eraser-tool-layers.png` →
+   `app-tools.png` into `src/assets/screens/`, cropping only the empty 104 px strip at the top.
+5. If what they show changes, update the alt text in `src/components/AppWindow.astro`.
 
 ## Changing the demonstration images
 
@@ -23,18 +43,25 @@ not built; the site states unavailable things plainly ("Not available yet").
 2. Run CutOut on each (`cutout-cli remove …`, see that README) and save the alpha channel as
    `<name>-matte.png`; never retouch it.
 3. Add the sample to `SAMPLES` in `scripts/prepare-assets.mjs` and to `samples` in
-   `src/components/Compare.astro` (caption, credit, aspect ratio and focus point classes).
+   `src/components/Compare.astro` (tab name, alt text, credit; optional `--panel-<id>` focus and
+   zoom points). Add its credit to the Guide's `#credits` list.
 4. `npm run assets && npm run build`.
 
-The hero uses `cat`; a different hero photo needs a square image and a new traced outline (the
-script does that) and a look at `CURL_R`/`LIFT_Z` in `hero-scene.ts`.
+**The hero** is set by `HERO` in `scripts/prepare-assets.mjs`: `id` (a file pair in
+`design/sources/`), `alt`, `widths`, and `wordAt`. `wordAt` is how far down the subject's bounding
+box the wordmark's centre sits (0.12 for the crankset, so the word crosses the top of the
+chainrings). The script writes the photo, the cutout, the shadow, the traced outline (outer edge
+plus holes) and `hero.css` (`--ar`, `--word-y`). The hero should be a non-living object with a
+clear silhouette and some holes or gaps. After changing it, run `node scripts/make-og.mjs`, check
+the phone layout (the word sits on the frame's top edge there), and update the alt text in
+`src/components/Hero.astro`.
 
 ## Adding or changing a platform
 
 1. Add the edition (id and exact asset file name) to `EDITIONS` in `scripts/lib/release.mjs`,
    with a unit test in `tests/unit/release.test.mjs`.
-2. Show it in `src/components/Downloads.astro` (`others` list or a new card) and update
-   `requirements`/FAQ text if the system requirements change.
+2. Show it in `src/components/Get.astro` (the note under the button names what isn't built) and
+   update the requirements and the Guide's FAQ if the system requirements change.
 3. Update `docs/RELEASING.md` (asset names) and the guide's Platforms section.
 
 ## Renaming the website repository or adding a custom domain
@@ -46,8 +73,9 @@ script does that) and a look at `CURL_R`/`LIFT_Z` in `hero-scene.ts`.
 
 ## Regenerating the share image
 
-`node scripts/make-og.mjs` renders `public/og.png` (1200 × 630) from the icon, the hero cutout and
-the site font. Run it after changing the headline.
+`node scripts/make-og.mjs` renders `public/og.png` (1200 × 630): the black stage, the giant
+wordmark, the hero cutout in front of it, the icon and the headline, in the site font. Run it after
+changing the hero or the headline.
 
 ## Dependencies
 
@@ -59,18 +87,18 @@ let *Check* pass, look at the preview. Keep versions exact. See `docs/DEPENDENCI
 * GitHub Pages cannot send security headers; the CSP is a `<meta>` tag (see `docs/SECURITY.md`).
 * Firefox could not be launched by Playwright on the development Mac (macOS 27); Firefox runs in
   CI on Ubuntu.
-* Lighthouse mobile LCP on the home page is ≈ 2.7 s under simulated slow 4G: the headline waits
-  for the 40 KB web font. `font-display: optional` would trade brand consistency for that.
-* The hero's WebGL scene was verified in headless Chromium and WebKit (software GL); a hands-on
-  pass on real iPhone/Android hardware is still recommended.
-* The interface showcase uses offscreen renders produced by the app's self-test (the development
-  Mac's screen was locked); they are genuine app windows, not mock-ups.
+* Lighthouse mobile performance on the home page is ≈ 90: the LCP is the hero photo (55 KB AVIF)
+  under simulated slow 4G (≈ 3.3 s). A smaller first frame would trade image quality for it.
+* The scroll scenes and the WebGL print were verified in headless Chromium and WebKit (software
+  GL); a hands-on pass on real iPhone/Android hardware and Safari is still recommended.
+* The app windows are offscreen renders produced by the app's self-test (the development Mac's
+  screen was locked); they are genuine app windows, not mock-ups.
 
 ## Future improvements
 
 * When CutOut is signed with a Developer ID and notarized, remove the first-launch steps and the
-  "not notarized" notes (`facts.ts`, Downloads, FAQ, Guide).
+  "not notarized" notes (`facts.ts`, `Get.astro`, the Guide and its FAQ).
 * Short real screen recordings of paste → remove → copy (H.264/AV1, < 2 MB, poster frame), once a
   person can record the app.
-* A dark appearance for the whole site, if wanted (the current art direction is fixed light/dark
-  per section).
+* A light appearance, if wanted. Version 2 is dark by design, and the tokens in `global.css` are
+  the only place colours are defined.

@@ -146,7 +146,7 @@ export function initCompare() {
   zoom.addEventListener('click', () => {
     const on = zoom.getAttribute('aria-pressed') !== 'true';
     zoom.setAttribute('aria-pressed', String(on));
-    zoom.querySelector('span')!.textContent = on ? 'Back to full view' : 'Inspect the edge';
+    zoom.querySelector('span')!.textContent = on ? 'Zoom out' : 'Zoom';
     root.classList.toggle('is-zoomed', on);
   });
 
