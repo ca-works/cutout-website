@@ -18,7 +18,7 @@ deployed yet, so nothing below was measured on the live address.
 | Horizontal overflow | every page, every project | 0 px |
 | Dependencies | `npm audit` | 0 vulnerabilities |
 | Workflows | zizmor 1.32.0 offline, online, pedantic | 0 findings |
-| Secrets | Gitleaks 8.30.1 on git history and `dist/` | see below |
+| Secrets | Gitleaks 8.30.1: `gitleaks git .` (full history), `gitleaks dir dist`, `gitleaks dir .` | no leaks found |
 
 What the browser tests cover: clean load with no console errors; one `h1`, title, description,
 canonical; download links only to the app repository's release assets (none while unreleased);

@@ -62,7 +62,7 @@ These are not claimed anywhere on the site.
 |---|---|---|
 | Dependency vulnerabilities | `npm audit` (npm 11.19.1) | 0 vulnerabilities |
 | Workflow security | zizmor 1.32.0 (offline, online, pedantic) | 0 findings |
-| Secrets in history and build | Gitleaks 8.30.1 (`gitleaks git`, `gitleaks dir dist`) | See `docs/TESTING.md` §Security |
+| Secrets in history and build | Gitleaks 8.30.1 (`gitleaks git`, `gitleaks dir dist`, `gitleaks dir .`) | No leaks found |
 | Build policy gate | `scripts/verify-dist.mjs` | Pass (CSP exact match, no inline code, all links resolve, allow-listed hosts only) |
 | CSP / Trusted Types violations in browsers | Playwright (Chromium, WebKit, iPhone, Android profiles) | 0 |
 | Release-sync fail-closed rules | `node --test` | 14/14 pass |
