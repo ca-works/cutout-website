@@ -1,0 +1,30 @@
+---
+import Base from '../layouts/Base.astro';
+const base = import.meta.env.BASE_URL;
+---
+
+<Base title="Page not found — CutOut" description="This page doesn’t exist." path="404/" noindex>
+  <section class="nf wrap">
+    <div class="nf__mark checker" aria-hidden="true"></div>
+    <p class="eyebrow">404</p>
+    <h1 class="h2">Nothing here but transparency.</h1>
+    <p class="lede">The page you were looking for has been cut out — or never existed.</p>
+    <p><a class="btn" href={base}>Back to CutOut</a></p>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    display: grid;
+    gap: var(--s-5);
+    justify-items: start;
+    padding-block: var(--s-9) var(--section);
+  }
+
+  .nf__mark {
+    width: 120px;
+    height: 120px;
+    border-radius: 28px;
+    border: 2px dashed var(--cut);
+  }
+</style>

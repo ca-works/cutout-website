@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import Prose from '../components/Prose.astro';
+import { WEBSITE_REPO } from '../../site.config.mjs';
+---
+
+<Base
+  title="Privacy — CutOut"
+  description="What data the CutOut website and the CutOut app collect: no cookies, no analytics, no accounts. What GitHub, which hosts the site and the downloads, may log."
+  path="privacy/"
+>
+  <Prose title="Privacy" lede="Short version: this website and the CutOut app collect nothing about you. Here is the longer version, including what the hosting provider can see.">
+    <p><em>Last updated 4 November 2026.</em></p>
+
+    <h2 id="website">This website</h2>
+    <ul>
+      <li>No cookies, no local storage, no analytics, no advertising, no tracking pixels, no forms and no accounts.</li>
+      <li>Every file — pages, images, fonts and scripts — is served from this site itself. The pages load nothing from other services.</li>
+      <li>
+        The site is a static website hosted on <strong>GitHub Pages</strong>, a service of GitHub, Inc. Like any web server, GitHub receives your IP address and browser
+        details when you load a page and may log them for security and operations. We cannot see or switch off those logs. See the
+        <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">GitHub General Privacy Statement</a>.
+      </li>
+      <li>
+        Downloads are served by <strong>GitHub Releases</strong>; the same applies to them. Links to GitHub, Wikimedia Commons and other sites take you to those sites,
+        whose own privacy policies apply.
+      </li>
+    </ul>
+
+    <h2 id="app">The CutOut app</h2>
+    <ul>
+      <li>Images are processed entirely on your Mac. CutOut has no server and sends no images anywhere.</li>
+      <li>No account, no telemetry, no analytics, no crash reporting to us.</li>
+      <li>The clipboard is read only when you paste; it is never monitored.</li>
+      <li>
+        The app makes no network connection unless you start an optional model download yourself. That download comes from Hugging Face, which then sees your IP address;
+        the full CutOut download already includes the model, so you never need it.
+      </li>
+      <li>
+        Files the app keeps: downloaded models and a backup of your last session in <code>~/Library/Application Support/CutOut</code>, and caches in
+        <code>~/Library/Caches/CutOut</code>. They stay on your Mac.
+      </li>
+    </ul>
+
+    <h2 id="contact">Questions</h2>
+    <p>
+      Open an issue on <a href={`https://github.com/${WEBSITE_REPO}/issues`} rel="noopener">GitHub</a>. Please don’t include personal information.
+    </p>
+  </Prose>
+</Base>

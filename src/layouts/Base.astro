@@ -1,0 +1,91 @@
+---
+import '@fontsource-variable/mona-sans/wght.css';
+import '../styles/global.css';
+import fontUrl from '@fontsource-variable/mona-sans/files/mona-sans-latin-wght-normal.woff2?url';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Path below the site base, e.g. '' for home or 'docs/'. */
+  path?: string;
+  noindex?: boolean;
+  preload?: { href: string; as: 'image'; type?: string; imagesrcset?: string; imagesizes?: string }[];
+}
+
+const { title, description, path = '', noindex = false, preload = [] } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const canonical = new URL(base + path, Astro.site).href;
+const ogImage = new URL(base + 'og.png', Astro.site).href;
+
+// GitHub Pages cannot send HTTP security headers, so the policy is delivered in a <meta> tag
+// (frame-ancestors, report-uri and sandbox are ignored there; see docs/SECURITY.md).
+// The dev server injects inline scripts, so the policy is applied to production builds only.
+const csp = [
+  "default-src 'none'",
+  "script-src 'self'",
+  "style-src 'self'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "manifest-src 'self'",
+  "base-uri 'none'",
+  "form-action 'none'",
+  "object-src 'none'",
+  "require-trusted-types-for 'script'",
+  "trusted-types 'none'",
+].join('; ');
+---
+
+<!doctype html>
+<html lang="en-GB" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content={csp} />}
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    <meta name="theme-color" content="#f3f3f0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <link rel="preload" href={fontUrl} as="font" type="font/woff2" crossorigin />
+    {preload.map((p) => <link rel="preload" fetchpriority="high" {...p} />)}
+
+    <link rel="icon" type="image/png" sizes="32x32" href={`${base}favicon-32.png`} />
+    <link rel="icon" type="image/png" sizes="16x16" href={`${base}favicon-16.png`} />
+    <link rel="apple-touch-icon" href={`${base}apple-touch-icon.png`} />
+    <link rel="manifest" href={`${base}site.webmanifest`} />
+    <link rel="sitemap" href={`${base}sitemap-index.xml`} />
+    <noscript><link rel="stylesheet" href={`${base}noscript.css`} /></noscript>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CutOut" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The CutOut icon beside a tabby cat whose background has been removed, floating over a transparency grid." />
+    <meta property="og:locale" content="en_GB" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Nav />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '../scripts/site';
+    </script>
+  </body>
+</html>

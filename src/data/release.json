@@ -1,0 +1,30 @@
+{
+  "status": "unreleased",
+  "version": null,
+  "repo": {
+    "name": "ca-works/cutout",
+    "public": false,
+    "url": null,
+    "license": null
+  },
+  "editions": [
+    {
+      "id": "macos-apple-silicon",
+      "file": "CutOut-macOS-Apple-Silicon.dmg",
+      "available": false
+    },
+    {
+      "id": "macos-universal",
+      "file": "CutOut-macOS-Universal.dmg",
+      "available": false
+    },
+    {
+      "id": "windows-x64",
+      "file": "CutOut-Windows-x64.zip",
+      "available": false
+    }
+  ],
+  "releases": [],
+  "published": null,
+  "notesUrl": null
+}

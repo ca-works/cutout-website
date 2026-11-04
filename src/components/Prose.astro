@@ -1,0 +1,257 @@
+---
+interface Props {
+  title: string;
+  lede?: string;
+  toc?: string[][];
+}
+const { title, lede, toc = [] } = Astro.props;
+---
+
+<article class="doc wrap">
+  <header class="doc__head">
+    <p class="eyebrow">CutOut</p>
+    <h1 class="h2">{title}</h1>
+    {lede && <p class="lede">{lede}</p>}
+  </header>
+  <div class={toc.length ? 'doc__body doc__body--toc' : 'doc__body'}>
+    {
+      toc.length > 0 && (
+        <nav class="doc__toc" aria-label="On this page">
+          <p class="doc__toc-title">On this page</p>
+          <ol role="list">
+            {toc.map(([id, label]) => (
+              <li>
+                <a href={`#${id}`}>{label}</a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )
+    }
+    <div class="prose">
+      <slot />
+    </div>
+  </div>
+</article>
+
+<style>
+  .doc {
+    padding-block: clamp(var(--s-7), 6vw, var(--s-9)) var(--section);
+  }
+
+  .doc__head {
+    display: grid;
+    gap: var(--s-4);
+    max-width: 760px;
+    margin-bottom: clamp(var(--s-7), 5vw, var(--s-9));
+  }
+
+  .doc__body--toc {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: clamp(var(--s-6), 5vw, var(--s-9));
+    align-items: start;
+  }
+
+  .doc__toc {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--s-6));
+    font-size: var(--step--1);
+  }
+
+  .doc__toc-title {
+    font-weight: 600;
+    color: var(--ink-3);
+    margin-bottom: var(--s-2);
+  }
+
+  .doc__toc ol {
+    display: grid;
+    border-left: 1px solid var(--rule);
+  }
+
+  .doc__toc a {
+    display: block;
+    padding: 6px 0 6px var(--s-4);
+    margin-left: -1px;
+    border-left: 1.5px solid transparent;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+
+  @media (hover: hover) {
+    .doc__toc a:hover {
+      color: var(--ink);
+      border-left-color: var(--rule-strong);
+    }
+  }
+
+  .prose {
+    max-width: 720px;
+  }
+
+  .prose :global(h2) {
+    font-size: var(--step-2);
+    letter-spacing: -0.025em;
+    margin: var(--s-8) 0 var(--s-4);
+    padding-top: var(--s-6);
+    border-top: 1px solid var(--rule);
+  }
+
+  .prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .prose :global(h3) {
+    font-size: var(--step-1);
+    font-weight: 620;
+    letter-spacing: -0.015em;
+    margin: var(--s-6) 0 var(--s-3);
+  }
+
+  .prose :global(p),
+  .prose :global(ul),
+  .prose :global(ol),
+  .prose :global(dl),
+  .prose :global(pre),
+  .prose :global(.table-wrap) {
+    margin: 0 0 var(--s-4);
+    color: var(--ink-2);
+  }
+
+  .prose :global(strong),
+  .prose :global(dt) {
+    color: var(--ink);
+  }
+
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 1.3em;
+    display: grid;
+    gap: var(--s-2);
+  }
+
+  .prose :global(li::marker) {
+    color: var(--ink-3);
+  }
+
+  .prose :global(a) {
+    color: var(--cut-deep);
+  }
+
+  .prose :global(kbd) {
+    display: inline-block;
+    min-width: 1.6em;
+    padding: 0.05em 0.4em;
+    border-radius: 6px;
+    background: var(--paper-raised);
+    box-shadow: inset 0 -1px 0 rgb(13 16 32 / 0.14), 0 0 0 1px var(--rule-strong);
+    font-family: var(--font);
+    font-size: 0.85em;
+    font-weight: 600;
+    color: var(--ink);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .prose :global(code) {
+    padding: 0.1em 0.35em;
+    border-radius: 5px;
+    background: var(--paper-sunk);
+    color: var(--ink);
+    overflow-wrap: anywhere;
+  }
+
+  .prose :global(pre) {
+    padding: var(--s-4) var(--s-5);
+    border-radius: var(--r-control);
+    background: var(--night);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .prose :global(pre code) {
+    padding: 0;
+    background: none;
+    color: var(--on-night);
+    font-size: 0.875rem;
+  }
+
+  .prose :global(.note) {
+    padding: var(--s-4) var(--s-5);
+    border-radius: var(--r-control);
+    border: 1.5px dashed var(--rule-strong);
+    background: var(--paper-raised);
+  }
+
+  .prose :global(.defs) {
+    display: grid;
+    grid-template-columns: minmax(0, 13em) minmax(0, 1fr);
+    gap: var(--s-3) var(--s-5);
+  }
+
+  .prose :global(.defs dd) {
+    margin: 0;
+  }
+
+  .prose :global(.table-wrap) {
+    overflow-x: auto;
+  }
+
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--step--1);
+  }
+
+  .prose :global(th),
+  .prose :global(td) {
+    text-align: left;
+    padding: 10px 12px 10px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+
+  .prose :global(th) {
+    color: var(--ink-3);
+    font-weight: 600;
+  }
+
+  .prose :global(td:first-child) {
+    width: 9em;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 819px) {
+    .doc__body--toc {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .doc__toc {
+      position: static;
+    }
+
+    .doc__toc ol {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-left: 0;
+      gap: 0 var(--s-4);
+    }
+
+    .doc__toc a {
+      padding-left: 0;
+      border-left: 0;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+    }
+
+    .prose :global(.defs) {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--s-1);
+    }
+
+    .prose :global(.defs dd) {
+      margin-bottom: var(--s-3);
+    }
+  }
+</style>

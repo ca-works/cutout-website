@@ -1,0 +1,65 @@
+# Builds the site and publishes it to GitHub Pages.
+# Only pushes to main (and manual / scheduled runs on main) can deploy. The build job has a
+# read-only token; only the deploy job can write to Pages, and it never sees the source.
+name: Deploy website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 6 * * *' # daily: picks up newly published application releases
+
+permissions: {}
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build and verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read # check out the repository; nothing else
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Install exact locked dependencies (no install scripts)
+        run: npm ci --ignore-scripts
+      - name: Release-sync unit tests
+        run: npm run test:unit
+      - name: Read the application's public release state (fails closed)
+        run: node scripts/sync-release.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Generate images from design/sources
+        run: npm run assets
+      - run: npm run check
+      - name: Build and verify (links, CSP, external hosts, budgets, secrets)
+        run: npm run build
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist
+
+  deploy:
+    name: Publish to GitHub Pages
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write # publish the artifact built above
+      id-token: write # OIDC token that proves this deployment came from this workflow
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

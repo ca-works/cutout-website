@@ -1,0 +1,49 @@
+# Full checks for pull requests and branches: unit tests, type check, build verification,
+# dependency audit and browser tests in Chromium, Firefox and WebKit (desktop and phone).
+# Runs with a read-only token and no secrets; never deploys. Uses pull_request (not
+# pull_request_target), so code from forks cannot reach privileged tokens.
+name: Check
+
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read # check out the repository; nothing else
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Audit dependencies (fails on high or critical)
+        run: npm audit --audit-level=high
+      - run: npm run test:unit
+      - run: npm run assets
+      - run: npm run check
+      - run: npm run build
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+      - name: Browser tests
+        run: npm test
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

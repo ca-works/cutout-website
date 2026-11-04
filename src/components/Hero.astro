@@ -1,0 +1,449 @@
+---
+import photo1024 from '../assets/generated/hero/photo-1024.webp?url';
+import photo1536 from '../assets/generated/hero/photo-1536.webp?url';
+import subject1024 from '../assets/generated/hero/subject-1024.webp?url';
+import subject1536 from '../assets/generated/hero/subject-1536.webp?url';
+import photo1024a from '../assets/generated/hero/photo-1024.avif?url';
+import photo1536a from '../assets/generated/hero/photo-1536.avif?url';
+import subject1024a from '../assets/generated/hero/subject-1024.avif?url';
+import subject1536a from '../assets/generated/hero/subject-1536.avif?url';
+import { isReleased, mac, formatBytes } from '../data/release';
+import { measured, requirements } from '../data/facts';
+
+const photoSet = `${photo1024} 1024w, ${photo1536} 1536w`;
+const subjectSet = `${subject1024} 1024w, ${subject1536} 1536w`;
+const photoSetAvif = `${photo1024a} 1024w, ${photo1536a} 1536w`;
+const subjectSetAvif = `${subject1024a} 1024w, ${subject1536a} 1536w`;
+const sizes = '(max-width: 819px) calc(100vw - 40px), min(44vw, 620px)';
+---
+
+<section class="hero" aria-labelledby="hero-title" data-hero>
+  <div class="hero__layout wrap">
+    <div class="hero__intro">
+      <p class="eyebrow hero__eyebrow">CutOut for Mac</p>
+      <h1 id="hero-title" class="display hero__title">
+        <span class="hero__line">Keep the subject.</span>
+        <span class="hero__line hero__line--cut">Lose the background.</span>
+      </h1>
+      <p class="lede hero__lede">
+        CutOut lifts any subject off its background in seconds — fur and fine edges included — ready to paste anywhere. Free, and entirely on
+        your Mac.
+      </p>
+      <div class="hero__actions">
+        <a class="btn" href="#download" data-primary-cta>
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14"></path>
+          </svg>
+          {isReleased ? <span>Download for Mac</span> : <span>Download</span>}
+          <span class="btn__meta">{isReleased ? `${mac.version} · ${formatBytes(mac.size)}` : 'Coming soon'}</span>
+        </a>
+        <a class="btn btn--quiet" href="#compare">See it up close</a>
+      </div>
+      <p class="hero__meta small">
+        <span>Free</span><span aria-hidden="true">·</span><span>{requirements.os.replace(' Sonoma', '')}</span><span aria-hidden="true">·</span><span>Apple silicon</span>
+      </p>
+    </div>
+
+    <div class="hero__track" data-hero-track>
+      <div class="hero__sticky">
+        <figure class="stage" data-stage>
+          <div class="stage__frame">
+            <picture>
+              <source type="image/avif" srcset={photoSetAvif} sizes={sizes} />
+              <img
+              class="stage__poster"
+              srcset={photoSet}
+              src={photo1536}
+              sizes={sizes}
+              width="1536"
+              height="1536"
+              alt="A young tabby cat lying down, photographed against a blurred background."
+              fetchpriority="high"
+              decoding="async"
+              data-stage-poster
+              />
+            </picture>
+            <div class="stage__static checker" data-stage-static>
+              <picture>
+                <source type="image/avif" srcset={subjectSetAvif} sizes={sizes} />
+                <img
+                srcset={subjectSet}
+                src={subject1536}
+                sizes={sizes}
+                width="1536"
+                height="1536"
+                alt="The same cat after CutOut removed the background: only the cat remains, on a transparency grid."
+                loading="lazy"
+                decoding="async"
+                />
+              </picture>
+            </div>
+            <canvas
+              class="stage__canvas"
+              aria-hidden="true"
+              data-stage-canvas
+              data-subject-1024-webp={subject1024}
+              data-subject-1536-webp={subject1536}
+              data-subject-1024-avif={subject1024a}
+              data-subject-1536-avif={subject1536a}></canvas>
+          </div>
+          <figcaption class="stage__caption">
+            <ol class="steps" role="list" aria-label="What CutOut does">
+              <li data-step="0"><span class="steps__n tabular">01</span> Trace<span class="steps__more"> the subject</span></li>
+              <li data-step="1"><span class="steps__n tabular">02</span> Lift it out</li>
+              <li data-step="2"><span class="steps__n tabular">03</span> Lose<span class="steps__more"> the background</span></li>
+            </ol>
+            <button class="stage__toggle" type="button" aria-pressed="false" data-stage-toggle hidden>Show original</button>
+            <p class="stage__note small">
+              A real CutOut result — Best Quality, {measured.bestSeconds} s on an M1. Photo by TudorTulok,
+              <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="license noopener">CC BY-SA 4.0</a>.
+            </p>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    --stage: min(44vw, 620px, calc(100svh - var(--nav-h) - 168px));
+    position: relative;
+    /* The canvas bleeds past the frame for the peel; never past the page. clip (unlike hidden)
+       keeps position: sticky working. */
+    overflow-x: clip;
+    padding-top: clamp(var(--s-5), 5svh, var(--s-9));
+  }
+
+  .hero__layout {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(var(--s-6), 4vw, var(--s-9));
+    align-items: start;
+  }
+
+  .hero__intro {
+    container-type: inline-size;
+    position: sticky;
+    top: calc(var(--nav-h) + clamp(16px, 6svh, 96px));
+    align-self: start;
+    display: grid;
+    gap: var(--s-5);
+    padding-bottom: var(--s-7);
+  }
+
+  .hero__title {
+    display: grid;
+    margin-top: var(--s-1);
+    /* Sized to its column: the longest line ("background.") is ≈5.2 em wide. */
+    font-size: clamp(2.6rem, min(17.5cqi, 10.5svh), 7.25rem);
+  }
+
+  .hero__line {
+    display: block;
+  }
+
+  .hero__line--cut {
+    color: var(--ink);
+    background-image: linear-gradient(90deg, var(--cut) 0 55%, transparent 55% 100%);
+    background-size: 14px 3px;
+    background-repeat: repeat-x;
+    background-position: 0 calc(100% - 0.02em);
+    padding-bottom: 0.08em;
+    width: fit-content;
+  }
+
+  .hero__lede {
+    max-width: 30ch;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+    margin-top: var(--s-2);
+  }
+
+  .hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    color: var(--ink-3);
+  }
+
+  /* ---- scroll track: tall only when motion is welcome, so nothing jumps later ---- */
+  .hero__track {
+    position: relative;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__track {
+      height: 260svh;
+    }
+  }
+
+  .hero__sticky {
+    position: sticky;
+    top: var(--nav-h);
+    height: calc(100svh - var(--nav-h));
+    display: grid;
+    place-items: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__sticky {
+      position: relative;
+      height: auto;
+      padding-block: var(--s-6) var(--s-8);
+    }
+  }
+
+  .stage {
+    display: grid;
+    gap: var(--s-5);
+    width: var(--stage);
+  }
+
+  .stage__frame {
+    position: relative;
+    aspect-ratio: 1;
+    width: 100%;
+    border-radius: var(--r-media);
+    box-shadow: var(--shadow-3);
+    isolation: isolate;
+  }
+
+  .stage__poster,
+  .stage__static {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    overflow: hidden;
+  }
+
+  .stage__poster {
+    object-fit: cover;
+    background: #a29a8c;
+  }
+
+  .stage__static picture,
+  .stage__static img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .stage__static img {
+    filter: drop-shadow(10px 16px 14px rgb(13 16 32 / 0.28));
+  }
+
+  .stage__static {
+    transition: opacity var(--t-med) var(--ease-out);
+  }
+
+  /* With motion, the story starts from the original photograph (no-JS visitors get the finished
+     cutout from noscript.css instead). */
+  @media (prefers-reduced-motion: no-preference) {
+    .stage__static {
+      opacity: 0;
+    }
+  }
+
+  /* Static presentation (no JavaScript, reduced motion, or no WebGL): the finished cutout. */
+  :global(.hero[data-show='original']) .stage__static {
+    opacity: 0;
+  }
+
+  /* Live WebGL scene. The canvas is larger than the frame so the peeled sheet can leave it. */
+  .stage__canvas {
+    position: absolute;
+    inset: -16%;
+    width: 132%;
+    height: 132%;
+    max-width: none;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 240ms linear;
+    z-index: 2;
+  }
+
+  :global(.hero.is-live) .stage__static {
+    display: none;
+  }
+
+  :global(.hero.is-live.is-ready) .stage__canvas {
+    opacity: 1;
+  }
+
+  :global(.hero.is-live.is-ready) .stage__frame {
+    box-shadow: none;
+  }
+
+  :global(.hero.is-live.is-ready) .stage__poster {
+    visibility: hidden;
+  }
+
+  /* Without WebGL: a simple scroll-linked dissolve between the two real images. */
+  :global(.hero.is-lite) .stage__static {
+    opacity: var(--lite, 0);
+    transition: none;
+  }
+
+  .stage__caption {
+    display: grid;
+    gap: var(--s-4);
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--s-3);
+    font-size: var(--step--1);
+    font-weight: 560;
+    color: var(--ink-3);
+  }
+
+  .steps li {
+    position: relative;
+    padding-top: var(--s-3);
+    transition: color var(--t-med) linear;
+  }
+
+  .steps li::before,
+  .steps li::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 2px;
+    border-radius: 2px;
+  }
+
+  .steps li::before {
+    right: 0;
+    background: var(--rule);
+  }
+
+  .steps li::after {
+    width: calc(var(--fill, 0) * 100%);
+    background: var(--cut);
+  }
+
+  .steps__n {
+    margin-right: 0.35em;
+    color: var(--ink-3);
+  }
+
+  :global(.steps li.is-active),
+  :global(.steps li.is-done) {
+    color: var(--ink);
+  }
+
+  :global(.steps li.is-active) .steps__n {
+    color: var(--cut);
+  }
+
+  .stage__toggle {
+    justify-self: start;
+    min-height: 40px;
+    padding: 0 var(--s-4);
+    border: 0;
+    border-radius: 999px;
+    background: var(--paper-raised);
+    box-shadow: inset 0 0 0 1px var(--rule-strong);
+    font-size: var(--step--1);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .stage__note {
+    color: var(--ink-3);
+    max-width: 52ch;
+  }
+
+  .stage__note a {
+    color: inherit;
+  }
+
+  /* ---- reduced motion: static stage, steps all done ---- */
+  @media (prefers-reduced-motion: reduce) {
+    .steps li {
+      color: var(--ink);
+    }
+
+    .steps li::after {
+      width: 100%;
+    }
+  }
+
+  /* ---- short laptop screens: keep the download button above the fold ---- */
+  @media (min-width: 820px) and (max-height: 820px) {
+    .hero__intro {
+      gap: var(--s-4);
+    }
+
+    .hero__title {
+      font-size: clamp(2.6rem, min(17.5cqi, 9.4svh), 7.25rem);
+    }
+
+    .hero__lede {
+      font-size: var(--step-0);
+      max-width: 36ch;
+    }
+  }
+
+  /* ---- tablets and phones ---- */
+  @media (max-width: 819px) {
+    .hero {
+      --stage: min(calc(100vw - 2 * var(--gutter)), calc(100svh - var(--nav-h) - 150px), 560px);
+      padding-top: var(--s-6);
+    }
+
+    .hero__layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero__intro {
+      position: static;
+      padding-bottom: var(--s-4);
+    }
+
+    .hero__lede {
+      max-width: 36ch;
+    }
+
+    .stage__canvas {
+      inset: -8%;
+      width: 116%;
+      height: 116%;
+    }
+  }
+
+  @media (max-width: 819px) and (prefers-reduced-motion: no-preference) {
+    .hero__track {
+      height: 190svh;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .steps__more {
+      display: none;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .steps {
+      font-size: 0.8125rem;
+    }
+
+    .hero__actions .btn {
+      flex: 1 1 100%;
+    }
+  }
+</style>
+
+<script>
+  import { initHero } from '../scripts/hero';
+  initHero();
+</script>

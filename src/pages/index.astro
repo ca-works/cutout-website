@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import Compare from '../components/Compare.astro';
+import Showcase from '../components/Showcase.astro';
+import Workflow from '../components/Workflow.astro';
+import Features from '../components/Features.astro';
+import Privacy from '../components/Privacy.astro';
+import Free from '../components/Free.astro';
+import Downloads from '../components/Downloads.astro';
+import Faq from '../components/Faq.astro';
+import photo1024 from '../assets/generated/hero/photo-1024.avif?url';
+import photo1536 from '../assets/generated/hero/photo-1536.avif?url';
+
+const title = 'CutOut — Background removal for Mac, free and offline';
+const description =
+  'CutOut removes backgrounds in seconds — fur, hair and fine edges included — then lets you refine, layer and copy the result. Free, and it runs entirely on your Mac.';
+---
+
+<Base
+  title={title}
+  description={description}
+  preload={[
+    {
+      href: photo1536,
+      as: 'image',
+      type: 'image/avif',
+      imagesrcset: `${photo1024} 1024w, ${photo1536} 1536w`,
+      imagesizes: '(max-width: 819px) calc(100vw - 40px), min(44vw, 620px)',
+    },
+  ]}
+>
+  <Hero />
+  <Compare />
+  <Showcase />
+  <Workflow />
+  <Features />
+  <Privacy />
+  <Free />
+  <Downloads />
+  <Faq />
+</Base>

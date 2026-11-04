@@ -1,0 +1,36 @@
+{
+  "name": "cutout-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Website for CutOut, the offline background-removal and image editor for Mac.",
+  "license": "MIT",
+  "author": "ca-works",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "scripts": {
+    "dev": "node scripts/astro.mjs dev --host 127.0.0.1",
+    "assets": "node scripts/prepare-assets.mjs && node scripts/make-icons.mjs",
+    "sync": "node scripts/sync-release.mjs",
+    "check": "node scripts/astro.mjs check",
+    "build": "node scripts/astro.mjs build && node scripts/verify-dist.mjs",
+    "preview": "node scripts/serve.mjs",
+    "test": "playwright test",
+    "test:unit": "node --test tests/unit/*.test.mjs",
+    "lighthouse": "node scripts/lighthouse.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "3.7.4",
+    "astro": "7.4.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "@axe-core/playwright": "4.14.0",
+    "@fontsource-variable/mona-sans": "5.3.0",
+    "@playwright/test": "1.64.1",
+    "chrome-launcher": "1.2.2",
+    "lighthouse": "13.5.0",
+    "typescript": "6.0.3"
+  }
+}

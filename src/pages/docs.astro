@@ -1,0 +1,221 @@
+---
+import Base from '../layouts/Base.astro';
+import Prose from '../components/Prose.astro';
+import { shortcuts, toolShortcuts, requirements, measured, testMachine } from '../data/facts';
+import { release, mac, isReleased, sourcePublic, issuesUrl, websiteRepoUrl, releasesUrl, formatBytes } from '../data/release';
+
+const base = import.meta.env.BASE_URL;
+const toc = [
+  ['install', 'Install'],
+  ['start', 'Getting started'],
+  ['clipboard', 'Clipboard'],
+  ['export', 'Export and projects'],
+  ['shortcuts', 'Keyboard shortcuts'],
+  ['troubleshooting', 'Troubleshooting'],
+  ['platforms', 'Platforms'],
+  ['security', 'Security'],
+  ['bugs', 'Reporting problems'],
+  ['contributing', 'Contributing'],
+  ['credits', 'Credits'],
+];
+---
+
+<Base
+  title="CutOut guide — install, use and troubleshoot"
+  description="How to install CutOut on a Mac, remove a background, use the clipboard workflow, export, keyboard shortcuts, troubleshooting and verifying downloads."
+  path="docs/"
+>
+  <Prose title="Guide" lede="Everything you need to install CutOut, get a clean cutout and put it to work." toc={toc}>
+    <h2 id="install">Install</h2>
+    <p>
+      CutOut runs on Macs with <strong>Apple silicon</strong> and <strong>{requirements.os}</strong>. The download is a disk image of about 400 MB
+      with the Best Quality model inside, so it works offline from the first launch.
+    </p>
+    {
+      isReleased ? (
+        <p>
+          Download <a href={mac.url}>{mac.file}</a> ({formatBytes(mac.size)}, version {mac.version}) from the <a href={`${base}#download`}>download section</a> or the{' '}
+          <a href={mac.releaseUrl} rel="noopener">release page</a>.
+        </p>
+      ) : (
+        <p class="note">
+          The first public build is being prepared. Once it is published on GitHub Releases, the <a href={`${base}#download`}>download section</a> links to it with its
+          size and checksum. The steps below already apply.
+        </p>
+      )
+    }
+    <h3 id="first-launch">Opening it the first time</h3>
+    <p>
+      CutOut 0.1 is signed ad hoc, not with an Apple Developer ID, and it is not notarized by Apple. macOS therefore stops the first launch and asks you to confirm.
+      Check the download first (see <a href="#security">Security</a>), then:
+    </p>
+    <ol>
+      <li>Open the disk image and drag <strong>CutOut</strong> to <strong>Applications</strong>.</li>
+      <li>Open CutOut from Applications. macOS reports that it could not verify the app. Choose <strong>Done</strong>.</li>
+      <li>
+        Open <strong>System Settings ▸ Privacy &amp; Security</strong>. Under <em>Security</em>, CutOut is named with an <strong>Open Anyway</strong> button. Click it,
+        confirm with your password or Touch ID, and choose <strong>Open</strong>.
+      </li>
+    </ol>
+    <p>
+      On <strong>macOS 14 Sonoma</strong> there is a shortcut: Control-click CutOut in Applications, choose <strong>Open</strong>, then <strong>Open</strong> again. macOS
+      remembers your choice; later launches open normally.
+    </p>
+    <h3 id="uninstall">Uninstall</h3>
+    <p>
+      Drag CutOut from Applications to the Bin. To remove its data too, delete <code>~/Library/Application Support/CutOut</code> (downloaded models and the last-session
+      backup) and <code>~/Library/Caches/CutOut</code>.
+    </p>
+
+    <h2 id="start">Getting started</h2>
+    <ol>
+      <li><strong>Bring in an image.</strong> Press <kbd>⌘V</kbd> with an image on the clipboard, drop a file on the window, or choose File ▸ Open (<kbd>⌘O</kbd>).</li>
+      <li>
+        <strong>Remove the background.</strong> Click <em>Remove Background</em> or press <kbd>⌘B</kbd>. Best Quality took about {measured.bestSeconds} seconds per image
+        on an M1 in our tests ({measured.firstBestSeconds} s the first time, while the model loads). <kbd>⇧⌘B</kbd> uses Fast mode (Apple Vision, about {measured.fastSeconds} s).
+      </li>
+      <li><strong>Check it.</strong> Press <kbd>\</kbd> to switch between before and after.</li>
+      <li>
+        <strong>Refine if needed.</strong> Show the tools with <kbd>⌥⌘T</kbd>: the <em>Restore</em> brush (<kbd>R</kbd>) brings back anything that was removed, the
+        <em>Eraser</em> (<kbd>X</kbd>) and <em>Magic Eraser</em> (<kbd>E</kbd>) remove more, and <em>Refine Edges</em> adjusts radius, smoothing, feather, contrast and
+        edge position, with colour decontamination for fringes.
+      </li>
+      <li><strong>Copy it.</strong> <kbd>⌘C</kbd>, then paste wherever you need it.</li>
+    </ol>
+    <p>
+      Removal never deletes pixels: it writes the layer’s mask. <em>Restore All</em> undoes a removal completely, and every step is in Undo (<kbd>⌘Z</kbd>).
+    </p>
+
+    <h2 id="clipboard">Clipboard</h2>
+    <dl class="defs">
+      <dt><kbd>⌘C</kbd> Copy</dt>
+      <dd>Puts the result on the clipboard as a PNG with transparency, plus a TIFF that keeps the alpha channel for apps that prefer TIFF.</dd>
+      <dt><kbd>⇧⌘C</kbd> Copy &amp; Clear</dt>
+      <dd>Copies, then clears the workspace for the next image. If copying fails, the workspace is kept.</dd>
+      <dt><kbd>⌥⌘C</kbd> Copy &amp; Close</dt>
+      <dd>Copies and quits; the clipboard keeps the image after CutOut has closed.</dd>
+      <dt>Copy as JPEG</dt>
+      <dd>In the Copy menu. JPEG has no transparency, so CutOut warns before flattening it.</dd>
+      <dt><kbd>⌘V</kbd> Paste</dt>
+      <dd>Opens the image, or adds it as a new layer if something is already open. <kbd>⌥⌘V</kbd> pastes as a new image instead.</dd>
+    </dl>
+    <p>CutOut reads the clipboard only when you paste. It never monitors it.</p>
+
+    <h2 id="export">Export and projects</h2>
+    <ul>
+      <li><strong>Export PNG</strong> (<kbd>⇧⌘E</kbd>) keeps transparency. <strong>Export JPEG</strong> is in the File menu.</li>
+      <li><strong>Save Project</strong> (<kbd>⌘S</kbd>) writes a <code>.cutout</code> file that keeps layers, masks, transforms and text editable.</li>
+      <li>CutOut opens PNG, JPEG, HEIC, TIFF, GIF, BMP and WebP. Images over 16,384 px on a side or 120 megapixels are scaled down on import, with a notice.</li>
+      <li>If you quit or clear with unsaved work, <strong>File ▸ Restore Last Session</strong> brings it back.</li>
+    </ul>
+
+    <h2 id="shortcuts">Keyboard shortcuts</h2>
+    <div class="table-wrap">
+      <table>
+        <caption class="visually-hidden">Commands</caption>
+        <thead><tr><th scope="col">Keys</th><th scope="col">Command</th></tr></thead>
+        <tbody>
+          {shortcuts.map(([k, v]) => <tr><td><kbd>{k}</kbd></td><td>{v}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <caption class="visually-hidden">Tools</caption>
+        <thead><tr><th scope="col">Key</th><th scope="col">Tool</th></tr></thead>
+        <tbody>
+          {toolShortcuts.map(([k, v]) => <tr><td><kbd>{k}</kbd></td><td>{v}</td></tr>)}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="troubleshooting">Troubleshooting</h2>
+    <h3>“Remove Background” opens a model setup window</h3>
+    <p>
+      The Best Quality model is missing. The full download includes it, so reinstalling that build fixes this. You can also choose <em>Use Fast Mode Now</em> (built in, no
+      download) or <em>Install from File…</em> with a CutOut model archive, which is verified before it is installed.
+    </p>
+    <h3>Best Quality takes 15 seconds or more</h3>
+    <p>
+      Look at the status bar. <em>Core ML · GPU</em> is the fast path. <em>ONNX Runtime · CPU</em> means CutOut fell back to the slower CPU model (about 14 s and up to
+      9 GB of memory on an M1), usually because the Core ML model is missing. Reinstall the full build.
+    </p>
+    <h3>Glass or a translucent object looks solid</h3>
+    <p>
+      Segmentation decides what is subject and what isn’t, so it can’t make glass half-transparent. Use the Magic Eraser, Eraser or Refine Edges to finish such areas.
+    </p>
+    <h3>macOS says CutOut “is damaged”</h3>
+    <p>The file was changed or corrupted on the way. Delete it, download it again, and compare its checksum before opening it.</p>
+
+    <h2 id="platforms">Platforms</h2>
+    <ul>
+      <li><strong>Mac with Apple silicon</strong>, {requirements.os}: supported.</li>
+      <li><strong>Intel Mac</strong>: not available. No Intel or Universal build exists yet.</li>
+      <li><strong>Windows</strong>: not available. The Rust engine is designed to be reused by a native Windows app, which hasn’t been built.</li>
+      <li><strong>Linux</strong>: not available.</li>
+    </ul>
+    <p>Performance figures on this site were measured on an {testMachine}.</p>
+
+    <h2 id="security">Security</h2>
+    <h3>Verify your download</h3>
+    <p>Every release lists a SHA-256 checksum for each file in <code>SHA256SUMS.txt</code>, and this site shows the same value. In Terminal:</p>
+    <pre><code>shasum -a 256 ~/Downloads/{mac.file}</code></pre>
+    <p>
+      The output must match exactly. This website only links to files that are published on GitHub Releases and whose checksum matches both the release’s
+      <code>SHA256SUMS.txt</code> and GitHub’s own record of the file; otherwise the site isn’t updated.
+    </p>
+    <h3>What “not notarized” means</h3>
+    <p>
+      Notarization is Apple’s automated malware scan for apps signed with a paid Developer ID. CutOut 0.1 is signed ad hoc instead, so Apple has not scanned it, and the
+      checksum is how you know your copy is the published one. The app runs with the hardened runtime and requests no special permissions (entitlements).
+    </p>
+    <h3>Reporting a vulnerability</h3>
+    <p>
+      Please don’t open a public issue. Use GitHub’s private vulnerability reporting on <a href={`${sourcePublic ? release.repo.url : websiteRepoUrl}/security`} rel="noopener">the repository’s Security tab</a>, or see its <code>SECURITY.md</code>.
+    </p>
+
+    <h2 id="bugs">Reporting problems</h2>
+    <p>
+      Open an issue on <a href={issuesUrl} rel="noopener">GitHub</a>. Include your macOS version, Mac model, CutOut version (CutOut ▸ About CutOut), what you did and what
+      happened. Please don’t attach private photos; a screenshot of the window is usually enough.
+    </p>
+
+    <h2 id="contributing">Contributing</h2>
+    {
+      sourcePublic ? (
+        <p>
+          CutOut’s source is on <a href={release.repo.url} rel="noopener">GitHub</a>. Read its contributing notes before opening a pull request.
+        </p>
+      ) : (
+        <p>
+          The application’s source code will be published with the first public release. Until then you can help by reporting problems, and this website’s own source is
+          open at <a href={websiteRepoUrl} rel="noopener">{websiteRepoUrl.replace('https://', '')}</a>.
+        </p>
+      )
+    }
+    {releasesUrl && <p><a href={releasesUrl} rel="noopener">All releases</a></p>}
+
+    <h2 id="credits">Credits</h2>
+    <ul>
+      <li>Background removal model: <a href="https://github.com/ZhengPeng7/BiRefNet" rel="noopener">BiRefNet</a> by Peng Zheng et al., MIT licence.</li>
+      <li>
+        Cat photo: “Young Tabby Cat Portrait” by TudorTulok, <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="license noopener">CC BY-SA 4.0</a>, via{' '}
+        <a href="https://commons.wikimedia.org/wiki/File:Young_Tabby_Cat_Portrait.jpg" rel="noopener">Wikimedia Commons</a>. The cutout and mask versions on this site
+        were made with CutOut and are shared under the same licence.
+      </li>
+      <li>
+        Mug and cup: “Mug vs cup” by Викидим, <a href="https://creativecommons.org/publicdomain/zero/1.0/" rel="license noopener">CC0</a>, via{' '}
+        <a href="https://commons.wikimedia.org/wiki/File:Mug_vs_cup.jpg" rel="noopener">Wikimedia Commons</a>.
+      </li>
+      <li>
+        Dandelion: “Seed head of a dandelion” by Adesolive, <a href="https://creativecommons.org/publicdomain/zero/1.0/" rel="license noopener">CC0</a>, via{' '}
+        <a href="https://commons.wikimedia.org/wiki/File:Seed_head_of_a_dandelion,_specifically_Taraxacum_officinale.jpg" rel="noopener">Wikimedia Commons</a>.
+      </li>
+      <li>
+        Typeface: <a href="https://github.com/github/mona-sans" rel="noopener">Mona Sans</a> by GitHub, SIL Open Font License 1.1
+        (<a href={`${base}licenses/MonaSans-OFL.txt`}>licence text</a>).
+      </li>
+      <li>Website built with <a href="https://astro.build/" rel="noopener">Astro</a> (MIT).</li>
+    </ul>
+  </Prose>
+</Base>

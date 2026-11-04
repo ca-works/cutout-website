@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+src/assets/generated/
+test-results/
+playwright-report/
+reports/lighthouse/*.html
+.DS_Store
+*.log
+.env
+.env.*
+.claude/

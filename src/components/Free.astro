@@ -1,0 +1,174 @@
+---
+import { release, sourcePublic, websiteRepoUrl, issuesUrl } from '../data/release';
+
+const licence = release.repo.license;
+const credits = [
+  { name: 'BiRefNet', role: 'segmentation model', licence: 'MIT', url: 'https://github.com/ZhengPeng7/BiRefNet' },
+  { name: 'ONNX Runtime', role: 'CPU fallback', licence: 'MIT', url: 'https://onnxruntime.ai/' },
+  { name: 'Rust', role: 'image engine', licence: '93 crates, all permissive', url: 'https://www.rust-lang.org/' },
+];
+---
+
+<section class="section free" id="free" aria-labelledby="free-title">
+  <div class="wrap free__grid">
+    <div class="free__statement" data-reveal>
+      <p class="eyebrow">Free {sourcePublic ? 'and open source' : ''}</p>
+      <h2 class="h2" id="free-title">
+        {sourcePublic ? 'Free. Open. Yours to inspect.' : 'Free. No account, no subscription.'}
+      </h2>
+      {
+        sourcePublic ? (
+          <p class="lede">
+            CutOut costs nothing and has no in-app purchases. Its complete source code is public on GitHub
+            {licence ? ` under the ${licence.name}` : ''} — read it, build it, improve it.
+          </p>
+        ) : (
+          <p class="lede">
+            CutOut costs nothing and has no in-app purchases, sign-up or trial. Its source code is being prepared for publication on GitHub; the licence
+            will be announced with the first public release.
+          </p>
+        )
+      }
+      <ul class="free__links" role="list">
+        {
+          sourcePublic ? (
+            <>
+              <li>
+                <a class="link-arrow" href={release.repo.url} rel="noopener">
+                  Source code on GitHub
+                </a>
+              </li>
+              {licence && (
+                <li>
+                  <a class="link-arrow" href={licence.url} rel="noopener">
+                    {licence.spdx} licence
+                  </a>
+                </li>
+              )}
+              <li>
+                <a class="link-arrow" href={`${release.repo.url}/blob/HEAD/CONTRIBUTING.md`} rel="noopener">
+                  How to contribute
+                </a>
+              </li>
+            </>
+          ) : (
+            <li>
+              <a class="link-arrow" href={websiteRepoUrl} rel="noopener">
+                This website’s source (MIT)
+              </a>
+            </li>
+          )
+        }
+        <li>
+          <a class="link-arrow" href={issuesUrl} rel="noopener">
+            Report a problem or suggest a feature
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="free__credits" data-reveal="2">
+      <h3 class="free__label">Built on open work</h3>
+      <ul role="list">
+        {
+          credits.map((c) => (
+            <li>
+              <a href={c.url} rel="noopener">
+                {c.name}
+              </a>
+              <span>{c.role}</span>
+              <span class="free__licence">{c.licence}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="small muted">
+        Fast mode, Core ML, ImageIO and Core Text are part of macOS. Third-party licences ship with the app.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .free__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: clamp(var(--s-6), 6vw, var(--s-10));
+    align-items: end;
+  }
+
+  .free__statement {
+    display: grid;
+    gap: var(--s-5);
+  }
+
+  .free__statement .lede {
+    max-width: 40ch;
+  }
+
+  .free__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3) var(--s-6);
+    margin-top: var(--s-2);
+  }
+
+  .free__links a {
+    min-height: 44px;
+  }
+
+  .free__credits {
+    display: grid;
+    gap: var(--s-4);
+    padding: clamp(var(--s-5), 3vw, var(--s-7));
+    border-radius: var(--r-stage);
+    background: var(--paper-raised);
+    box-shadow: var(--shadow-1), inset 0 0 0 1px var(--rule);
+  }
+
+  .free__label {
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+
+  .free__credits ul {
+    display: grid;
+  }
+
+  .free__credits li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px var(--s-4);
+    padding-block: var(--s-3);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .free__credits li a {
+    font-weight: 620;
+    text-decoration: none;
+  }
+
+  @media (hover: hover) {
+    .free__credits li a:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .free__credits li span {
+    font-size: var(--step--1);
+    color: var(--ink-2);
+  }
+
+  .free__licence {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    color: var(--ink-3) !important;
+  }
+
+  @media (max-width: 819px) {
+    .free__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

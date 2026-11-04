@@ -1,0 +1,213 @@
+---
+import { measured, testMachine } from '../data/facts';
+
+const keys = [
+  {
+    keys: ['⌘', 'V'],
+    title: 'Paste',
+    text: 'A screenshot, a copied photo, an image from the web. Paste again and it arrives as a new layer.',
+  },
+  {
+    keys: ['⌘', 'B'],
+    title: 'Remove',
+    text: 'Best Quality runs the BiRefNet model on your Mac’s GPU. Need it instantly? Fast mode (⇧⌘B) uses Apple Vision.',
+  },
+  {
+    keys: ['⌘', 'C'],
+    title: 'Copy',
+    text: 'A transparent PNG — with a TIFF copy that keeps the alpha, for apps that prefer it — lands on the clipboard. ⇧⌘C copies and clears; ⌥⌘C copies and quits.',
+  },
+];
+const fmt = (n: number) => n.toLocaleString('en-GB', { maximumFractionDigits: 1 });
+const figures = [
+  { value: fmt(Math.round(measured.launchMs / 100) / 10), unit: 's', label: 'From launch to a ready window' },
+  { value: fmt(measured.bestSeconds), unit: 's', label: 'Best Quality removal', note: `${fmt(measured.firstBestSeconds)} s the first time, while the model loads` },
+  { value: fmt(measured.fastSeconds), unit: 's', label: 'Fast removal with Apple Vision' },
+  { value: '0', unit: '', label: 'Images uploaded, ever' },
+];
+---
+
+<section class="section workflow" id="workflow" aria-labelledby="workflow-title">
+  <div class="wrap">
+    <header class="section-head" data-reveal>
+      <p class="eyebrow">Workflow</p>
+      <h2 class="h2" id="workflow-title">Paste. Remove. Copy.</h2>
+      <p class="lede">CutOut is built around the clipboard, so a cutout goes from screenshot to slide in three keystrokes — without a file on your Desktop.</p>
+    </header>
+
+    <ol class="keys" role="list">
+      {
+        keys.map((k, i) => (
+          <li class="keys__item" data-reveal={String(i + 1)}>
+            <div class="keys__caps" aria-hidden="true">
+              {k.keys.map((c) => (
+                <span class="cap">{c}</span>
+              ))}
+            </div>
+            <h3 class="h3">
+              <span class="visually-hidden">{k.keys.join('')} — </span>
+              {k.title}
+            </h3>
+            <p class="muted">{k.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="figures" data-reveal>
+      <dl class="figures__list">
+        {
+          figures.map((f) => (
+            <div class="figure">
+              <dt>{f.label}</dt>
+              <dd class="figure__value tabular">
+                {f.value}
+                {f.unit && <span class="figure__unit">{f.unit}</span>}
+              </dd>
+              {f.note && <dd class="figure__note">{f.note}</dd>}
+            </div>
+          ))
+        }
+      </dl>
+      <p class="figures__source small">
+        Measured on an {testMachine}. Times depend on image size and Mac.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .keys {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(var(--s-5), 3vw, var(--s-7));
+    margin-bottom: clamp(var(--s-8), 7vw, var(--s-10));
+  }
+
+  .keys__item {
+    display: grid;
+    align-content: start;
+    gap: var(--s-3);
+  }
+
+  .keys__item .muted {
+    max-width: 32ch;
+  }
+
+  .keys__caps {
+    display: flex;
+    gap: 10px;
+    margin-bottom: var(--s-4);
+  }
+
+  .cap {
+    display: grid;
+    place-items: center;
+    width: clamp(64px, 6.5vw, 88px);
+    aspect-ratio: 1;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #ffffff 0%, #f4f4f1 100%);
+    box-shadow:
+      inset 0 -3px 0 rgb(13 16 32 / 0.1),
+      inset 0 1px 0 #fff,
+      0 0 0 1px rgb(13 16 32 / 0.1),
+      0 2px 3px rgb(13 16 32 / 0.08),
+      0 12px 24px -10px rgb(13 16 32 / 0.25);
+    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+    font-weight: 560;
+    color: var(--ink);
+    transition: transform 160ms var(--ease-out), box-shadow 160ms var(--ease-out);
+  }
+
+  /* The keys press once, in order, when they arrive. */
+  @media (prefers-reduced-motion: no-preference) {
+    .keys__item:not(.reveal-pending) .cap {
+      animation: press 520ms var(--ease-out) both;
+      animation-delay: calc(var(--d, 0) * 1ms + 450ms);
+    }
+
+    .keys__item:nth-child(2) .cap {
+      --d: 380;
+    }
+
+    .keys__item:nth-child(3) .cap {
+      --d: 760;
+    }
+  }
+
+  @keyframes press {
+    40% {
+      transform: translateY(2px) scale(0.985);
+      box-shadow:
+        inset 0 -1px 0 rgb(13 16 32 / 0.1),
+        0 0 0 1px rgb(13 16 32 / 0.12),
+        0 0 0 4px var(--cut-glow),
+        0 4px 10px -6px rgb(13 16 32 / 0.25);
+    }
+  }
+
+  .figures {
+    border-top: 1px solid var(--rule);
+    padding-top: var(--s-6);
+  }
+
+  .figures__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s-6);
+    margin: 0 0 var(--s-5);
+  }
+
+  .figure {
+    display: grid;
+    align-content: start;
+    gap: var(--s-1);
+  }
+
+  .figure dt {
+    order: 2;
+    font-size: var(--step--1);
+    font-weight: 560;
+    color: var(--ink-2);
+  }
+
+  .figure dd {
+    margin: 0;
+  }
+
+  .figure__value {
+    order: 1;
+    font-size: clamp(2.5rem, 1.6rem + 3vw, 4.5rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 1;
+  }
+
+  .figure__unit {
+    font-size: 0.42em;
+    font-weight: 560;
+    letter-spacing: 0;
+    margin-left: 0.12em;
+    color: var(--ink-2);
+  }
+
+  .figure__note {
+    order: 3;
+    font-size: 0.8125rem;
+    color: var(--ink-3);
+  }
+
+  .figures__source {
+    color: var(--ink-3);
+  }
+
+  @media (max-width: 819px) {
+    .keys {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .figures__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>
