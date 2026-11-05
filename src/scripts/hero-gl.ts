@@ -65,7 +65,10 @@ out vec4 o;
 ${RRECT}
 void main() {
   float d = rrect(v_p, u_half, u_radius);
-  float inside = 1.0 - smoothstep(-fwidth(d), fwidth(d), d);
+  // fwidth can be exactly 0 on the rectangle's diagonal (its distance field's ridge); smoothstep
+  // with equal edges is undefined, so keep the antialiasing width above zero.
+  float fw = max(fwidth(d), 1e-4);
+  float inside = 1.0 - smoothstep(-fw, fw, d);
   if (inside <= 0.0) discard;
   vec2 cell = floor((v_p * vec2(1.0, -1.0) + u_half) / u_cell);
   float c = mod(cell.x + cell.y, 2.0);
@@ -140,7 +143,8 @@ ${RRECT}
 void main() {
   vec2 p = vec2((v_uv.x - 0.5) * u_ar, 0.5 - v_uv.y);
   float d = rrect(p, vec2(u_ar * 0.5, 0.5), u_radius);
-  float edge = 1.0 - smoothstep(-fwidth(d), fwidth(d), d);
+  float fw = max(fwidth(d), 1e-4); // see GROUND_FS
+  float edge = 1.0 - smoothstep(-fw, fw, d);
   vec2 tuv = v_uv * u_crop.xy + u_crop.zw;
   float matte = texture(u_subject, tuv).a;
   float a = edge * (1.0 - u_hole * matte) * u_alpha;

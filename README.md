@@ -4,10 +4,10 @@
 
 The website for **CutOut**, the free, offline background-removal and image editor for Mac.
 A static [Astro](https://astro.build/) site on a black, cinematic stage, hosted free on GitHub
-Pages. In the opening scene a machined crankset sits in front of a giant **CutOut** wordmark
-while its background sits behind it. As you scroll, marching ants trace CutOut's own matte, the
-part lifts, and the photo peels off the screen like a print (raw WebGL 2, 3.6 KiB). After that
-come real before/after results (a golden retriever puppy, threaded bolts, the crankset, a
+Pages. In the opening scene a white enamel mug sits in front of a giant **CutOut** wordmark while
+its background sits behind it. As you scroll, marching ants trace CutOut's own matte, the mug
+lifts, and the photo peels off the screen like a print (raw WebGL 2, 3.7 KiB). After that come
+real before/after results (a golden retriever puppy, threaded bolts, a machined crankset, a
 dandelion), a pinned *Paste. Remove. Copy.* sequence and genuine app windows. Every image is
 CutOut's unretouched output.
 

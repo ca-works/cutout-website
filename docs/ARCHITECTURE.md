@@ -75,7 +75,7 @@ The blend only reaches layers in the same stacking context, so `.hero__stage` de
 `transform`, `filter` or `opacity`.
 
 * `hero.ts` picks the mode, adds pointer parallax (fine pointers), and loads `hero-gl.ts`
-  (separate chunk, 3.6 KiB gzip) on the visitor's first scroll, wheel, pointer, key or touch,
+  (separate chunk, 3.7 KiB gzip) on the visitor's first scroll, wheel, pointer, key or touch,
   never during load. That keeps total blocking time at 0 ms.
 * `hero-gl.ts` draws two programs. **ground** is the checker inside a rounded rectangle, with a
   contact shadow along the fold. **sheet** is a 96 × 96 grid whose vertex shader curls the corner

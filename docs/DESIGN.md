@@ -25,12 +25,15 @@ typefaces or code were taken from any of them.
 | Idea | A black stage. A giant **CutOut** wordmark sits *between* a photo and its subject: the subject is in front of the word, the background is behind it. Scrolling traces the cut, the subject lifts and the print peels off the screen. | A photographer's light table: prints slide in, the cut is drawn with a scalpel cursor. | The photo, matte and cutout float apart in 3D depth as you scroll. |
 | Epic, at a glance | Yes: the depth trick reads instantly and only works *because* the background was removed. | Calm, editorial; closer to version 1. | Spectacular but a common "3D product" trope. |
 | Truthful | Uses CutOut's real matte for the hole, the cut line and the subject. | Same. | Needs invented intermediate layers. |
-| Cost | One small WebGL 2 canvas (3.6 KiB gzip), DOM layers for the rest. | CSS only. | Three.js or similar, heavier on phones. |
+| Cost | One small WebGL 2 canvas (3.7 KiB gzip), DOM layers for the rest. | CSS only. | Three.js or similar, heavier on phones. |
 | Distinct from ENG | Completely (dark, centred, type-as-image). | Partly (light, editorial). | Yes. |
 
-**Decision: A.** The hero subject is a machined bicycle crankset, not an animal: the owner asked
-for a non-living subject for the title, and its chainring gaps show CutOut handling holes, which
-a solid object could not. The golden retriever puppy leads the results section instead.
+**Decision: A.** The hero subject is a white enamel mug, which follows the owner's direction. It is
+a simple, non-living object with a clean silhouette, and the gap inside its handle is a real hole.
+A machined crankset was tried first, but the owner found it too busy as the first image, so it
+now appears only as the *Gaps* sample. The golden retriever puppy leads the results section. It
+is a puppy lying on a plain carpet, chosen so that every leg is visible: the first choice stood
+in grass that hid part of a hind leg.
 
 ## Art direction
 
@@ -49,7 +52,7 @@ a solid object could not. The golden retriever puppy leads the results section i
 
 | Section | What happens | Scroll length |
 |---|---|---|
-| Hero | Crankset photo on the stage, the wordmark behind its subject (difference blend). Scroll: marching ants trace the outline (outer edge plus 15 inner holes), the subject lifts with a shadow, the print curls back from its corner (white paper underside) and is pulled off the screen, leaving the subject on the transparency grid. | 300 svh (240 on phones) |
+| Hero | Mug photo on the stage. The wordmark sits behind the mug, which covers only the lower part of the letters, so *CutOut* stays readable (difference blend). Scroll: marching ants trace the outline (outer edge plus the handle's hole), the subject lifts with a shadow, the print curls back from its corner (white paper underside) and is pulled off the screen, leaving the subject on the transparency grid. | 300 svh (240 on phones) |
 | Results (`#compare`) | *Every hair. Every thread.* A before/after slider with four real samples (Fur: golden retriever puppy; Threads: hex bolts; Gaps: the crankset; Seeds: a dandelion), four backdrops and a zoom. | normal |
 | Keys | *Paste. Remove. Copy.* pinned; a ⌘ key with the letter rolling V → B → C, the bolt photo dissolving into its cutout, then shrinking away with a "Copied" toast. | 330 svh (300) |
 | The app (`#app`) | A genuine CutOut window rises and tilts upright, then swaps from the simple view to the full tool panel. | 260 svh (220) |
@@ -125,8 +128,8 @@ The Guide, privacy and 404 pages use the same tokens through compatibility alias
 
 ### Responsive behaviour
 
-* **Phones:** the hero keeps the part's own shape so the whole crankset stays visible. The
-  wordmark sits on the frame's top edge, and the headline and a full-width button sit at the
+* **Phones:** the hero keeps the photo's square shape so the whole mug stays visible. The
+  wordmark sits behind the rim at 22vw, and the headline and a full-width button sit at the
   bottom. The slider frame is 4:5. The key sequence puts the image above the words.
 * **Tablets and up:** two-column scenes from 820 px. The hero frame grows to 1200 px.
 * Touch: every control is at least 44 px. The slider takes horizontal drags while vertical swipes

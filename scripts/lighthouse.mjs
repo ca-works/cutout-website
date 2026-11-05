@@ -9,10 +9,13 @@ import { SITE_BASE } from '../site.config.mjs';
 
 const pages = ['', 'docs/'];
 await mkdir('reports/lighthouse', { recursive: true });
-const chrome = await chromeLauncher.launch({
-  chromePath: chromium.executablePath(),
-  chromeFlags: ['--headless=new', '--no-first-run', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
-});
+// A fresh browser per run: a long-lived headless Chrome's screen capture can stall on later runs,
+// which inflates Speed Index without the page doing anything different.
+const launch = () =>
+  chromeLauncher.launch({
+    chromePath: chromium.executablePath(),
+    chromeFlags: ['--headless=new', '--no-first-run', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
+  });
 const summary = [];
 for (const formFactor of ['mobile', 'desktop']) {
   for (const p of pages) {
@@ -24,7 +27,9 @@ for (const formFactor of ['mobile', 'desktop']) {
           ? { formFactor, screenEmulation: { mobile: false, width: 1440, height: 900, deviceScaleFactor: 1, disabled: false }, throttlingMethod: 'simulate', throttling: { rttMs: 40, throughputKbps: 10240, cpuSlowdownMultiplier: 1 } }
           : { formFactor, throttlingMethod: 'simulate' },
     };
+    const chrome = await launch();
     const r = await lighthouse(url, { port: chrome.port, output: 'html', logLevel: 'error' }, config);
+    await chrome.kill();
     const lhr = r.lhr;
     const a = lhr.audits;
     const row = {
@@ -45,5 +50,4 @@ for (const formFactor of ['mobile', 'desktop']) {
     console.log(JSON.stringify(row));
   }
 }
-await chrome.kill();
 await writeFile('reports/lighthouse/summary.json', JSON.stringify({ measured: new Date().toISOString(), note: 'Local production build served by scripts/serve.mjs; Lighthouse simulated throttling.', results: summary }, null, 2) + '\n');

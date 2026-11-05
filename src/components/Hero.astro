@@ -50,7 +50,7 @@ const H = meta.height;
           sizes={sizes}
           width={W}
           height={H}
-          alt={`${meta.alt}, photographed on a grey background.`}
+          alt={`${meta.alt}, photographed on a pale grey background.`}
           fetchpriority="high"
           decoding="async"
           data-poster
@@ -66,7 +66,7 @@ const H = meta.height;
           sizes={sizes}
           width={W}
           height={H}
-          alt="The same crankset with its background removed by CutOut — the gaps between the chainring teeth are transparent too."
+          alt="The same mug with its background removed by CutOut — the gap inside the handle is transparent too."
           decoding="async"
           data-subject
         />
@@ -356,7 +356,7 @@ const H = meta.height;
       height: 240svh;
     }
 
-    /* Phones keep the part's own shape, so the whole crankset stays visible. */
+    /* Phones keep the photo's own shape, so the whole mug stays visible. */
     .hero__stage {
       width: min(86vw, calc((100svh - 360px) * var(--ar)));
       margin-top: -40px;
@@ -367,10 +367,8 @@ const H = meta.height;
       border-radius: 18px;
     }
 
-    /* The word sits on the frame's top edge: the part overlaps only its lower half. */
     .hero__word {
-      top: -1%;
-      font-size: 24vw;
+      font-size: 22vw;
     }
 
     .hero__ui {

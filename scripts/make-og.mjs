@@ -1,5 +1,5 @@
 // Renders public/og.png (1200 × 630) — the link preview for iMessage, LinkedIn, Slack, etc. —
-// in the site's own style: black stage, giant wordmark, CutOut's real crankset cutout in front.
+// in the site's own style: black stage, giant wordmark, CutOut's real mug cutout in front.
 // Run after `npm run assets`: node scripts/make-og.mjs
 import { chromium } from '@playwright/test';
 import { mkdtemp, writeFile, rm } from 'node:fs/promises';

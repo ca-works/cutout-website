@@ -1,19 +1,19 @@
 {
-  "measured": "2026-11-04T17:32:56.586Z",
+  "measured": "2026-11-05T01:38:03.026Z",
   "note": "Local production build served by scripts/serve.mjs; Lighthouse simulated throttling.",
   "results": [
     {
       "url": "/",
       "formFactor": "mobile",
-      "performance": 91,
+      "performance": 94,
       "accessibility": 100,
       "bestPractices": 100,
       "seo": 100,
-      "lcp": "3.3 s",
+      "lcp": "3.0 s",
       "cls": "0",
       "tbt": "0 ms",
-      "fcp": "1.1 s",
-      "transfer": "Total size was 680 KiB"
+      "fcp": "1.0 s",
+      "transfer": "Total size was 497 KiB"
     },
     {
       "url": "docs/",
@@ -31,15 +31,15 @@
     {
       "url": "/",
       "formFactor": "desktop",
-      "performance": 100,
+      "performance": 99,
       "accessibility": 100,
       "bestPractices": 100,
       "seo": 100,
-      "lcp": "0.7 s",
+      "lcp": "0.6 s",
       "cls": "0",
       "tbt": "0 ms",
       "fcp": "0.3 s",
-      "transfer": "Total size was 723 KiB"
+      "transfer": "Total size was 439 KiB"
     },
     {
       "url": "docs/",

@@ -30,7 +30,7 @@ Operating rule 1), and that is how they were treated.
 
 | Resource | Status | Reasoning |
 |---|---|---|
-| Three.js / React Three Fiber (§4) | Studied, not adopted | The hero needs one subdivided plane with a curl vertex shader and one ground quad (the cutout, wordmark and cut line are DOM/SVG layers so the depth effect is exact). Raw WebGL2 does this in 3.6 KiB gzip; Three.js would add ~130 KB gzip for features the scene does not use. The handbook's own caution ("watch loading size and mobile performance") decided it. |
+| Three.js / React Three Fiber (§4) | Studied, not adopted | The hero needs one subdivided plane with a curl vertex shader and one ground quad (the cutout, wordmark and cut line are DOM/SVG layers so the depth effect is exact). Raw WebGL2 does this in 3.7 KiB gzip; Three.js would add ~130 KB gzip for features the scene does not use. The handbook's own caution ("watch loading size and mobile performance") decided it. |
 | GSAP + ScrollTrigger (§4) | Studied, not adopted | Considered again for version 2's pinned scenes. Scroll progress is still one number per scene plus named sub-ranges; `scenes.ts` (0.9 KiB gzip) computes them with a critically damped follower and CSS `position: sticky` does the pinning. GSAP's Standard No-Charge licence is not an OSI licence; avoiding it keeps the website's dependency licences simple. |
 | Motion (motion.dev) (§4) | Studied, not adopted | Its spring model inspired the slider's settle animation (implemented in 30 lines). Adding the library was not justified for two springs. |
 | Anime.js (§4) | Studied, not adopted | SVG/timeline needs are covered by CSS transitions and the WebGL scene. |

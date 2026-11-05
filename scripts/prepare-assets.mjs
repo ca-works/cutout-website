@@ -17,9 +17,9 @@ import { mkdir, writeFile } from 'node:fs/promises';
 
 const SRC = 'design/sources';
 const OUT = 'src/assets/generated';
-const SAMPLES = ['golden', 'bolt', 'crankset', 'dandelion', 'bolts'];
-// The hero subject is a machined part: complex outline, holes the wordmark shows through.
-const HERO = { id: 'crankset', alt: 'A machined bicycle crankset with its chainrings', widths: [960, 1400, 1800], wordAt: 0.12 };
+const SAMPLES = ['golden', 'bolt', 'crankset', 'dandelion', 'bolts', 'mug'];
+// The hero subject: a simple, well-lit object with a clean silhouette and one real hole (the handle).
+const HERO = { id: 'mug', alt: 'A white enamel mug with a black rim', widths: [960, 1400, 1800], wordAt: -0.05 };
 
 await mkdir(`${OUT}/samples`, { recursive: true });
 await mkdir(`${OUT}/hero`, { recursive: true });
@@ -179,7 +179,8 @@ for (const size of HERO.widths) {
         for (let j = i + 1; j < Math.min(out.length, i + 80); j++) {
           arc += Math.hypot(out[j][0] - out[j - 1][0], out[j][1] - out[j - 1][1]);
           const gap = Math.hypot(out[j][0] - out[i][0], out[j][1] - out[i][1]);
-          if (j > i + 1 && gap < 24 && arc > 3 * gap + 24) {
+          // Only short detours are whiskers; a long one (a mug's handle) is real shape.
+          if (j > i + 1 && gap < 24 && arc > 3 * gap + 24 && arc < 160) {
             out.splice(i + 1, j - i - 1);
             changed = true;
             break outer;

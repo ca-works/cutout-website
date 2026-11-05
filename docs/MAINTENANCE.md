@@ -49,12 +49,12 @@ showing the golden retriever photo. To refresh them without changing any app cod
 
 **The hero** is set by `HERO` in `scripts/prepare-assets.mjs`: `id` (a file pair in
 `design/sources/`), `alt`, `widths`, and `wordAt`. `wordAt` is how far down the subject's bounding
-box the wordmark's centre sits (0.12 for the crankset, so the word crosses the top of the
-chainrings). The script writes the photo, the cutout, the shadow, the traced outline (outer edge
+box the wordmark's centre sits. It is −0.05 for the mug, putting the centre just above the rim so
+the mug covers only the lower part of the letters and the word stays readable. The script writes the photo, the cutout, the shadow, the traced outline (outer edge
 plus holes) and `hero.css` (`--ar`, `--word-y`). The hero should be a non-living object with a
-clear silhouette and some holes or gaps. After changing it, run `node scripts/make-og.mjs`, check
-the phone layout (the word sits on the frame's top edge there), and update the alt text in
-`src/components/Hero.astro`.
+clear silhouette, ideally with a hole or gap, photographed on a plain background. After changing
+it, run `node scripts/make-og.mjs`, check desktop and phone screenshots (`scripts/shoot-page.mjs`)
+before and after the peel, and update the alt text in `src/components/Hero.astro`.
 
 ## Adding or changing a platform
 
@@ -87,8 +87,8 @@ let *Check* pass, look at the preview. Keep versions exact. See `docs/DEPENDENCI
 * GitHub Pages cannot send security headers; the CSP is a `<meta>` tag (see `docs/SECURITY.md`).
 * Firefox could not be launched by Playwright on the development Mac (macOS 27); Firefox runs in
   CI on Ubuntu.
-* Lighthouse mobile performance on the home page is ≈ 90: the LCP is the hero photo (55 KB AVIF)
-  under simulated slow 4G (≈ 3.3 s). A smaller first frame would trade image quality for it.
+* Lighthouse mobile performance on the home page is 94: the LCP is the hero photo (an 8 KB AVIF)
+  at ≈ 3.0 s under simulated slow 4G, mostly render delay while the stylesheet and font arrive.
 * The scroll scenes and the WebGL print were verified in headless Chromium and WebKit (software
   GL); a hands-on pass on real iPhone/Android hardware and Safari is still recommended.
 * The app windows are offscreen renders produced by the app's self-test (the development Mac's
