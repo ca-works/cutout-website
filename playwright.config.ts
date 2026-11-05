@@ -1,6 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 import { SITE_BASE } from './site.config.mjs';
 
+// SITE_URL=https://ca-works.github.io/cutout-website/ npm test  → test the live site instead.
+const live = process.env.SITE_URL;
+
 export default defineConfig({
   testDir: 'tests/e2e',
   timeout: 45_000,
@@ -9,14 +12,16 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {
-    baseURL: `http://127.0.0.1:4321${SITE_BASE}`,
+    baseURL: live ?? `http://127.0.0.1:4321${SITE_BASE}`,
     trace: 'retain-on-failure',
   },
-  webServer: {
-    command: 'node scripts/serve.mjs',
-    url: `http://127.0.0.1:4321${SITE_BASE}`,
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: live
+    ? undefined
+    : {
+        command: 'node scripts/serve.mjs',
+        url: `http://127.0.0.1:4321${SITE_BASE}`,
+        reuseExistingServer: !process.env.CI,
+      },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'webkit', use: { ...devices['Desktop Safari'] } },

@@ -66,7 +66,7 @@ These are not claimed anywhere on the site.
 | Build policy gate | `scripts/verify-dist.mjs` | Pass (CSP exact match, no inline code, all links resolve, allow-listed hosts only) |
 | CSP / Trusted Types violations in browsers | Playwright (Chromium, WebKit, iPhone, Android profiles) | 0 |
 | Release-sync fail-closed rules | `node --test` | 14/14 pass |
-| Static analysis | CodeQL (JavaScript/TypeScript + Actions) | Runs in CI after the first push — **not yet run** |
+| Static analysis | CodeQL (JavaScript/TypeScript + Actions) | First run after publishing (5 November 2026): success |
 
 ## 6. Lessons from the ENG Drawing Viewer site (not modified)
 
@@ -77,13 +77,18 @@ workflow-wide Pages permissions (its build job also held `pages: write` and `id-
 Dependabot and CodeQL; `npm ci --ignore-scripts`; a CSP with Trusted Types; zizmor/Gitleaks
 audits. Applying the same changes to `ca-works/eng-drw` is recommended but was not done.
 
-## 7. Owner actions (dashboard only; not done automatically)
+## 7. Repository settings
 
-1. Repository → Settings → Pages: Source **GitHub Actions**; **Enforce HTTPS** on.
-2. Settings → Environments → `github-pages`: deployment branches **main** only.
-3. Settings → Rules: a ruleset for `main` that blocks force pushes and deletion (and, if you
-   like, requires the *Check* workflow).
-4. Settings → Code security: **Private vulnerability reporting**, **Dependabot alerts and security
-   updates**, **Secret scanning** and **Push protection** (all free on public repositories).
-5. On the application repository, before the first release: enable **immutable releases**, publish
+Applied through the GitHub API when the repository was created (5 November 2026), with the
+owner's approval:
+
+1. Pages: source **GitHub Actions**, **HTTPS enforced**.
+2. Environment `github-pages`: deployment branches **main** only.
+3. Ruleset *Protect main*: blocks force pushes and deletion of the default branch.
+4. Code security: **private vulnerability reporting**, **Dependabot alerts and security updates**,
+   **secret scanning** and **push protection** on.
+
+Still optional: make the *Check* workflow a required status check in the ruleset.
+
+Owner actions still open, on the application repository, before the first release: enable **immutable releases**, publish
    `SHA256SUMS.txt` with every release, keep 2FA/passkeys on the `ca-works` account.

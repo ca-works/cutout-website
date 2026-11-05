@@ -11,7 +11,7 @@ real before/after results (a golden retriever puppy, threaded bolts, a machined 
 dandelion), a pinned *Paste. Remove. Copy.* sequence and genuine app windows. Every image is
 CutOut's unretouched output.
 
-* Live address (after the first deployment): `https://ca-works.github.io/cutout-website/`
+* Live: **https://ca-works.github.io/cutout-website/** (deployed 5 November 2026)
 * Application repository: `ca-works/cutout` (downloads come only from its GitHub Releases)
 
 ## Quick start
@@ -45,8 +45,8 @@ Open `http://127.0.0.1:4321/cutout-website/`. `npm run dev` gives a live-reloadi
 | `npm run check` | Astro/TypeScript type check |
 | `npm run build` | Builds `dist/` and runs `scripts/verify-dist.mjs` (CSP, links, hosts, budgets, secrets) |
 | `npm run test:unit` | Release-sync rules (fail-closed download verification) |
-| `npm test` | Playwright: Chromium, Firefox, WebKit, iPhone and Android profiles, axe accessibility |
-| `npm run lighthouse` | Lighthouse mobile + desktop against the local build (`npm run preview` first) |
+| `npm test` | Playwright: Chromium, Firefox, WebKit, iPhone and Android profiles, axe accessibility (`SITE_URL=<live address>` tests the deployed site) |
+| `npm run lighthouse` | Lighthouse mobile + desktop against the local build (`npm run preview` first), or the live site with `SITE_URL` |
 
 ## Documentation
 

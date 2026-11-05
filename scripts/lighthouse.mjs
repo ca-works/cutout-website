@@ -1,6 +1,7 @@
 // Lighthouse (mobile and desktop) against the locally served production build.
 // Writes reports/lighthouse/summary.json and per-run HTML reports (HTML is git-ignored).
-// Requires `node scripts/serve.mjs` running. Chrome comes from Playwright's Chromium.
+// Requires `node scripts/serve.mjs` running, or SITE_URL=<live address> to measure the deployed
+// site. Chrome comes from Playwright's Chromium.
 import lighthouse from 'lighthouse';
 import * as chromeLauncher from 'chrome-launcher';
 import { chromium } from '@playwright/test';
@@ -19,7 +20,7 @@ const launch = () =>
 const summary = [];
 for (const formFactor of ['mobile', 'desktop']) {
   for (const p of pages) {
-    const url = `http://127.0.0.1:4321${SITE_BASE}${p}`;
+    const url = `${process.env.SITE_URL ?? `http://127.0.0.1:4321${SITE_BASE}`}${p}`;
     const config = {
       extends: 'lighthouse:default',
       settings:
@@ -50,4 +51,4 @@ for (const formFactor of ['mobile', 'desktop']) {
     console.log(JSON.stringify(row));
   }
 }
-await writeFile('reports/lighthouse/summary.json', JSON.stringify({ measured: new Date().toISOString(), note: 'Local production build served by scripts/serve.mjs; Lighthouse simulated throttling.', results: summary }, null, 2) + '\n');
+await writeFile('reports/lighthouse/summary.json', JSON.stringify({ measured: new Date().toISOString(), note: process.env.SITE_URL ? `Live site ${process.env.SITE_URL}; Lighthouse simulated throttling.` : 'Local production build served by scripts/serve.mjs; Lighthouse simulated throttling.', results: summary }, null, 2) + '\n');

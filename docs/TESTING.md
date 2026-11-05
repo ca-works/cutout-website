@@ -1,8 +1,8 @@
 # Testing record
 
 Machine: Apple M1, 16 GB, macOS 27.0.1, Node 24.22.2. Date: 4 November 2026 (version 2 design).
-Production build (`npm run build`) served by `scripts/serve.mjs` (gzip, like GitHub Pages).
-Nothing has been deployed yet, so nothing below was measured on the live address.
+Production build (`npm run build`) served by `scripts/serve.mjs` (gzip, like GitHub Pages), and,
+from 5 November 2026, the live site at https://ca-works.github.io/cutout-website/.
 
 ## Automated
 
@@ -37,7 +37,30 @@ What the browser tests cover:
 * **Fallbacks:** all content, the depth composition and all four samples appear without
   JavaScript. The phone menu opens, navigates and closes.
 
-## Performance (Lighthouse 13.5, simulated throttling)
+## Live site (5 November 2026)
+
+* The *Deploy website* workflow passed its build, unit tests, release sync (unreleased, as
+  expected), type check, `verify-dist` and publish steps. CodeQL passed.
+* Pages, the 404 page, `og.png` and the CSP meta tag are served correctly. GitHub adds HSTS
+  (`max-age=31556952`) and `Cache-Control: max-age=600`.
+* `SITE_URL=https://ca-works.github.io/cutout-website/ npm test`: **86 passed, 2 skipped** on
+  Chromium, WebKit, iPhone and Android profiles. That includes axe, CSP, overflow and the scroll
+  scenes.
+* Lighthouse against the live site (`reports/lighthouse/summary.json`):
+
+| Page | Device | Performance | Accessibility | Best practices | SEO | LCP | CLS | TBT |
+|---|---|---|---|---|---|---|---|---|
+| Home | Mobile | 100 | 100 | 100 | 100 | 1.5 s | 0 | 0 ms |
+| Home | Desktop | 99 | 100 | 100 | 100 | 0.4 s | 0 | 0 ms |
+| Guide | Mobile | 100 | 100 | 100 | 100 | 1.4 s | 0 | 0 ms |
+| Guide | Desktop | 100 | 100 | 100 | 100 | 0.3 s | 0 | 0 ms |
+
+The live home page is faster on phones than the local build (100 vs 94), thanks to GitHub's CDN.
+
+* Dependabot's first PR tried TypeScript 7, which `@astrojs/check` 0.9 doesn't support. *Check*
+  failed it as intended, and `dependabot.yml` now skips TypeScript major versions.
+
+## Performance on the local build (Lighthouse 13.5, simulated throttling)
 
 | Page | Device | Performance | Accessibility | Best practices | SEO | LCP | CLS | TBT |
 |---|---|---|---|---|---|---|---|---|
@@ -46,7 +69,7 @@ What the browser tests cover:
 | Guide | Mobile | 100 | 100 | 100 | 100 | 1.7 s | 0 | 0 ms |
 | Guide | Desktop | 100 | 100 | 100 | 100 | 0.4 s | 0 | 0 ms |
 
-Raw numbers are in `reports/lighthouse/summary.json`. Runs vary by a point or two.
+Runs vary by a point or two.
 
 The Guide on desktop twice scored 90 with a 7–11 s Speed Index, even though it painted at 0.3 s.
 Its filmstrip was blank until the end of the trace. The cause was the measuring browser, not the
@@ -99,6 +122,5 @@ inspected. Fixed during the version 2 review:
   Mac is recommended after deployment, especially for the scroll scenes' feel.
 * Screen readers used by a person (VoiceOver, TalkBack). Roles, names and values are covered by
   axe and the slider and tab tests.
-* The live GitHub Pages deployment, CodeQL and Dependabot, which start after the first push.
 * Link previews in iMessage and LinkedIn, which need the public URL. `og.png` (1200 × 630, the
   wordmark with the mug cutout) and all Open Graph tags are present.

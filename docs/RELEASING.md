@@ -6,14 +6,15 @@ Every push to `main` builds, verifies and deploys (`.github/workflows/deploy.yml
 workflow runs daily at 06:17 UTC and can be started by hand (Actions → Deploy website → Run
 workflow), so a newly published app release appears without a code change.
 
-First-time setup (owner, once):
+First-time setup was done on 5 November 2026: public repository `ca-works/cutout-website`, Pages
+from GitHub Actions with HTTPS enforced, and deployments from `main` only (see `docs/SECURITY.md`
+§7). Live address: https://ca-works.github.io/cutout-website/.
 
-1. Create the public repository named in `site.config.mjs` (`ca-works/cutout-website` by default)
-   and push `main`.
-2. Settings → Pages → Build and deployment → Source: **GitHub Actions**. Tick **Enforce HTTPS**.
-3. Settings → Environments → `github-pages` → Deployment branches: **main** only.
-4. Apply the owner actions in `docs/SECURITY.md` §7.
-5. Check the published address loads, and that the download card says what you expect.
+After a deployment, check the live site:
+
+```bash
+SITE_URL=https://ca-works.github.io/cutout-website/ npm test
+```
 
 Rollback: revert the commit on `main` (the next deployment restores the previous site), or re-run
 an earlier successful *Deploy website* run.
