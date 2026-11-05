@@ -35,6 +35,10 @@ now appears only as the *Gaps* sample. The golden retriever puppy leads the resu
 is a puppy lying on a plain carpet, chosen so that every leg is visible: the first choice stood
 in grass that hid part of a hind leg.
 
+**Revision, 5 November 2026.** The owner liked the wordmark but not having it behind the mug.
+The giant **CutOut** now stands alone at the top of the hero, solid white with no blend, and the
+mug animation plays in the frame below it. The same wordmark leads the share image.
+
 ## Art direction
 
 * **A black stage, one subject at a time.** Near-black (`--bg`) everywhere, so cutouts float and
@@ -52,7 +56,7 @@ in grass that hid part of a hind leg.
 
 | Section | What happens | Scroll length |
 |---|---|---|
-| Hero | Mug photo on the stage. The wordmark sits behind the mug, which covers only the lower part of the letters, so *CutOut* stays readable (difference blend). Scroll: marching ants trace the outline (outer edge plus the handle's hole), the subject lifts with a shadow, the print curls back from its corner (white paper underside) and is pulled off the screen, leaving the subject on the transparency grid. | 300 svh (240 on phones) |
+| Hero | The giant **CutOut** wordmark at the top, as wide as the content column (at most a quarter of the screen height). The mug photo sits in a frame below it. Scroll: marching ants trace the outline (outer edge plus the handle's hole), the subject lifts with a shadow, the print curls back from its corner (white paper underside) and is pulled off the screen, leaving the subject on the transparency grid. | 300 svh (240 on phones) |
 | Results (`#compare`) | *Every hair. Every thread.* A before/after slider with four real samples (Fur: golden retriever puppy; Threads: hex bolts; Gaps: the crankset; Seeds: a dandelion), four backdrops and a zoom. | normal |
 | Keys | *Paste. Remove. Copy.* pinned; a ⌘ key with the letter rolling V → B → C, the bolt photo dissolving into its cutout, then shrinking away with a "Copied" toast. | 330 svh (300) |
 | The app (`#app`) | A genuine CutOut window rises and tilts upright, then swaps from the simple view to the full tool panel. | 260 svh (220) |
@@ -129,8 +133,8 @@ The Guide, privacy and 404 pages use the same tokens through compatibility alias
 ### Responsive behaviour
 
 * **Phones:** the hero keeps the photo's square shape so the whole mug stays visible. The
-  wordmark sits behind the rim at 22vw, and the headline and a full-width button sit at the
+  wordmark spans the screen width above it, and the headline and a full-width button sit at the
   bottom. The slider frame is 4:5. The key sequence puts the image above the words.
-* **Tablets and up:** two-column scenes from 820 px. The hero frame grows to 1200 px.
+* **Tablets and up:** two-column scenes from 820 px. The hero frame grows to 1100 px.
 * Touch: every control is at least 44 px. The slider takes horizontal drags while vertical swipes
   still scroll.

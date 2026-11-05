@@ -48,10 +48,9 @@ showing the golden retriever photo. To refresh them without changing any app cod
 4. `npm run assets && npm run build`.
 
 **The hero** is set by `HERO` in `scripts/prepare-assets.mjs`: `id` (a file pair in
-`design/sources/`), `alt`, `widths`, and `wordAt`. `wordAt` is how far down the subject's bounding
-box the wordmark's centre sits. It is −0.05 for the mug, putting the centre just above the rim so
-the mug covers only the lower part of the letters and the word stays readable. The script writes the photo, the cutout, the shadow, the traced outline (outer edge
-plus holes) and `hero.css` (`--ar`, `--word-y`). The hero should be a non-living object with a
+`design/sources/`), `alt` and `widths`. The wordmark sits above the photo frame, so it doesn't
+depend on the photo. The script writes the photo, the cutout, the shadow, the traced outline (outer edge
+plus holes) and `hero.css` (`--ar`). The hero should be a non-living object with a
 clear silhouette, ideally with a hole or gap, photographed on a plain background. After changing
 it, run `node scripts/make-og.mjs`, check desktop and phone screenshots (`scripts/shoot-page.mjs`)
 before and after the peel, and update the alt text in `src/components/Hero.astro`.

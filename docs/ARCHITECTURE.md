@@ -60,19 +60,19 @@ intercepted, and with reduced motion every value is 1.
 
 ## The hero
 
-Layers, bottom to top, all aligned to one photo frame (`.hero__stage`):
+The sticky pin is a column: the wordmark `p.hero__word` (solid, `font-size: var(--wf)`, the
+content width ÷ 3.7 capped at 26svh), then the photo frame `.hero__stage`, whose width is
+computed from the height that is left. The headline and button sit along the bottom edge. Frame
+layers, bottom to top:
 
 | Layer | What it is |
 |---|---|
 | `canvas.hero__gl` | WebGL 2, **full viewport**: the transparency grid inside the frame and the photo as a print with a hole where CutOut's matte says the subject is. The canvas is as large as the viewport so the print can be pulled right off the screen. |
 | `picture.hero__poster` | The same photo as an `<img>`: the LCP element, the first frame, and the no-WebGL / reduced-motion view. |
 | `img.hero__shadow` | A blurred copy of the matte, shown as the subject lifts. |
-| `p.hero__word` | The giant wordmark with `mix-blend-mode: difference`: dark where it crosses the photo, light on the black stage. |
-| `picture.hero__subject` | CutOut's actual cutout of the photo. It sits above the word, so the part is in front of the wordmark and the background behind it. |
+| `picture.hero__subject` | CutOut's actual cutout of the photo, above the poster and the canvas. |
 | `svg.hero__line` | The cut, drawn as marching ants along the outline traced from the matte. |
 
-The blend only reaches layers in the same stacking context, so `.hero__stage` deliberately has no
-`transform`, `filter` or `opacity`.
 
 * `hero.ts` picks the mode, adds pointer parallax (fine pointers), and loads `hero-gl.ts`
   (separate chunk, 3.7 KiB gzip) on the visitor's first scroll, wheel, pointer, key or touch,

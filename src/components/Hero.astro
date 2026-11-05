@@ -1,9 +1,9 @@
 ---
-// The opening scene. Layers, bottom to top, all aligned to the same photo frame:
+// The opening scene: the giant wordmark on top, the photo frame below it.
+// Frame layers, bottom to top, all aligned to the same photo:
 //   canvas  — WebGL: the photo as a print that peels off, revealing the transparency grid
 //   poster  — the same photo as an <img> (first paint; also the no-WebGL / reduced-motion view)
 //   shadow  — the cutout's soft shadow, shown as it lifts
-//   word    — the giant wordmark, *behind* the subject (difference blend: dark on the photo, light on the stage)
 //   subject — CutOut's real cutout
 //   line    — the cut: marching ants along the outline traced from CutOut's matte
 import '../assets/generated/hero/hero.css';
@@ -41,6 +41,7 @@ const H = meta.height;
       data-subject-960-avif={subject960a}
       data-subject-1400-avif={subject1400a}
       data-subject-1800-avif={subject1800a}></canvas>
+    <p class="hero__word" aria-hidden="true">CutOut</p>
     <div class="hero__stage" data-stage>
       <picture class="hero__poster">
         <source type="image/avif" srcset={set(photo960a, photo1400a, photo1800a)} sizes={sizes} />
@@ -57,7 +58,6 @@ const H = meta.height;
         />
       </picture>
       <img class="hero__shadow" src={shadow} alt="" width={W} height={H} decoding="async" />
-      <p class="hero__word" aria-hidden="true">CutOut</p>
       <picture class="hero__subject">
         <source type="image/avif" srcset={set(subject960a, subject1400a, subject1800a)} sizes={sizes} />
         <img
@@ -101,18 +101,28 @@ const H = meta.height;
     height: 300svh;
   }
 
+  /* Wordmark on top, photo frame below, headline and button along the bottom edge. */
   .hero__pin {
-    display: grid;
-    place-items: center;
+    /* The wordmark's size: as wide as the content column, but never taller than a quarter of the
+       screen, so the photo always has room below it ("CutOut" is ≈ 3.7 em wide). */
+    --wf: min(calc((100vw - 2 * var(--gutter)) / 3.7), 26svh);
+    --ui-h: 132px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(12px, 2.6svh, 32px);
+    padding-top: var(--nav-h);
+    padding-bottom: var(--ui-h);
     background: var(--bg);
   }
 
-  /* The photo frame: the photo's own aspect on wide screens, cropped to 4:5 on phones. */
+  /* The photo frame keeps the photo's own aspect ratio and fills the height that is left. */
   .hero__stage {
     position: relative;
-    width: min(84vw, calc((100svh - 250px) * var(--ar)), 1200px);
+    flex: none;
+    width: min(86vw, calc((100svh - var(--nav-h) - var(--ui-h) - var(--wf) * 0.8 - 5.2svh) * var(--ar)), 1100px);
     aspect-ratio: var(--ar);
-    margin-top: -56px;
   }
 
   .hero__stage::before {
@@ -127,8 +137,8 @@ const H = meta.height;
     box-shadow: inset 0 0 0 1px var(--line);
   }
 
-  /* The canvas covers the whole viewport so the print can be pulled right off the screen. It sits
-     in the same stacking context as the wordmark, whose difference blend therefore reaches it. */
+  /* The canvas covers the whole viewport so the print can be pulled right off the screen. It is
+     drawn under the wordmark and the frame's DOM layers. */
   .hero__gl {
     position: absolute;
     inset: 0;
@@ -191,20 +201,18 @@ const H = meta.height;
   }
 
   .hero__word {
-    position: absolute;
-    left: 50%;
-    top: var(--word-y);
-    width: 100vw;
-    translate: calc(-50% + var(--mx, 0) * -22px) calc(-50% + var(--my, 0) * -10px);
-    font-size: min(26vw, 34svh);
+    position: relative;
+    flex: none;
+    /* The tight tracking pulls the last letter's ink past the line box; -0.0325em re-centres it. */
+    translate: calc(-0.0325em + var(--mx, 0) * -10px) calc(var(--my, 0) * -5px);
+    font-size: var(--wf);
     font-weight: 800;
     font-stretch: 125%;
     letter-spacing: -0.065em;
     line-height: 0.8;
     text-align: center;
     white-space: nowrap;
-    color: #fff;
-    mix-blend-mode: difference;
+    color: var(--fg);
     pointer-events: none;
     user-select: none;
   }
@@ -356,10 +364,8 @@ const H = meta.height;
       height: 240svh;
     }
 
-    /* Phones keep the photo's own shape, so the whole mug stays visible. */
-    .hero__stage {
-      width: min(86vw, calc((100svh - 360px) * var(--ar)));
-      margin-top: -40px;
+    .hero__pin {
+      --ui-h: 196px;
     }
 
     .hero__stage::before,
@@ -367,9 +373,6 @@ const H = meta.height;
       border-radius: 18px;
     }
 
-    .hero__word {
-      font-size: 22vw;
-    }
 
     .hero__ui {
       flex-direction: column;

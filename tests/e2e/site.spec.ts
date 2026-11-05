@@ -148,14 +148,18 @@ test.describe('before/after comparison', () => {
 });
 
 test.describe('hero', () => {
-  test('the wordmark sits between the photo and the cutout', async ({ page }) => {
+  test('the wordmark sits above the photo, fully visible and not overlapping it', async ({ page }) => {
     await page.goto('');
-    const z = await page.evaluate(() => {
-      const order = ['.hero__poster', '.hero__word', '.hero__subject'].map((s) => document.querySelector(s)!);
-      return order.map((el) => [...el.parentElement!.children].indexOf(el));
-    });
+    const word = (await page.locator('.hero__word').boundingBox())!;
+    const stage = (await page.locator('[data-stage]').boundingBox())!;
+    const vw = page.viewportSize()!.width;
+    expect(word.y + word.height).toBeLessThanOrEqual(stage.y + 1);
+    expect(word.y).toBeGreaterThanOrEqual(0);
+    expect(word.x).toBeGreaterThanOrEqual(0);
+    expect(word.x + word.width).toBeLessThanOrEqual(vw);
+    // The cutout still sits in front of the photo inside the frame.
+    const z = await page.evaluate(() => ['.hero__poster', '.hero__subject'].map((s) => { const el = document.querySelector(s)!; return [...el.parentElement!.children].indexOf(el); }));
     expect(z[0]).toBeLessThan(z[1]);
-    expect(z[1]).toBeLessThan(z[2]);
   });
 
   test('the primary call to action is visible in the first viewport', async ({ page }) => {

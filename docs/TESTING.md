@@ -29,7 +29,8 @@ What the browser tests cover:
   links to the private app repository.
 * **Before/after slider:** keyboard (arrows, Shift, Home/End, spoken values), pointer drag,
   sample tabs and backdrop radios.
-* **Hero:** the wordmark sits between the photo and the cutout in the DOM, and the primary button
+* **Hero:** the wordmark sits above the photo frame without overlapping it, fully on screen, and
+  the cutout is in front of the photo. The primary button
   is fully inside the first viewport. Under reduced motion the static mode's *Remove background*
   button works. Scrolling through the scene drives `--cut`, `--lift` and `--peel` past 0.95, and
   the no-WebGL fallback works.
@@ -93,9 +94,8 @@ inspected. Fixed during the version 2 review:
     blur buffer; it is now a single extracted channel, with an assertion.
   * A translucent print mid-peel. The canvas now covers the viewport, and the print is pulled off
     screen.
-  * The wordmark hidden behind the subject. Its height is now set from the subject's top edge
-    (`wordAt`). For the mug, the word sits just above the rim, so the mug covers only the lower
-    part of the letters.
+  * The wordmark hidden behind the subject. At the owner's request it now stands alone above the
+    frame (5 November 2026).
   * The phone crop hiding the wordmark. Phones now keep the photo's own shape.
   * A dotted crack along the print's diagonal, which appeared only with a square photo (the mug).
     `fwidth()` of the frame's distance field is exactly 0 on its ridge, and `smoothstep` with equal
