@@ -16,7 +16,7 @@ export const EDITIONS = [
   { id: 'macos-apple-silicon', file: 'CutOut-macOS-Apple-Silicon.dmg', minBytes: 5_000_000 },
   // A Universal (Apple silicon + Intel) build would serve Intel Macs.
   { id: 'macos-universal', file: 'CutOut-macOS-Universal.dmg', minBytes: 5_000_000 },
-  { id: 'windows-x64', file: 'CutOut-Windows-x64.zip', minBytes: 5_000_000 },
+  { id: 'windows-x64', file: 'CutOut-Windows-x64-Setup.exe', minBytes: 5_000_000 },
 ];
 
 const VERSION = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;

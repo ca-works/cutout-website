@@ -1,17 +1,30 @@
 {
-  "status": "unreleased",
-  "version": null,
+  "status": "available",
+  "version": "0.1.0-preview.1",
   "repo": {
-    "name": "ca-works/cutout",
-    "public": false,
-    "url": null,
-    "license": null
+    "name": "ca-works/cutout-app",
+    "public": true,
+    "url": "https://github.com/ca-works/cutout-app",
+    "issues": "https://github.com/ca-works/cutout-app/issues",
+    "license": {
+      "spdx": "MIT",
+      "name": "MIT License",
+      "url": "https://github.com/ca-works/cutout-app/blob/main/LICENSE"
+    }
   },
   "editions": [
     {
       "id": "macos-apple-silicon",
       "file": "CutOut-macOS-Apple-Silicon.dmg",
-      "available": false
+      "available": true,
+      "url": "https://github.com/ca-works/cutout-app/releases/download/v0.1.0-preview.1/CutOut-macOS-Apple-Silicon.dmg",
+      "size": 422740818,
+      "sha256": "b5b4e01c3228d73fea2ae62007796bec04704f86850bd1650d4dadee918e7302",
+      "version": "0.1.0-preview.1",
+      "preview": true,
+      "immutable": false,
+      "published": "2026-11-08T16:20:57Z",
+      "releaseUrl": "https://github.com/ca-works/cutout-app/releases/tag/v0.1.0-preview.1"
     },
     {
       "id": "macos-universal",
@@ -20,11 +33,26 @@
     },
     {
       "id": "windows-x64",
-      "file": "CutOut-Windows-x64.zip",
-      "available": false
+      "file": "CutOut-Windows-x64-Setup.exe",
+      "available": true,
+      "url": "https://github.com/ca-works/cutout-app/releases/download/v0.1.0-preview.1/CutOut-Windows-x64-Setup.exe",
+      "size": 1476234388,
+      "sha256": "dea88f1882219913eb1810bf8f161e5a85613bc6bb46510e52454806677d94bf",
+      "version": "0.1.0-preview.1",
+      "preview": true,
+      "immutable": false,
+      "published": "2026-11-08T16:20:57Z",
+      "releaseUrl": "https://github.com/ca-works/cutout-app/releases/tag/v0.1.0-preview.1"
     }
   ],
-  "releases": [],
-  "published": null,
-  "notesUrl": null
+  "releases": [
+    {
+      "version": "0.1.0-preview.1",
+      "url": "https://github.com/ca-works/cutout-app/releases/tag/v0.1.0-preview.1",
+      "published": "2026-11-08T16:20:57Z",
+      "preview": true
+    }
+  ],
+  "published": "2026-11-08T16:20:57Z",
+  "notesUrl": "https://github.com/ca-works/cutout-app/releases/tag/v0.1.0-preview.1"
 }

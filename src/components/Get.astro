@@ -42,6 +42,28 @@ const licence = release.repo.license;
       )
     }
 
+    {
+      windows.available && (
+        <div class="get__action">
+          <a class="btn get__btn" href={windows.url} download data-magnetic>
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" />
+            </svg>
+            Download for Windows
+            <span class="btn__meta">{windows.version} · {formatBytes(windows.size)}</span>
+          </a>
+          {windows.preview && <span class="pill">Preview</span>}
+          <p class="get__sha dim">
+            SHA-256 <code id="sha-win">{windows.sha256}</code>{' '}
+            <button class="get__copy" type="button" data-copy="sha-win" hidden>
+              Copy
+            </button>
+          </p>
+          <p class="get__meta dim">Windows 10 (1809) or 11, 64-bit · not code-signed: SmartScreen will warn, choose More info, then Run anyway.</p>
+        </div>
+      )
+    }
+
     <p class="get__reqs">Free · {requirements.os.replace(' Sonoma', '')} · Apple silicon</p>
     <p class="get__more dim">
       <a href={`${base}docs/#install`}>How to install</a>
@@ -52,7 +74,7 @@ const licence = release.repo.license;
     </p>
     <p class="get__other dim">
       {universal.available ? 'Intel Macs: Universal build available. ' : 'No Intel Mac build yet. '}
-      {windows.available ? 'Windows build available.' : 'Windows: planned, not built.'}
+      {windows.available ? '' : 'Windows: not available yet.'}
     </p>
   </div>
 </section>

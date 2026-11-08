@@ -34,7 +34,7 @@ The site never hosts binaries and never links to one by hand. At every deploymen
 |---|---|
 | Mac, Apple silicon (full build, model included) | `CutOut-macOS-Apple-Silicon.dmg` |
 | Mac, Universal (would serve Intel Macs) | `CutOut-macOS-Universal.dmg` |
-| Windows x64 | `CutOut-Windows-x64.zip` |
+| Windows x64 | `CutOut-Windows-x64-Setup.exe` |
 
 Every release must also contain **`SHA256SUMS.txt`**, one line per file in `shasum -a 256` format.
 

@@ -161,13 +161,13 @@ const toc = [
     <h3>What can I paste the result into?</h3>
     <p>Anything that accepts images from the clipboard. Copy puts a PNG with transparency on the clipboard, plus a TIFF that keeps the alpha channel. Copy as JPEG is there too, with a warning, because JPEG can’t keep transparency.</p>
     <h3>Is there a Windows or Intel Mac version?</h3>
-    <p>Not yet. The engine is portable Rust so a Windows app can reuse it, but neither a Windows nor an Intel build exists. This site will offer them only when real, tested builds do.</p>
+    <p>Windows, yes: a 64-bit Windows 10 (1809) or Windows 11 build is available from the download section. It is a preview that is not code-signed, so SmartScreen warns on first run (More info, then Run anyway). An Intel Mac build does not exist yet, and this site will offer one only when a real, tested build does.</p>
 
     <h2 id="platforms">Platforms</h2>
     <ul>
       <li><strong>Mac with Apple silicon</strong>, {requirements.os}: supported.</li>
       <li><strong>Intel Mac</strong>: not available. No Intel or Universal build exists yet.</li>
-      <li><strong>Windows</strong>: not available. The Rust engine is designed to be reused by a native Windows app, which hasn’t been built.</li>
+      <li><strong>Windows 10 (1809) or 11, 64-bit</strong>: preview available. Not code-signed; verify the SHA-256 shown in the download section.</li>
       <li><strong>Linux</strong>: not available.</li>
     </ul>
     <p>Performance figures on this site were measured on an {testMachine}.</p>

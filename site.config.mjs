@@ -6,4 +6,4 @@ export const WEBSITE_REPO = 'ca-works/cutout-website';
 // Repository whose GitHub Releases are the only source of downloads, and whose visibility and
 // licence decide what the "Free and open source" section says. Read at build time; a private or
 // missing repository is shown as "not yet public" and its downloads as "coming soon".
-export const APP_REPO = 'ca-works/cutout';
+export const APP_REPO = 'ca-works/cutout-app';
