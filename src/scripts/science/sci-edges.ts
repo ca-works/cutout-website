@@ -24,12 +24,19 @@ export function init(el: HTMLElement) {
   const setup = async (p: HTMLElement) => {
     const id = p.dataset.edgePanel!;
     ready.set(id, () => {});
+    // The view buttons work at once; the chosen view is drawn as soon as the pixels arrive.
+    let view = 'matte';
+    let draw: ((v: string) => void) | null = null;
+    radios(p.querySelector('[data-edge-views]')!, (b) => {
+      view = b.dataset.edgeView!;
+      draw?.(view);
+    });
     const load = (k: string) => (p.dataset[k] ? pixelsOf(p.dataset[k]!) : Promise.resolve(null));
     const [rgb, matte, raw, gt] = (await Promise.all([load('rgb'), load('matte'), load('raw'), load('gt')])) as [Px, Px, Px | null, Px | null];
     const cv = p.querySelector<HTMLCanvasElement>('[data-edge-canvas]')!;
     const g = cv.getContext('2d')!;
     const img = new ImageData(rgb.w, rgb.h);
-    const draw = (view: string) => {
+    draw = (view: string) => {
       const d = img.data;
       const n = rgb.w * rgb.h;
       for (let i = 0; i < n; i++) {
@@ -67,8 +74,7 @@ export function init(el: HTMLElement) {
       g.putImageData(img, 0, 0);
     };
     ready.set(id, draw);
-    radios(p.querySelector('[data-edge-views]')!, (b) => draw(b.dataset.edgeView!));
-    draw('matte');
+    draw(view);
   };
 
   tabs.forEach((t, i) => {
