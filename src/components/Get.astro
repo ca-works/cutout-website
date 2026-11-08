@@ -25,7 +25,6 @@ const licence = release.repo.license;
             Download for Mac
             <span class="btn__meta">{mac.version} · {formatBytes(mac.size)}</span>
           </a>
-          {mac.preview && <span class="pill">Preview</span>}
           <p class="get__sha dim">
             SHA-256 <code id="sha-mac">{mac.sha256}</code>{' '}
             <button class="get__copy" type="button" data-copy="sha-mac" hidden>
@@ -52,7 +51,6 @@ const licence = release.repo.license;
             Download for Windows
             <span class="btn__meta">{windows.version} · {formatBytes(windows.size)}</span>
           </a>
-          {windows.preview && <span class="pill">Preview</span>}
           <p class="get__sha dim">
             SHA-256 <code id="sha-win">{windows.sha256}</code>{' '}
             <button class="get__copy" type="button" data-copy="sha-win" hidden>
