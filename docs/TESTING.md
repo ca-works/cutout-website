@@ -38,6 +38,22 @@ What the browser tests cover:
 * **Fallbacks:** all content, the depth composition and all four samples appear without
   JavaScript. The phone menu opens, navigates and closes.
 
+## Science page (8 November 2026, branch `science-page`, local build)
+
+| Check | Result |
+|---|---|
+| Unit tests (`npm run test:unit`) | 31/31 pass (14 release-sync + 17 Science maths: `mul255` exhaustive, CIEDE2000 reference pairs, all binary16 patterns, brush, matrix, refine) |
+| Types (`npm run check`) | 0 errors, 0 warnings |
+| Build gate (`verify-dist`) | Pass: 5 pages; exact CSP; no inline style/script; JS 5.4 + hero 3.7 + Science 13.3 KiB, CSS 16.9 KiB gzip |
+| Browser tests, Chromium + WebKit + iPhone 15 + Pixel 7 | 149 passed, 4 skipped (touch-only skips), **3 failed — all pre-existing and reproduced on the live site**: `"/" loads cleanly … no horizontal overflow` on iPhone and Pixel, and `phone navigation` on Pixel. They concern the home page at phone width (a 453 px layout viewport at 390 px), not the Science page |
+| Science page, every project | loads with no console errors or CSP violations, 0 px overflow, axe WCAG 2.2 A/AA: 0 violations; 16 demo tests (numbers checked against the formulas), no-JavaScript and reduced-motion fallbacks |
+| Network | every request goes to the site's own origin |
+| Lighthouse 13.5, local build, simulated throttling | Science: mobile 95 / 100 / 100 / 100 (LCP 2.7 s, CLS 0, TBT 0 ms, 391 KiB); desktop 98 / 100 / 100 / 100 (LCP 0.9 s). Home measured 94 mobile in the same local run (100 live), so local serving costs a few points |
+| Secrets | Gitleaks: `dist`, `src`, `docs`, `design`: no leaks |
+| Dependencies | `npm audit`: 0 vulnerabilities |
+| Firefox | Not run locally (Playwright Firefox does not start on macOS 27); runs in the *Check* workflow |
+| Visual review | Desktop 1440 × 900 (Chromium), 1280 × 800 WebKit with reduced motion, phone 390 × 844 and 320 × 700: every chapter screenshotted and reviewed; overflowing equations re-set on several lines |
+
 ## Live site (5 November 2026)
 
 * The *Deploy website* workflow passed its build, unit tests, release sync (unreleased, as

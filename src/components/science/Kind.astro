@@ -1,0 +1,11 @@
+---
+// Says what kind of statement a passage is: verified in CutOut's code, from a cited paper, or
+// general background. Meaningful, not decorative: the page promises to keep the three apart.
+import { kindLabel, kindTitle, type Kind } from '../../data/science';
+interface Props {
+  k: Kind;
+}
+const { k } = Astro.props;
+---
+
+<span class={`kind kind--${k}`} title={kindTitle[k]}><span class="kind__dot" aria-hidden="true"></span>{kindLabel[k]}</span>

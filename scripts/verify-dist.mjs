@@ -7,7 +7,7 @@
 //  • every external URL uses https and an allow-listed host; no external scripts/styles/fonts
 //  • download links (if any) point only at the app repository's GitHub release assets
 //  • no source maps, no .env files, nothing that looks like a credential
-//  • gzip budgets for JavaScript and CSS
+//  • gzip budgets for JavaScript (site, hero scene, Science page) and CSS
 import { readFile, readdir } from 'node:fs/promises';
 import { existsSync, statSync } from 'node:fs';
 import { resolve, dirname, join, relative } from 'node:path';
@@ -26,6 +26,12 @@ const ALLOWED_HOSTS = new Set([
   'astro.build',
   'onnxruntime.ai',
   'www.rust-lang.org',
+  // References on the Science page (papers, model card, vendor documentation).
+  'arxiv.org',
+  'doi.org',
+  'huggingface.co',
+  'developer.apple.com',
+  'katex.org',
 ]);
 const EXPECTED_CSP = [
   "default-src 'none'",
@@ -60,7 +66,7 @@ async function walk(dir) {
 }
 
 const files = await walk(root);
-let js = 0, css = 0, heroJs = 0, pages = 0;
+let js = 0, css = 0, heroJs = 0, sciJs = 0, pages = 0;
 
 const resolveLocal = (file, url) => {
   const clean = decodeURIComponent(url.split(/[?#]/)[0]);
@@ -82,6 +88,7 @@ for (const file of files) {
     if (name.endsWith('.js')) {
       const size = gzipSync(text).length;
       if (name.includes('hero-gl')) heroJs += size;
+      else if (/(^|\/)(sci-|science\.astro)/.test(name)) sciJs += size; // Science page demos, loaded on that page only
       else js += size;
       if (/\beval\(|new Function\(/.test(text)) fail(file, 'eval/new Function in bundle');
       if (/\.innerHTML\s*=|outerHTML\s*=|insertAdjacentHTML|document\.write/.test(text)) fail(file, 'HTML injection sink in bundle');
@@ -153,6 +160,7 @@ for (const file of files) {
 const KB = 1024;
 if (js > 24 * KB) fail(root, `site JavaScript ${(js / KB).toFixed(1)} KiB gzip exceeds 24 KiB`);
 if (heroJs > 16 * KB) fail(root, `hero scene ${(heroJs / KB).toFixed(1)} KiB gzip exceeds 16 KiB`);
+if (sciJs > 40 * KB) fail(root, `Science page JavaScript ${(sciJs / KB).toFixed(1)} KiB gzip exceeds 40 KiB`);
 if (css > 30 * KB) fail(root, `CSS ${(css / KB).toFixed(1)} KiB gzip exceeds 30 KiB`);
 if (pages < 4) fail(root, `only ${pages} pages built`);
 
@@ -161,5 +169,5 @@ if (errors.length) {
   process.exit(1);
 }
 console.log(
-  `verify-dist: ${pages} pages OK under ${SITE_BASE}; JS ${(js / KB).toFixed(1)} KiB + hero ${(heroJs / KB).toFixed(1)} KiB, CSS ${(css / KB).toFixed(1)} KiB (gzip).`,
+  `verify-dist: ${pages} pages OK under ${SITE_BASE}; JS ${(js / KB).toFixed(1)} KiB + hero ${(heroJs / KB).toFixed(1)} KiB + science ${(sciJs / KB).toFixed(1)} KiB, CSS ${(css / KB).toFixed(1)} KiB (gzip).`,
 );

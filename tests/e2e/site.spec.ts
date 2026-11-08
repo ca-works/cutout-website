@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import release from '../../src/data/release.json' with { type: 'json' };
 import { APP_REPO } from '../../site.config.mjs';
 
-const PAGES = ['', 'docs/', 'privacy/', 'this-page-does-not-exist/'];
+const PAGES = ['', 'docs/', 'privacy/', 'science/', 'this-page-does-not-exist/'];
 
 /** Collects console errors, page errors and CSP violations for a page. */
 function watch(page: Page) {
@@ -66,7 +66,7 @@ for (const path of PAGES) {
 }
 
 test('every page has one h1, a title, a description and a canonical URL', async ({ page }) => {
-  for (const path of PAGES.slice(0, 3)) {
+  for (const path of PAGES.slice(0, 4)) {
     await page.goto(path);
     await expect(page.locator('h1')).toHaveCount(1);
     await expect(page).toHaveTitle(/CutOut/);

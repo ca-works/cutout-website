@@ -9,6 +9,7 @@ const links = [
   { href: at('#compare'), label: 'Results' },
   { href: at('#app'), label: 'The app' },
   { href: at('#privacy'), label: 'Privacy' },
+  { href: `${base}science/`, label: 'Science' },
   { href: `${base}docs/`, label: 'Guide' },
 ];
 const current = (href: string) => (Astro.url.pathname === href ? 'page' : undefined);

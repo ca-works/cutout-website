@@ -1,0 +1,18 @@
+---
+// The second and third levels of the page: closed by default, native <details> (works without
+// JavaScript, keyboard and screen-reader friendly).
+interface Props {
+  level: 'technical' | 'maths';
+  title: string;
+}
+const { level, title } = Astro.props;
+---
+
+<details class={`deep deep--${level}`}>
+  <summary>
+    <span class="deep__level">{level === 'technical' ? 'Technical' : 'Mathematics'}</span>
+    <span class="deep__title">{title}</span>
+    <svg class="deep__chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  </summary>
+  <div class="deep__body"><slot /></div>
+</details>

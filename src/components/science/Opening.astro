@@ -1,0 +1,98 @@
+---
+// Opening scene: one photograph, scrolled through CutOut's actual pipeline in six stages.
+// Every image is real: the photo, the 1024² resampling the network receives, BiRefNet's raw
+// prediction (refinement off), the refined matte with the pixels refinement changed in violet,
+// the cutout and a composite. See design/sources/science/README.md.
+import Kind from './Kind.astro';
+import data from '../../assets/generated/science/science.json';
+import photo800 from '../../assets/generated/science/open-photo-800.webp?url';
+import photo1400 from '../../assets/generated/science/open-photo-1400.webp?url';
+import input from '../../assets/generated/science/open-input.webp?url';
+import raw800 from '../../assets/generated/science/open-raw-800.webp?url';
+import raw1400 from '../../assets/generated/science/open-raw-1400.webp?url';
+import matte800 from '../../assets/generated/science/open-matte-800.webp?url';
+import matte1400 from '../../assets/generated/science/open-matte-1400.webp?url';
+import band800 from '../../assets/generated/science/open-band-800.webp?url';
+import band1400 from '../../assets/generated/science/open-band-1400.webp?url';
+import cut800 from '../../assets/generated/science/open-cutout-800.webp?url';
+import cut1400 from '../../assets/generated/science/open-cutout-1400.webp?url';
+
+const { w, h, changedPct, exactPct } = data.open;
+const sizes = '(max-width: 819px) 92vw, 62vw';
+const set = (a: string, b: string) => `${a} 800w, ${b} 1400w`;
+const mp = ((w * h) / 1e6).toFixed(1);
+
+const stages = [
+  {
+    t: 'Photograph',
+    d: `${w.toLocaleString('en-GB')} × ${h.toLocaleString('en-GB')} pixels: ${mp} million points of colour, three numbers each. Nothing in them says “puppy”.`,
+  },
+  {
+    t: 'What the network sees',
+    d: 'Squeezed to exactly 1024 × 1024, whatever the photo’s shape, and every colour normalised. This square is the only thing BiRefNet is shown.',
+  },
+  {
+    t: 'Prediction',
+    d: 'BiRefNet answers with one number per input pixel: how likely it belongs to the subject. CutOut stretches the answer back to full size with a cubic kernel.',
+  },
+  {
+    t: 'Refinement',
+    d: `A colour-guided filter redraws only the uncertain band along the edge, at full resolution. In violet: the ${changedPct} % of pixels it changed. ${exactPct} % stay exactly 0 or 255.`,
+  },
+  {
+    t: 'Cutout',
+    d: 'The matte becomes the layer’s mask. Nothing is deleted: 0 hides a pixel, 255 shows it, and every value between blends.',
+  },
+  {
+    t: 'Composite',
+    d: 'Over any background, for every pixel and every channel: C = αF + (1 − α)B.',
+  },
+];
+---
+
+<section class="op" data-scene data-op aria-labelledby="op-title">
+  <div class="pin op__pin">
+    <div class="op__grid wrap">
+      <div class="op__head">
+        <h1 class="op__h1" id="op-title">
+          <span class="op__kicker">The Science Behind CutOut</span>
+          <span class="op__title">The invisible boundary.</span>
+        </h1>
+        <p class="op__sub">How mathematics, a neural network and a little image processing turn ordinary pixels into a precise cutout.</p>
+      </div>
+
+      <figure class="op__fig">
+        <div class="op__frame checker" data-op-frame>
+          <div class="op__bg" data-op-layer="bg" aria-hidden="true"></div>
+          <img class="op__layer op__layer--0" data-op-layer="0" src={photo1400} srcset={set(photo800, photo1400)} sizes={sizes} width={w} height={h} alt="A golden retriever puppy lying on a beige carpet." fetchpriority="high" />
+          <img class="op__layer" data-op-layer="1" src={input} width="1024" height="1024" alt="The same photo squeezed into a 1024 by 1024 square." loading="lazy" decoding="async" />
+          <img class="op__layer" data-op-layer="2" src={raw1400} srcset={set(raw800, raw1400)} sizes={sizes} width={w} height={h} alt="BiRefNet's raw prediction: the puppy in white on black, with soft grey edges." loading="lazy" decoding="async" />
+          <img class="op__layer" data-op-layer="3" src={matte1400} srcset={set(matte800, matte1400)} sizes={sizes} width={w} height={h} alt="The refined matte." loading="lazy" decoding="async" />
+          <img class="op__layer op__band" data-op-layer="3b" src={band1400} srcset={set(band800, band1400)} sizes={sizes} width={w} height={h} alt="" loading="lazy" decoding="async" />
+          <img class="op__layer" data-op-layer="4" src={cut1400} srcset={set(cut800, cut1400)} sizes={sizes} width={w} height={h} alt="The puppy cut out, on a transparency grid; later composited onto a new background." loading="lazy" decoding="async" />
+        </div>
+        <figcaption class="op__cap">
+          <Kind k="app" /> Every frame is real CutOut output for this photo, not an illustration.
+        </figcaption>
+      </figure>
+
+      <div class="op__steps">
+        <ol class="op__list" role="list" data-op-steps>
+          {
+            stages.map((s, i) => (
+              <li class="op__step" data-op-step={i} aria-current={i === 0 ? 'step' : undefined}>
+                <button type="button" class="op__btn" data-op-go={i}>
+                  <span class="visually-hidden">Stage </span><span class="op__num tabular">{String(i + 1).padStart(2, '0')}</span>
+                  <span class="op__t">{s.t}</span>
+                </button>
+                <p class="op__d">{s.d}</p>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="op__hint" aria-hidden="true">Scroll, or choose a stage.</p>
+      </div>
+    </div>
+  </div>
+</section>
+

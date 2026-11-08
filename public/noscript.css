@@ -14,3 +14,43 @@
   opacity: 1 !important;
   transform: none !important;
 }
+
+/* The Science page without JavaScript: every stage, explanation and sample is shown at once. */
+.op__frame {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  aspect-ratio: auto;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+.op__layer {
+  position: static !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  height: auto !important;
+  border-radius: 10px;
+}
+.op__bg,
+.op__band,
+.op__hint {
+  display: none !important;
+}
+.op__d {
+  display: block !important;
+}
+.arch__detail .ad[hidden],
+.edge__panel[hidden] {
+  display: block !important;
+}
+.arch__detail .ad + .ad {
+  margin-top: 18px;
+}
+.edge__panel + .edge__panel {
+  margin-top: 40px;
+}
+.edge .tabs {
+  display: none;
+}

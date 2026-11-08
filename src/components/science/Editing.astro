@@ -1,0 +1,294 @@
+---
+import Chapter from './Chapter.astro';
+import Eq from './Eq.astro';
+import Kind from './Kind.astro';
+import Cite from './Cite.astro';
+import Deep from './Deep.astro';
+import data from '../../assets/generated/science/science.json';
+import cut800 from '../../assets/generated/science/open-cutout-800.webp?url';
+import rgb from '../../assets/generated/science/lab-rgb.webp?url';
+import matte from '../../assets/generated/science/lab-matte.png?url';
+import mug from '../../assets/generated/science/wand-mug.webp?url';
+
+const { w, h } = data.lab;
+const pw = 400;
+const ph = Math.round((pw * data.open.h) / data.open.w);
+const profile = data.profile;
+// Drawn at build time so the chart is complete without JavaScript; the script only adds the third line.
+const n = profile.refined.length;
+const line = (a: number[]) => a.map((v, i) => `${i ? 'L' : 'M'}${(40 + (660 * i) / (n - 1)).toFixed(1)} ${(260 - (240 * v) / 255).toFixed(1)}`).join(' ');
+const falloff = Array.from({ length: 121 }, (_, i) => {
+  const d = (i / 120) * 115;
+  const t = Math.min(1, Math.max(0, (d - 50) / 50.5));
+  const f = d <= 50 ? 1 : d >= 100.5 ? 0 : 1 - t * t * (3 - 2 * t);
+  return `${i ? 'L' : 'M'}${(20 + (212 * d) / 115).toFixed(1)} ${(90 - 80 * f).toFixed(1)}`;
+}).join(' ') + ' L232 90 L20 90 Z';
+---
+
+<section class="sci-sec" aria-labelledby="editing">
+  <div class="wrap">
+    <Chapter
+      n="05"
+      id="editing"
+      scale="Scale: a 3 × 3 matrix"
+      title="Editing is arithmetic too."
+      lede="Moving a layer, erasing a stray hair or selecting a colour feels like handling an object. Underneath, each is a small, exact formula applied to millions of pixels."
+    />
+
+    <!-- 5.1 transforms and layers -->
+    <h3 class="sci-h3" id="transforms">Moving without touching a pixel</h3>
+    <div class="prose-grid">
+      <div class="prose">
+        <p>
+          A CutOut layer keeps its pixels exactly as they were imported. Position, scale and rotation are only four numbers stored beside them. On every redraw, each canvas pixel is mapped
+          <em>backwards</em> through the inverse transform to find which layer pixel lands there, so nothing is ever resampled into the layer itself. <Kind k="app" />
+        </p>
+      </div>
+    </div>
+
+    <figure class="lab xf" data-sci="transform" data-w={pw} data-h={ph}>
+      <div class="lab__stage xf__stage">
+        <svg class="xf__svg" viewBox="0 0 800 520" role="img" aria-labelledby="xf-svg-title" data-xf-svg>
+          <title id="xf-svg-title">A canvas with three layers: a backdrop, the puppy cutout and a label. The puppy layer can be moved, scaled and rotated.</title>
+          <defs>
+            <pattern id="xf-check" width="24" height="24" patternUnits="userSpaceOnUse">
+              <rect width="24" height="24" class="xf__ck-a"></rect><rect width="12" height="12" class="xf__ck-b"></rect><rect x="12" y="12" width="12" height="12" class="xf__ck-b"></rect>
+            </pattern>
+          </defs>
+          <rect class="xf__canvas" x="0" y="0" width="800" height="520" fill="url(#xf-check)"></rect>
+          <g data-xf-layers>
+            <g data-xf-layer="backdrop"><rect class="xf__backdrop" x="40" y="40" width="720" height="440" rx="6"></rect></g>
+            <g data-xf-layer="puppy" data-xf-puppy>
+              <g data-xf-m transform={`matrix(1 0 0 1 ${400 - pw / 2} ${280 - ph / 2})`}>
+                <image href={cut800} x="0" y="0" width={pw} height={ph}></image>
+                <rect class="xf__bounds" x="0" y="0" width={pw} height={ph}></rect>
+                <circle class="xf__pivot" r="5" cx={pw / 2} cy={ph / 2}></circle>
+              </g>
+            </g>
+            <g data-xf-layer="label"><rect class="xf__label" x="470" y="90" width="250" height="84" rx="42"></rect><text class="xf__label-t" x="595" y="142" text-anchor="middle">Good boy</text></g>
+          </g>
+        </svg>
+      </div>
+      <div class="lab__panel" hidden data-lab-panel>
+        <div class="readout">
+          <p class="readout__k">The puppy layer's matrix</p>
+          <math class="readout__math matrix" display="block" aria-hidden="true">
+            <mrow>
+              <mi mathvariant="bold">M</mi><mo>=</mo>
+              <mrow>
+                <mo>[</mo>
+                <mtable columnalign="right right right">
+                  <mtr><mtd><mn data-xf-m="a">1.000</mn></mtd><mtd><mn data-xf-m="c">0.000</mn></mtd><mtd><mn data-xf-m="e">{400 - pw / 2}</mn></mtd></mtr>
+                  <mtr><mtd><mn data-xf-m="b">0.000</mn></mtd><mtd><mn data-xf-m="d">1.000</mn></mtd><mtd><mn data-xf-m="f">{280 - ph / 2}</mn></mtd></mtr>
+                  <mtr><mtd><mn>0</mn></mtd><mtd><mn>0</mn></mtd><mtd><mn>1</mn></mtd></mtr>
+                </mtable>
+                <mo>]</mo>
+              </mrow>
+            </mrow>
+          </math>
+          <p class="readout__note tabular" data-xf-note>Layer pixels: {pw} × {ph}, never resampled.</p>
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="xf-x"><span>Position x</span><output class="tabular" data-xf-out="x">400</output></label>
+          <input id="xf-x" class="range" type="range" min="80" max="720" value="400" data-xf="x" />
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="xf-y"><span>Position y</span><output class="tabular" data-xf-out="y">280</output></label>
+          <input id="xf-y" class="range" type="range" min="80" max="440" value="280" data-xf="y" />
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="xf-s"><span>Scale</span><output class="tabular" data-xf-out="s">100 %</output></label>
+          <input id="xf-s" class="range" type="range" min="25" max="160" value="100" data-xf="s" />
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="xf-r"><span>Rotation</span><output class="tabular" data-xf-out="r">0°</output></label>
+          <input id="xf-r" class="range" type="range" min="-180" max="180" value="0" data-xf="r" />
+        </div>
+        <div class="ctl">
+          <span class="ctl__row" id="xf-order-label"><span>Layers, top first</span></span>
+          <ol class="layers" role="list" aria-labelledby="xf-order-label" data-xf-order>
+            <li data-xf-item="label"><span>Label</span><span class="layers__btns"><button type="button" class="mini" data-xf-move="up" aria-label="Move Label up">↑</button><button type="button" class="mini" data-xf-move="down" aria-label="Move Label down">↓</button></span></li>
+            <li data-xf-item="puppy"><span>Puppy</span><span class="layers__btns"><button type="button" class="mini" data-xf-move="up" aria-label="Move Puppy up">↑</button><button type="button" class="mini" data-xf-move="down" aria-label="Move Puppy down">↓</button></span></li>
+            <li data-xf-item="backdrop"><span>Backdrop</span><span class="layers__btns"><button type="button" class="mini" data-xf-move="up" aria-label="Move Backdrop up">↑</button><button type="button" class="mini" data-xf-move="down" aria-label="Move Backdrop down">↓</button></span></li>
+          </ol>
+        </div>
+      </div>
+      <figcaption class="lab__cap">
+        <Kind k="app" /> The matrix is built in the same order as CutOut builds it: centre the layer, scale, rotate, then place it. Drag the puppy, use the sliders, or reorder the layers. Layers are
+        composited bottom first with the “over” operator from chapter 2.<Cite ids="cutout-src" />
+      </figcaption>
+    </figure>
+
+    <div class="prose-grid">
+      <div class="prose">
+        <Eq display n={18} tex={String.raw`\mathbf{M}=\underbrace{T(x,y)}_{\text{place}}\;\underbrace{R(\theta)}_{\text{rotate}}\;\underbrace{S(s_{x},s_{y})}_{\text{scale}}\;\underbrace{T\!\left(-\tfrac{w}{2},-\tfrac{h}{2}\right)}_{\text{centre}}`} />
+        <Eq display tex={String.raw`\begin{gathered}T(x,y)=\begin{bmatrix}1&0&x\\0&1&y\\0&0&1\end{bmatrix},\qquad S(s_{x},s_{y})=\begin{bmatrix}s_{x}&0&0\\0&s_{y}&0\\0&0&1\end{bmatrix}\\[6pt] R(\theta)=\begin{bmatrix}\cos\theta&-\sin\theta&0\\ \sin\theta&\cos\theta&0\\0&0&1\end{bmatrix}\end{gathered}`} />
+        <p>
+          The third row, <Eq tex="(0,0,1)" />, is the trick of <em>homogeneous coordinates</em>. Writing a point as <Eq tex="(x,y,1)" /> lets a single matrix multiplication both turn and move it, so
+          any chain of moves collapses into one matrix. To draw, CutOut inverts that matrix once and samples the layer at <Eq tex={String.raw`\mathbf{M}^{-1}(u+\tfrac12,\,v+\tfrac12)`} /> for every
+          canvas pixel <Eq tex="(u,v)" />, interpolating bilinearly between the four nearest layer pixels. <Kind k="app" />
+        </p>
+      </div>
+    </div>
+
+    <!-- 5.2 eraser -->
+    <h3 class="sci-h3" id="brushes">An eraser that only changes a mask</h3>
+    <figure class="lab" data-sci="brush" data-rgb={rgb} data-matte={matte} data-w={w} data-h={h}>
+      <div class="lab__stage">
+        <canvas class="brush__canvas checker" width={w} height={h} data-br-canvas role="img" aria-label="The puppy cutout. Drag across it to erase or restore."></canvas>
+        <img class="lab__fallback checker" src={cut800} width="800" height={Math.round((800 * h) / w)} alt="The puppy cut out, on a transparency grid." loading="lazy" decoding="async" />
+      </div>
+      <div class="lab__panel" hidden data-lab-panel>
+        <div class="ctl">
+          <span class="ctl__row" id="br-mode-label"><span>Brush</span></span>
+          <div class="seg" role="radiogroup" aria-labelledby="br-mode-label">
+            <button type="button" class="seg__btn" role="radio" aria-checked="true" tabindex="0" data-br-mode="erase">Eraser</button>
+            <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1" data-br-mode="restore">Restore</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="br-size"><span>Size</span><output class="tabular" data-br-out="size">60 px</output></label>
+          <input id="br-size" class="range" type="range" min="4" max="160" value="60" data-br="size" />
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="br-hard"><span>Hardness</span><output class="tabular" data-br-out="hard">50 %</output></label>
+          <input id="br-hard" class="range" type="range" min="0" max="100" value="50" data-br="hard" />
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="br-op"><span>Opacity</span><output class="tabular" data-br-out="op">100 %</output></label>
+          <input id="br-op" class="range" type="range" min="5" max="100" value="100" data-br="op" />
+        </div>
+        <figure class="falloff">
+          <svg viewBox="0 0 240 110" class="falloff__svg" role="img" aria-labelledby="falloff-title" data-br-plot>
+            <title id="falloff-title">Brush footprint: strength against distance from the centre</title>
+            <line class="falloff__axis" x1="20" y1="90" x2="232" y2="90"></line>
+            <line class="falloff__axis" x1="20" y1="10" x2="20" y2="90"></line>
+            <path class="falloff__curve" d={falloff} data-br-curve></path>
+            <text class="falloff__lbl" x="20" y="104">centre</text>
+            <text class="falloff__lbl" x="232" y="104" text-anchor="end">edge</text>
+          </svg>
+          <figcaption class="dim small">Footprint of one dab: solid core, smoothstep shoulder.</figcaption>
+        </figure>
+        <div class="ctl ctl--btns">
+          <button type="button" class="btn btn--ghost btn--sm" data-br-demo>Erase a sample stroke</button>
+          <button type="button" class="btn btn--ghost btn--sm" data-br-reset>Reset</button>
+        </div>
+      </div>
+      <figcaption class="lab__cap">
+        <Kind k="app" /> CutOut's brush model, ported line for line: dabs every 20 % of the radius, coverage that takes the maximum rather than adding up (so opacity is a true ceiling, with no
+        build-up where dabs overlap), and erase or restore applied to the mask only.<Cite ids="cutout-src" />
+      </figcaption>
+    </figure>
+
+    <div class="prose-grid">
+      <div class="prose">
+        <p>For a dab of radius <Eq tex="r" /> and hardness <Eq tex="h" />, a pixel at distance <Eq tex="d" /> from the centre receives</p>
+        <Eq display n={19} tex={String.raw`f(d)=\begin{cases}1, & d\le hr\\[2pt] 1-3t^{2}+2t^{3},\quad t=\dfrac{d-hr}{r+\tfrac12-hr}, & hr<d<r+\tfrac12\\[4pt] 0, & d\ge r+\tfrac12\end{cases}`} />
+        <p>A stroke keeps the largest coverage <Eq tex={String.raw`c=\max_{\text{dabs}} f\cdot\text{opacity}`} /> at each pixel and recomputes the mask from its state before the stroke:</p>
+        <Eq display n={20} tex={String.raw`\text{erase: } \cM{m}'=\cM{m}-\cM{m}\,c,\qquad \text{restore: } \cM{m}'=\cM{m}+(1-\cM{m})\,c`} />
+      </div>
+    </div>
+
+    <!-- 5.3 selections -->
+    <h3 class="sci-h3" id="selection">Selecting by colour, perceptually</h3>
+    <figure class="lab" data-sci="wand" data-src={mug} data-w={data.wand.w} data-h={data.wand.h}>
+      <div class="lab__stage lab__stage--sq">
+        <canvas class="wand__canvas" width={data.wand.w} height={data.wand.h} data-wd-canvas tabindex="0" role="img" aria-label="A white enamel mug on a light background. Click, tap or press Enter to select by colour; arrow keys move the cursor."></canvas>
+        <img class="lab__fallback" src={mug} width={data.wand.w} height={data.wand.h} alt="A white enamel mug on a light background." loading="lazy" decoding="async" />
+      </div>
+      <div class="lab__panel" hidden data-lab-panel>
+        <div class="readout" aria-live="polite">
+          <p class="readout__k">Magic Wand</p>
+          <p class="readout__note tabular" data-wd-note>Click the background.</p>
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="wd-tol"><span>Tolerance (ΔE₀₀)</span><output class="tabular" data-wd-out="tol">12</output></label>
+          <input id="wd-tol" class="range" type="range" min="0" max="60" value="12" data-wd="tol" />
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="wd-soft"><span>Edge softness</span><output class="tabular" data-wd-out="soft">4</output></label>
+          <input id="wd-soft" class="range" type="range" min="0" max="20" value="4" data-wd="soft" />
+        </div>
+        <div class="ctl">
+          <label class="check"><input type="checkbox" checked data-wd="contig" /> <span>Contiguous</span></label>
+        </div>
+      </div>
+      <figcaption class="lab__cap">
+        <Kind k="app" /> CutOut's Magic Wand, ported to run in your browser: a CIEDE2000 colour distance from the clicked pixel, a soft ramp beyond the tolerance, and a 4-connected flood fill.<Cite ids="cutout-src" /> Photo of the
+        enamel mug: knoe, CC BY 3.0.
+      </figcaption>
+    </figure>
+
+    <div class="prose-grid">
+      <div class="prose">
+        <p>
+          A white mug on a light-grey backdrop is a trap for simple tools: in plain RGB numbers the two are close. CutOut's colour tools measure distance in CIELAB with the CIEDE2000 formula, which
+          is built to match what people perceive as different.<Cite ids="ciede2000" /> A tolerance of 12 then stands for roughly the same perceived difference, whatever the colour. <Kind k="app" />
+        </p>
+        <Eq display n={21} tex={String.raw`\Delta E_{00}=\sqrt{\left(\frac{\Delta L'}{k_{L}S_{L}}\right)^{2}+\left(\frac{\Delta C'}{k_{C}S_{C}}\right)^{2}+\left(\frac{\Delta H'}{k_{H}S_{H}}\right)^{2}+R_{T}\,\frac{\Delta C'}{k_{C}S_{C}}\,\frac{\Delta H'}{k_{H}S_{H}}}`} />
+        <ul class="facts">
+          <li><Kind k="app" /> <strong>Rectangle, Ellipse, Lasso, Polygon</strong> are pure geometry: the outline is filled scanline by scanline with 4 × 4 supersampling, so diagonal edges get partial coverage.</li>
+          <li><Kind k="app" /> <strong>Magic Wand, Magic Eraser, Paint Bucket</strong> use the colour distance above. The distance map is computed once per click and cached, so moving the tolerance slider is instant.</li>
+          <li><Kind k="app" /> <strong>Quick Selection</strong> learns up to six colour clusters from the pixels under the brush (k-means in CIELAB). It grows outward through similar colours and stops at strong brightness edges.</li>
+          <li><Kind k="app" /> Selections are 8-bit coverage, not yes or no. Adding takes the maximum, intersecting the minimum, and subtracting multiplies by <Eq tex="1-b" />.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 5.4 refine edges -->
+    <h3 class="sci-h3" id="refine">Refine Edges, one slice at a time</h3>
+    <figure class="lab profile" data-sci="refine">
+      <div class="lab__stage profile__stage">
+        <svg class="profile__svg" viewBox="0 0 720 300" role="img" aria-labelledby="profile-title profile-desc" data-rf-svg>
+          <title id="profile-title">Alpha along a vertical line across the top of the puppy's head</title>
+          <desc id="profile-desc">The horizontal axis is position along the line ({profile.y1 - profile.y0} pixels); the vertical axis is alpha from 0 to 255.</desc>
+          <g class="profile__grid">
+            <line x1="40" y1="20" x2="700" y2="20"></line><line x1="40" y1="140" x2="700" y2="140"></line><line x1="40" y1="260" x2="700" y2="260"></line>
+          </g>
+          <text class="profile__ax" x="32" y="24" text-anchor="end">255</text>
+          <text class="profile__ax" x="32" y="264" text-anchor="end">0</text>
+          <text class="profile__ax" x="40" y="290">background</text>
+          <text class="profile__ax" x="700" y="290" text-anchor="end">puppy</text>
+          <path class="profile__raw" d={line(profile.raw)} data-rf-path="raw"></path>
+          <path class="profile__ref" d={line(profile.refined)} data-rf-path="refined"></path>
+          <path class="profile__out" d={line(profile.refined)} data-rf-path="out"></path>
+        </svg>
+        <p class="profile__legend small"><span class="lg lg--raw">Raw prediction</span><span class="lg lg--ref">After CutOut's refinement</span><span class="lg lg--out">With your settings</span></p>
+      </div>
+      <div class="lab__panel" hidden data-lab-panel data-rf data-refined={JSON.stringify(profile.refined)}>
+        <div class="ctl">
+          <label class="ctl__row" for="rf-smooth"><span>Smooth (σ)</span><output class="tabular" data-rf-out="smooth">0</output></label>
+          <input id="rf-smooth" class="range" type="range" min="0" max="8" step="0.5" value="0" data-rf-in="smooth" />
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="rf-shift"><span>Shift edge (px)</span><output class="tabular" data-rf-out="shift">0</output></label>
+          <input id="rf-shift" class="range" type="range" min="-10" max="10" step="1" value="0" data-rf-in="shift" />
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="rf-contrast"><span>Contrast</span><output class="tabular" data-rf-out="contrast">0</output></label>
+          <input id="rf-contrast" class="range" type="range" min="0" max="1" step="0.05" value="0" data-rf-in="contrast" />
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="rf-feather"><span>Feather (σ)</span><output class="tabular" data-rf-out="feather">0</output></label>
+          <input id="rf-feather" class="range" type="range" min="0" max="12" step="0.5" value="0" data-rf-in="feather" />
+        </div>
+      </div>
+      <figcaption class="lab__cap">
+        <Kind k="app" /> A real column of CutOut's matte (x = {profile.col}, rows {profile.y0}–{profile.y1}), before and after its automatic refinement. The sliders apply Refine Edges' Smooth, Shift,
+        Contrast and Feather with the app's own formulas, in the app's order. The app applies them in two dimensions; this slice shows them in one.
+      </figcaption>
+    </figure>
+
+    <div class="deeps">
+      <Deep level="maths" title="The Refine Edges operators">
+        <p>
+          With <Eq tex={String.raw`G_{\sigma}`} /> a Gaussian blur (three box blurs of radius <Eq tex={String.raw`\operatorname{round}\big(\sqrt{4\sigma^{2}+1}/2\big)`} />, by the central limit
+          theorem), <Eq tex={String.raw`\oplus_{k}`} /> / <Eq tex={String.raw`\ominus_{k}`} /> grey-scale dilation / erosion by a square of radius <Eq tex="k" />, and <Eq tex="\alpha" /> on 0–255, CutOut
+          applies, in order: <Kind k="app" />
+        </p>
+        <Eq display n={22} tex={String.raw`\begin{aligned}\text{smooth:}\quad&\alpha\leftarrow\operatorname{clamp}\big(2\,(G_{\sigma}*\alpha-128)+128\big)\\ \text{shift:}\quad&\alpha\leftarrow\alpha\oplus_{k}\ \ (k>0)\quad\text{or}\quad\alpha\ominus_{|k|}\ \ (k<0)\\ \text{contrast:}\quad&\alpha\leftarrow255\cdot\operatorname{clamp}\big((1+8c)(\alpha/255-\tfrac12)+\tfrac12\big)\\ \text{feather:}\quad&\alpha\leftarrow G_{\sigma}*\alpha\end{aligned}`} />
+        <p>The edge-aware Radius step, the colour guided filter from chapter 3, runs before all of these. Decontaminate, from chapter 4, runs after them.</p>
+      </Deep>
+    </div>
+  </div>
+</section>

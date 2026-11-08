@@ -1,0 +1,150 @@
+---
+import Chapter from './Chapter.astro';
+import Eq from './Eq.astro';
+import Kind from './Kind.astro';
+import Cite from './Cite.astro';
+import Deep from './Deep.astro';
+import data from '../../assets/generated/science/science.json';
+import rgb from '../../assets/generated/science/lab-rgb.webp?url';
+import matte from '../../assets/generated/science/lab-matte.png?url';
+import cut800 from '../../assets/generated/science/open-cutout-800.webp?url';
+
+const { w, h, probe } = data.lab;
+const backdrops = [
+  { id: 'split', label: 'Two colours' },
+  { id: 'grey', label: 'Grey' },
+  { id: 'white', label: 'White' },
+  { id: 'black', label: 'Black' },
+  { id: 'violet', label: 'Violet' },
+];
+---
+
+<section class="sci-sec" aria-labelledby="alpha">
+  <div class="wrap">
+    <Chapter
+      n="02"
+      id="alpha"
+      scale="Scale: 1/255"
+      title="Transparency is a fourth number."
+      lede="A cutout is not a shape. It is a second image, the matte, that says for every pixel how much of the subject is there: from 0, none, to 1, all of it."
+    />
+
+    <div class="prose-grid">
+      <div class="prose">
+        <p>
+          A <strong>binary mask</strong> answers yes or no for each pixel. Real edges are rarely that tidy. A hair is thinner than a pixel, a blurred edge is partly subject and partly floor, and
+          a pixel at the rim of a fluffy ear holds a little of both. A continuous <strong>alpha matte</strong> records that fraction. Then one equation, first written down for film and computer
+          graphics, places the subject over anything.<Cite ids="porterduff" />
+        </p>
+      </div>
+    </div>
+
+    <figure class="eqcard">
+      <Eq display n={5} tex={String.raw`\cC{C}=\cA{\alpha}\,\cF{F}+(1-\cA{\alpha})\,\cB{B}`} />
+      <dl class="where">
+        <div><dt><Eq tex={String.raw`\cC{C}`} /></dt><dd>the colour you see</dd></div>
+        <div><dt><Eq tex={String.raw`\cF{F}`} /></dt><dd>the subject's colour (foreground)</dd></div>
+        <div><dt><Eq tex={String.raw`\cB{B}`} /></dt><dd>the new background's colour</dd></div>
+        <div><dt><Eq tex={String.raw`\cA{\alpha}`} /></dt><dd>coverage, 0 = transparent, 1 = opaque</dd></div>
+      </dl>
+      <figcaption class="visually-hidden">The compositing equation, applied to each colour channel separately.</figcaption>
+    </figure>
+
+    <figure class="lab" data-sci="alpha" data-rgb={rgb} data-matte={matte} data-w={w} data-h={h} data-px={probe.x} data-py={probe.y}>
+      <div class="lab__stage">
+        <canvas class="alpha__canvas" width={w} height={h} data-al-canvas tabindex="0" role="img" aria-label="The puppy composited over the chosen background. Click, tap or use the arrow keys to inspect a pixel; drag sideways to move the puppy."></canvas>
+        <img class="lab__fallback checker" src={cut800} width="800" height={Math.round((800 * h) / w)} alt="The puppy cut out, on a transparency grid." loading="lazy" decoding="async" />
+      </div>
+      <div class="lab__panel" hidden data-lab-panel>
+        <div class="readout" aria-live="polite">
+          <p class="readout__k">Pixel <span class="tabular" data-al-xy></span></p>
+          <math class="readout__math readout__math--sm" display="block" aria-hidden="true">
+            <mrow>
+              <mi class="v-c">C</mi><mo>=</mo><mn class="v-a" data-al-a>0.50</mn><mo>·</mo><mi class="v-f">F</mi><mo>+</mo><mn data-al-ia>0.50</mn><mo>·</mo><mi class="v-b">B</mi>
+            </mrow>
+          </math>
+          <table class="vals tabular">
+            <caption class="visually-hidden">Values of the selected pixel</caption>
+            <thead><tr><th scope="col"></th><th scope="col">R</th><th scope="col">G</th><th scope="col">B</th></tr></thead>
+            <tbody>
+              <tr><th scope="row"><span class="sw" data-al-sw="f"></span><span class="v-f">F</span></th><td data-al-v="f0"></td><td data-al-v="f1"></td><td data-al-v="f2"></td></tr>
+              <tr><th scope="row"><span class="sw" data-al-sw="b"></span><span class="v-b">B</span></th><td data-al-v="b0"></td><td data-al-v="b1"></td><td data-al-v="b2"></td></tr>
+              <tr class="vals__sum"><th scope="row"><span class="sw" data-al-sw="c"></span><span class="v-c">C</span></th><td data-al-v="c0"></td><td data-al-v="c1"></td><td data-al-v="c2"></td></tr>
+            </tbody>
+          </table>
+          <p class="readout__note" data-al-note></p>
+          <p class="readout__k readout__k--sub">Stored as</p>
+          <table class="vals vals--store tabular">
+            <caption class="visually-hidden">The selected pixel in straight and premultiplied form</caption>
+            <tbody>
+              <tr><th scope="row">Straight</th><td data-al-s>–</td></tr>
+              <tr><th scope="row">Premultiplied</th><td data-al-p>–</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ctl">
+          <label class="ctl__row" for="al-op"><span>Layer opacity</span><output class="tabular" data-al-op-out>100 %</output></label>
+          <input id="al-op" class="range" type="range" min="0" max="100" value="100" data-al-op />
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="al-dx"><span>Move the puppy</span><output class="tabular" data-al-dx-out>0 px</output></label>
+          <input id="al-dx" class="range" type="range" min="-260" max="260" value="0" data-al-dx />
+        </div>
+        <div class="ctl">
+          <span class="ctl__row" id="al-bg-label"><span>Background</span></span>
+          <div class="seg seg--wrap" role="radiogroup" aria-labelledby="al-bg-label">
+            {backdrops.map((b, i) => <button type="button" class="seg__btn" role="radio" aria-checked={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-al-bg={b.id}>{b.label}</button>)}
+          </div>
+        </div>
+        <div class="ctl">
+          <span class="ctl__row" id="al-mode-label"><span>Edge</span></span>
+          <div class="seg seg--wrap" role="radiogroup" aria-labelledby="al-mode-label">
+            <button type="button" class="seg__btn" role="radio" aria-checked="true" tabindex="0" data-al-mode="soft">Soft matte</button>
+            <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1" data-al-mode="hard">Binary mask</button>
+            <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1" data-al-mode="alpha">Show α</button>
+          </div>
+        </div>
+      </div>
+      <figcaption class="lab__cap">
+        <Kind k="app" /> CutOut's real matte for the photo, recombined live in your browser. The numbers are recomputed for the pixel under the cross. “Binary mask” rounds each α to 0 or 1, which is what
+        a yes-or-no selection would give: look at the fur.
+      </figcaption>
+    </figure>
+
+    <div class="prose-grid">
+      <div class="prose">
+        <p>
+          In CutOut the matte never deletes anything. Background removal writes it into the layer's <strong>mask</strong>, so the pixel's own alpha, the mask and the layer's opacity simply multiply.
+          The Restore brush can always bring the original back. <Kind k="app" />
+        </p>
+        <Eq display n={6} tex={String.raw`\cA{\alpha}_{\text{effective}}=\alpha_{\text{pixel}}\cdot\cM{m}_{\text{mask}}\cdot o_{\text{layer}}`} />
+      </div>
+    </div>
+
+    <div class="deeps">
+      <Deep level="technical" title="Straight and premultiplied alpha, and what CutOut uses where">
+        <p>
+          A colour can be stored <em>straight</em>, (<Eq tex={String.raw`F,\alpha`} />), or <em>premultiplied</em>, (<Eq tex={String.raw`\alpha F,\alpha`} />). Premultiplied colour makes compositing
+          one multiply-add per channel and filters correctly: blurring or resampling straight colour lets the invisible colour of transparent pixels bleed into the edge.<Cite ids="porterduff" />
+        </p>
+        <ul class="facts">
+          <li><Kind k="app" /> CutOut composites its layers in <strong>premultiplied</strong> space, bottom layer first, with the source-over operator.</li>
+          <li><Kind k="app" /> Layers that are rotated or scaled are sampled bilinearly <strong>in premultiplied space</strong> with transparent borders, so their edges are anti-aliased and never fringe.</li>
+          <li><Kind k="app" /> Export flattens the canvas and converts back to <strong>straight</strong> alpha, which is what PNG stores.</li>
+          <li><Kind k="app" /> Layers that are not transformed take an exact integer path. Rotated or scaled layers use floating point.</li>
+        </ul>
+      </Deep>
+      <Deep level="maths" title="Source-over, exactly as the engine computes it">
+        <p>With premultiplied colours (<Eq tex={String.raw`c=\alpha F`} />), placing a source <Eq tex="s" /> over a destination <Eq tex="d" /> is<Cite ids="porterduff" /></p>
+        <Eq display n={7} tex={String.raw`\begin{aligned}c'&=c_{s}+(1-\alpha_{s})\,c_{d}\\ \alpha'&=\alpha_{s}+(1-\alpha_{s})\,\alpha_{d}\end{aligned}`} />
+        <p>On 8-bit integers every product needs a division by 255. CutOut avoids the division with an exact rounding identity, tested here for all 65,536 pairs of bytes: <Kind k="app" /></p>
+        <Eq display n={8} tex={String.raw`\operatorname{round}\!\left(\frac{ab}{255}\right)=\left\lfloor\frac{t+\lfloor t/256\rfloor}{256}\right\rfloor,\qquad t=ab+128`} />
+        <p>
+          Going back to straight alpha divides by <Eq tex={String.raw`\alpha`} />, so a pixel with <Eq tex={String.raw`\alpha=3/255`} /> can only hold about 4 distinct levels per channel once premultiplied. Keeping the
+          original pixels and the matte apart, as CutOut's layers do, avoids that loss while you edit; the conversion happens once, at export.
+        </p>
+      </Deep>
+    </div>
+  </div>
+</section>

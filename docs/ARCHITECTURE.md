@@ -17,19 +17,21 @@ The address is `https://ca-works.github.io/<website repository>/`. The name is s
 site.config.mjs           addresses and repository names (single source)
 src/
   layouts/Base.astro      <head>: metadata, CSP, icons, Open Graph; nav + footer
-  pages/                  index (home), docs (guide), privacy, 404
+  pages/                  index (home), docs (guide), science (The Science Behind CutOut), privacy, 404
   components/             one file per home-page scene: Hero, Compare, Keys, AppWindow, Numbers,
-                          Tools, Private, Get; shared: Nav, Footer, Prose, Split (word reveal)
+                          Tools, Private, Get; shared: Nav, Footer, Prose, Split (word reveal);
+                          science/ (one file per Science chapter + Eq, Kind, Cite, Deep, Chapter)
   scripts/                scenes.ts (scroll scenes), site.ts (nav, reveal, magnetic, copy),
-                          hero.ts + hero-gl.ts (the peeling print), compare.ts, a11y.ts
-  styles/global.css       design tokens and shared components
+                          hero.ts + hero-gl.ts (the peeling print), compare.ts, a11y.ts;
+                          science/sci-*.ts (Science demos, lazy per chapter; sci-lib.ts = engine ports)
+  styles/global.css       design tokens and shared components; science.css (Science page)
   data/                   facts.ts (every product claim + its evidence), release.json (written
                           by the sync), release.ts (typed access)
   assets/screens/         genuine app windows rendered by the app's own self-test
   assets/generated/       built by `npm run assets` (git-ignored)
-design/sources/           original photos + CutOut's mattes (provenance in README)
+design/sources/           original photos + CutOut's mattes (provenance in README); science/ for the Science page
 design/brand/             the official icon files
-scripts/                  prepare-assets, make-icons, make-og, sync-release (+ lib/release),
+scripts/                  prepare-assets, prepare-science, make-icons, make-og, sync-release (+ lib/release),
                           verify-dist, serve, lighthouse, import-screens,
                           shoot + shoot-page (visual QA helpers)
 tests/unit, tests/e2e     node:test and Playwright
@@ -112,6 +114,8 @@ No visitor's browser ever talks to the GitHub API.
 
 ## Performance budget (enforced by verify-dist)
 
-Site JavaScript ≤ 24 KiB gzip (now 5.3), hero WebGL ≤ 16 KiB (3.6), CSS ≤ 30 KiB (9.8).
+Site JavaScript ≤ 24 KiB gzip (now 5.4), hero WebGL ≤ 16 KiB (3.7), Science page demos ≤ 40 KiB
+(13.3, loaded on that page only, per chapter), CSS ≤ 30 KiB (16.9, of which the Science page's
+own stylesheet is part).
 Images: AVIF + WebP with `srcset`, explicit dimensions, lazy below the fold (including the
 comparison samples); only the hero poster is preloaded with high priority. One font file (98 KB).

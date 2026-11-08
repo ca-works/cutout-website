@@ -1,0 +1,12 @@
+---
+import { refNumber, refs } from '../../data/science';
+interface Props {
+  ids: string;
+}
+const nums = Astro.props.ids
+  .split(/\s+/)
+  .map(refNumber)
+  .sort((a, b) => a - b);
+---
+
+<sup class="cite">{nums.map((n, i) => <>{i > 0 && ','}<a href={`#ref-${refs[n - 1].id}`} aria-label={`Reference ${n}: ${refs[n - 1].title}`}>{n}</a></>)}</sup>

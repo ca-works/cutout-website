@@ -1,0 +1,21 @@
+---
+// A chapter header: number, the scale the chapter works at, title and one-line lede.
+import Split from '../Split.astro';
+interface Props {
+  n: string;
+  id: string;
+  scale: string;
+  title: string;
+  lede: string;
+}
+const { n, id, scale, title, lede } = Astro.props;
+---
+
+<header class="ch">
+  <p class="ch__n" aria-hidden="true">{n}</p>
+  <div class="ch__text">
+    <p class="ch__scale"><span class="visually-hidden">Chapter {n}. </span>{scale}</p>
+    <Split as="h2" text={title} class="title title--m ch__title" id={id} />
+    <p class="ch__lede">{lede}</p>
+  </div>
+</header>

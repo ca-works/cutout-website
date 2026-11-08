@@ -1,0 +1,221 @@
+---
+import Chapter from './Chapter.astro';
+import Eq from './Eq.astro';
+import Kind from './Kind.astro';
+import Cite from './Cite.astro';
+import Deep from './Deep.astro';
+import { backends, benchMachine, modelFiles } from '../../data/science';
+
+// Small multiples, one per measure (never two scales on one axis). Each row is a min–max range of
+// two independent runs; inference-only and end-to-end figures sit in separate panels.
+const panels = [
+  { id: 'inf', title: 'Inference only', unit: 's', key: 'inference', max: 18, note: 'the network itself, 1024² input' },
+  { id: 'e2e', title: 'End to end, photos ≤ 8 MP', unit: 's', key: 'total8mp', max: 18, note: 'pre-processing + inference + full-resolution refinement' },
+  { id: 'e36', title: 'End to end, 36 MP portrait', unit: 's', key: 'total36mp', max: 18, note: 'same, for one 4912 × 7360 photo' },
+  { id: 'mem', title: 'Peak memory of the process', unit: 'GB', key: 'peakRssGb', max: 12, note: 'resident set size, 10-image benchmark' },
+] as const;
+const W = 360, X0 = 104, X1 = 296;
+const sx = (v: number, max: number) => X0 + ((X1 - X0) * v) / max;
+const fmt = (v: number) => (v < 10 ? v.toFixed(2).replace(/0$/, '') : v.toFixed(1));
+
+const files = [
+  { name: 'BiRefNet, ONNX FP32', bytes: modelFiles.onnxFp32 },
+  { name: 'BiRefNet, ONNX FP16', bytes: modelFiles.onnxFp16 },
+  { name: 'BiRefNet, Core ML FP16', bytes: modelFiles.coremlWeights },
+  { name: 'BiRefNet Lite, ONNX FP32', bytes: modelFiles.liteFp32 },
+];
+const mb = (b: number) => Math.round(b / 1e6);
+const presets = [
+  { v: '0.1', label: '0.1' },
+  { v: '0.333333333', label: '⅓' },
+  { v: '0.5', label: '0.5' },
+  { v: '3.14159265', label: 'π' },
+  { v: '0.00001', label: '10⁻⁵' },
+  { v: '65504', label: '65 504' },
+  { v: '70000', label: '70 000' },
+];
+---
+
+<section class="sci-sec" aria-labelledby="hardware">
+  <div class="wrap">
+    <Chapter
+      n="06"
+      id="hardware"
+      scale="Scale: 16 bits"
+      title="One network, three engines."
+      lede="The same weights run on a Mac's graphics processor, on any computer's CPU, and, experimentally, on a Windows GPU. How they run decides whether a cutout takes two seconds or fifteen."
+    />
+
+    <figure class="routes">
+      <div class="routes__col">
+        <p class="routes__os">macOS</p>
+        <ol class="route" role="list">
+          <li class="route__step route__step--main"><span class="route__k">Best Quality</span><span class="route__v">Core ML · FP16 · CPU + GPU</span></li>
+          <li class="route__step route__step--fb"><span class="route__k">if Core ML fails to load or run</span><span class="route__v">ONNX Runtime · FP32 · CPU</span></li>
+          <li class="route__step route__step--alt"><span class="route__k">Fast</span><span class="route__v">Apple Vision subject mask + guided filter</span></li>
+        </ol>
+      </div>
+      <div class="routes__col">
+        <p class="routes__os">Windows</p>
+        <ol class="route" role="list">
+          <li class="route__step route__step--main"><span class="route__k">Best Quality</span><span class="route__v">ONNX Runtime · FP32 (or FP16 weights) · CPU</span></li>
+          <li class="route__step route__step--exp"><span class="route__k">in the engine, not in published builds</span><span class="route__v">DirectML GPU provider · experimental · falls back to CPU</span></li>
+          <li class="route__step route__step--alt"><span class="route__k">Fast</span><span class="route__v">BiRefNet Lite (Swin-T) · CPU</span></li>
+        </ol>
+      </div>
+      <figcaption class="lab__cap">
+        <Kind k="app" /> How CutOut 0.1 chooses where to run the model. Every path shares the same pre- and post-processing code. Core ML, ONNX Runtime, DirectML and Apple Vision are documented by
+        their vendors.<Cite ids="coreml ort-ep ort-dml vision" />
+      </figcaption>
+    </figure>
+
+    <div class="prose-grid">
+      <div class="prose">
+        <p>
+          On a Mac, CutOut converts BiRefNet to a Core ML program in 16-bit floating point and asks for the CPU and GPU.<Cite ids="mlcomputeunits" /> The Neural Engine was tried: its compiler had not
+          finished after 25 minutes, so it is not used. If Core ML cannot load or run the model, CutOut releases it and uses ONNX Runtime on the CPU instead. On Windows the model runs on the CPU
+          with ONNX Runtime. The engine also contains a DirectML GPU path, but the published Windows builds are compiled without it, and it has not been verified on real hardware.<Cite ids="cutout-src cutout-models" /> <Kind k="app" />
+        </p>
+      </div>
+    </div>
+
+    <figure class="lab fp" data-sci="float">
+      <div class="fp__head">
+        <label class="fp__label" for="fp-in">A number</label>
+        <input id="fp-in" class="fp__input tabular" type="text" inputmode="decimal" value="0.1" spellcheck="false" autocomplete="off" data-fp-in />
+        <div class="chips" role="group" aria-label="Examples" hidden data-fp-presets>
+          {presets.map((p) => <button type="button" class="chip" data-fp-preset={p.v}>{p.label}</button>)}
+        </div>
+      </div>
+      <div class="fp__rows">
+        {
+          (['32', '16'] as const).map((k) => (
+            <div class="fp__row" data-fp-row={k}>
+              <p class="fp__name">
+                FP{k} <span class="dim">· {k === '32' ? '1 + 8 + 23 bits' : '1 + 5 + 10 bits'}</span>
+              </p>
+              <div class={`bits bits--${k}`} aria-hidden="true" data-fp-bits={k}>
+                {Array.from({ length: Number(k) }, (_, i) => (
+                  <span class={`bit ${i === 0 ? 'bit--s' : i <= (k === '32' ? 8 : 5) ? 'bit--e' : 'bit--m'}`}>0</span>
+                ))}
+              </div>
+              <p class="fp__val tabular" data-fp-val={k} aria-live="polite"></p>
+            </div>
+          ))
+        }
+      </div>
+      <p class="fp__legend small" aria-hidden="true"><span class="lg lg--s">sign</span><span class="lg lg--e">exponent</span><span class="lg lg--m">fraction</span></p>
+      <figcaption class="lab__cap">
+        <Kind k="concept" /> Type any number to see the nearest value each format can store, and the error. Rounding is to the nearest value, ties to even, as IEEE 754 specifies.<Cite ids="ieee754" />
+      </figcaption>
+    </figure>
+
+    <div class="prose-grid">
+      <div class="prose">
+        <Eq display n={23} tex={String.raw`\begin{aligned}v&=(-1)^{s}\times 2^{\,e-\text{bias}}\times\left(1+\frac{f}{2^{p}}\right)\\[4pt] &\text{FP32: bias }127,\ p=23\qquad\text{FP16: bias }15,\ p=10\end{aligned}`} />
+        <p>
+          Halving the bits halves the memory for the weights and the bandwidth to move them, and many GPUs do more 16-bit arithmetic per cycle than 32-bit. The price is precision: FP16 keeps about three
+          decimal digits instead of seven, and nothing above 65,504. Whether FP16 is faster depends on the hardware. In CutOut's measurements the FP16 file was <em>slower</em> on the
+          CPU (18.2 s against 15.4 s for the same photo, single runs). CutOut offers it as the compact download, not as the fast one. <Kind k="app" />
+        </p>
+      </div>
+    </div>
+
+    <div class="measure">
+      <figure class="chart" aria-labelledby="files-title">
+        <p class="chart__title" id="files-title">Model file size <span class="dim">· MB</span></p>
+        <svg class="chart__svg" viewBox={`0 0 ${W} ${files.length * 34 + 8}`} role="img" aria-labelledby="files-title files-desc">
+          <desc id="files-desc">{files.map((f) => `${f.name}: ${mb(f.bytes)} megabytes`).join('; ')}.</desc>
+          {
+            files.map((f, i) => (
+              <g transform={`translate(0 ${i * 34 + 4})`}>
+                <text class="chart__lbl" x="0" y="17">{f.name.replace('BiRefNet, ', '').replace('BiRefNet ', '')}</text>
+                <rect class="chart__bar chart__bar--one" x={X0} y="6" height="14" rx="4" width={((X1 - X0) * f.bytes) / modelFiles.onnxFp32}><title>{f.name}: {mb(f.bytes)} MB</title></rect>
+                <text class="chart__val tabular" x={X0 + ((X1 - X0) * f.bytes) / modelFiles.onnxFp32 + 6} y="17">{mb(f.bytes)}</text>
+              </g>
+            ))
+          }
+        </svg>
+        <figcaption class="small dim">Exact sizes of the pinned, SHA-256-verified files. <Kind k="app" /></figcaption>
+      </figure>
+
+      <figure class="chart chart--wide" aria-labelledby="bench-title">
+        <p class="chart__title" id="bench-title">Core ML against ONNX Runtime, measured</p>
+        <p class="chart__legend small"><span class="lg lg--coreml">Core ML · FP16 · CPU + GPU</span><span class="lg lg--onnx">ONNX Runtime · FP32 · CPU, 8 threads</span></p>
+        <div class="multiples">
+          {
+            panels.map((p) => (
+              <div class="mult">
+                <p class="mult__t">{p.title} <span class="dim">· {p.unit}</span></p>
+                <svg class="chart__svg" viewBox={`0 0 ${W} 74`} role="img" aria-label={`${p.title}: ${backends.map((b) => `${b.name} ${b[p.key][0]} to ${b[p.key][1]} ${p.unit}`).join(', ')}`}>
+                  <line class="chart__base" x1={X0} y1="66" x2={X1} y2="66" />
+                  {backends.map((b, i) => (
+                    <g transform={`translate(0 ${i * 28 + 6})`}>
+                      <text class="chart__lbl" x="0" y="15">{b.name}</text>
+                      <rect class={`chart__bar chart__bar--${b.id}`} x={X0} y="6" height="12" rx="4" width={Math.max(4, sx(b[p.key][1], p.max) - X0)} opacity="0.32" />
+                      <rect class={`chart__bar chart__bar--${b.id}`} x={sx(b[p.key][0], p.max)} y="6" height="12" rx="4" width={Math.max(4, sx(b[p.key][1], p.max) - sx(b[p.key][0], p.max))}>
+                        <title>{b.name}: {b[p.key][0]}–{b[p.key][1]} {p.unit}</title>
+                      </rect>
+                      <text class="chart__val tabular" x={sx(b[p.key][1], p.max) + 6} y="16">{fmt(b[p.key][0])}–{fmt(b[p.key][1])}</text>
+                    </g>
+                  ))}
+                </svg>
+                <p class="mult__note small dim">{p.note}</p>
+              </div>
+            ))
+          }
+        </div>
+        <details class="tableview">
+          <summary>Show as a table</summary>
+          <table class="data tabular">
+            <caption class="visually-hidden">Measured performance of the two macOS back ends</caption>
+            <thead><tr><th scope="col">Measure</th>{backends.map((b) => <th scope="col">{b.name}</th>)}</tr></thead>
+            <tbody>
+              {panels.map((p) => <tr><th scope="row">{p.title} ({p.unit})</th>{backends.map((b) => <td>{b[p.key][0]}–{b[p.key][1]}</td>)}</tr>)}
+              <tr><th scope="row">Model load</th>{backends.map((b) => <td>{b.firstLoad}</td>)}</tr>
+            </tbody>
+          </table>
+        </details>
+        <figcaption class="small dim">
+          <Kind k="app" /> {benchMachine}. CutOut 0.1 development build, BiRefNet general (pinned 28 July 2024 weights), 1024 × 1024 network input, 10 test photos, two independent runs on 3 and 4
+          November 2026 (the ONNX figures are also in the published model analysis<Cite ids="cutout-models" />). Bars span the lowest to highest result of both runs; the faint bar starts at zero. Inference and end-to-end times are measured separately and are not interchangeable. No Windows
+          hardware has been measured, so no Windows figures are shown.
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="prose-grid">
+      <div class="prose">
+        <h3 class="sci-h3">Does 16-bit change the cutout?</h3>
+        <p>
+          Measured, on the same photos, with the same CPU runtime, FP16 weights against FP32 weights: on the golden retriever, 0.21 % of the matte's 5.1 million pixels differ, by at most 12 levels out of 255
+          (mean difference 0.000008). On the dandelion, 1.25 % differ, by at most 5 levels. Separately, CutOut's Core ML FP16 path was checked against ONNX FP32 on scenes with exact ground truth: the
+          accuracy (IoU) moved by at most 0.0005. Small, real, and concentrated where the edge is already ambiguous. <Kind k="app" />
+        </p>
+      </div>
+    </div>
+
+    <div class="deeps">
+      <Deep level="technical" title="Memory, threads and why the CPU path needs 9 GB">
+        <ul class="facts">
+          <li><Kind k="app" /> The model is loaded only on the first removal, never at start-up, and released after a few minutes idle (4 minutes on macOS, 45 seconds on Windows).</li>
+          <li><Kind k="app" /> On the CPU, ONNX Runtime uses every core: 8 threads took 14.0 s, 4 threads 16.5 s and 2 threads 24.8 s on the same image. Its memory arena is switched off so activations are returned to the system after each run.</li>
+          <li><Kind k="app" /> Peak memory on the CPU path stayed near 8–9 GB whatever the settings: BiRefNet's intermediate activations at 1024 × 1024 are simply large. The Core ML path peaked near 2 GB.</li>
+          <li><Kind k="app" /> DirectML requires sequential execution and no memory-pattern optimisation, so a build with the DirectML feature sets both.<Cite ids="ort-dml" /> Microsoft describes DirectML as in sustained engineering.</li>
+          <li><Kind k="app" /> Every model file is checked against a pinned SHA-256 hash before it is installed. ONNX and Core ML files describe computations only. They contain no executable code to run.</li>
+        </ul>
+      </Deep>
+      <Deep level="maths" title="How big is an FP16 rounding error?">
+        <p>
+          The gap between neighbouring values, one <em>unit in the last place</em>, is <Eq tex={String.raw`2^{e-p}`} />. Just below 1, FP16 values are <Eq tex={String.raw`2^{-11}\approx 0.00049`} />
+          apart, eight times finer than one step of an 8-bit matte, <Eq tex={String.raw`1/255\approx0.0039`} />. A single rounding cannot change the final matte by a visible level.
+        </p>
+        <Eq display n={24} tex={String.raw`\left|\,\operatorname{fl}_{16}(x)-x\,\right|\le 2^{-11}|x|,\qquad \left|\,\operatorname{fl}_{32}(x)-x\,\right|\le 2^{-24}|x|`} />
+        <p>
+          But a network applies billions of multiply-adds, and errors can accumulate and be amplified through normalisation and attention. That is why the FP16 and FP32 mattes above
+          differ by up to 12 levels in a few places, far more than one rounding would explain. Precision has to be measured, not assumed.
+        </p>
+      </Deep>
+    </div>
+  </div>
+</section>

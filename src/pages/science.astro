@@ -1,0 +1,61 @@
+---
+import Base from '../layouts/Base.astro';
+import Opening from '../components/science/Opening.astro';
+import Pixels from '../components/science/Pixels.astro';
+import Alpha from '../components/science/Alpha.astro';
+import Model from '../components/science/Model.astro';
+import Edges from '../components/science/Edges.astro';
+import Editing from '../components/science/Editing.astro';
+import Hardware from '../components/science/Hardware.astro';
+import References from '../components/science/References.astro';
+import '../styles/science.css';
+import photo800 from '../assets/generated/science/open-photo-800.webp?url';
+import photo1400 from '../assets/generated/science/open-photo-1400.webp?url';
+
+const title = 'The Science Behind CutOut';
+const description =
+  'How CutOut removes a background: pixels as numbers, the mathematics of transparency, the BiRefNet neural network, why hair and glass are hard, editing as geometry, and FP16 versus FP32 — with interactive demonstrations.';
+const chapters = [
+  ['01', 'pixels', 'Pixels'],
+  ['02', 'alpha', 'Transparency'],
+  ['03', 'model', 'The network'],
+  ['04', 'edges', 'Hard edges'],
+  ['05', 'editing', 'Editing'],
+  ['06', 'hardware', 'Hardware'],
+  ['', 'references', 'Sources'],
+];
+---
+
+<Base
+  title={`${title} — CutOut`}
+  description={description}
+  path="science/"
+  preload={[{ href: photo1400, as: 'image', type: 'image/webp', imagesrcset: `${photo800} 800w, ${photo1400} 1400w`, imagesizes: '(max-width: 819px) 92vw, 62vw' }]}
+>
+  <Opening />
+  <nav class="toc wrap" aria-label="Chapters">
+    <ol class="toc__list" role="list">
+      {
+        chapters.map(([n, id, label]) => (
+          <li>
+            <a class="toc__a" href={`#${id}`}>
+              <span class="toc__n tabular">{n || '→'}</span>
+              <span class="toc__l">{label}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+  <Pixels />
+  <Alpha />
+  <Model />
+  <Edges />
+  <Editing />
+  <Hardware />
+  <References />
+</Base>
+
+<script>
+  import '../scripts/science/sci-main';
+</script>

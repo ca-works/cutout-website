@@ -66,6 +66,14 @@ mug animation plays in the frame below it. The same wordmark leads the share ima
 | Get (`#get`) | The icon, *Get CutOut.*, the download (or *Coming soon* until a public release exists), requirements. | normal |
 | Footer | Links, a giant outline wordmark, credits. | normal |
 
+## The Science page
+
+`/science/` (*The Science Behind CutOut*, navigation label *Science*) extends the same stage: one
+subject (the golden retriever) examined at seven scales, the home page's pinned-scene grammar for
+the opening, and violet still reserved for the cut, now also for alpha. It adds a small set of
+meaning-bearing colours (foreground amber, background sky, R/G/B) used identically in figures and
+equations. Creative exploration, storyboard, source map and limits: `docs/SCIENCE.md`.
+
 ## Design system
 
 ### Colour tokens (`src/styles/global.css`)

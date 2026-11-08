@@ -1,0 +1,56 @@
+---
+// Mathematics, rendered once at build time by KaTeX as MathML (no client JavaScript, no inline
+// styles, so the strict Content-Security-Policy holds). Browsers lay MathML out natively with the
+// system's math font, and screen readers read it as mathematics.
+//
+// Colour-coded variables use the macros below; KaTeX emits them as mathcolor placeholders that are
+// swapped for classes (see science.css: .v-f foreground, .v-b background, .v-a alpha, …).
+import katex from 'katex';
+
+interface Props {
+  tex: string;
+  display?: boolean;
+  /** Equation number shown at the right edge, e.g. 1. */
+  n?: number;
+  id?: string;
+}
+const { tex, display = false, n, id } = Astro.props;
+
+const CLASSES: Record<string, string> = {
+  '#000001': 'v-f',
+  '#000002': 'v-b',
+  '#000003': 'v-a',
+  '#000004': 'v-r',
+  '#000005': 'v-g',
+  '#000006': 'v-bl',
+  '#000007': 'v-c',
+  '#000008': 'v-m',
+};
+const macros = {
+  '\\cF': '\\textcolor{##000001}{#1}',
+  '\\cB': '\\textcolor{##000002}{#1}',
+  '\\cA': '\\textcolor{##000003}{#1}',
+  '\\cR': '\\textcolor{##000004}{#1}',
+  '\\cG': '\\textcolor{##000005}{#1}',
+  '\\cBl': '\\textcolor{##000006}{#1}',
+  '\\cC': '\\textcolor{##000007}{#1}',
+  '\\cM': '\\textcolor{##000008}{#1}',
+};
+let html = katex.renderToString(tex, { output: 'mathml', displayMode: display, throwOnError: true, strict: 'error', macros });
+html = html.replace(/mathcolor="(#00000\d)"/g, (_, c: string) => {
+  if (!CLASSES[c]) throw new Error(`Eq: unknown colour ${c}`);
+  return `class="${CLASSES[c]}"`;
+});
+if (/\sstyle="/.test(html)) throw new Error(`Eq: KaTeX produced a style attribute, which the CSP would block: ${tex} → ${html.match(/<[^>]*style="[^"]*"[^>]*>/)?.[0]}`);
+---
+
+{
+  display ? (
+    <div class:list={['eq', { 'eq--n': n }]} id={id}>
+      <div class="eq__math" set:html={html} />
+      {n && <span class="eq__n" aria-hidden="true">({n})</span>}
+    </div>
+  ) : (
+    <span class="eqi" set:html={html} />
+  )
+}

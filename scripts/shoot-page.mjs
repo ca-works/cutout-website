@@ -1,16 +1,17 @@
 // Visual QA: screenshots of every section (and the middle/end of each scroll scene).
-// Usage: node scripts/shoot-page.mjs <outDir> <prefix> <w>x<h> [--browser=webkit] [--mobile]
+// Usage: node scripts/shoot-page.mjs <outDir> <prefix> <w>x<h> [--browser=webkit] [--mobile] [--url=http://…/page/] [--reduced]
 import { chromium, webkit } from '@playwright/test';
 const [outDir, prefix, size, ...flags] = process.argv.slice(2);
 const [w, h] = size.split('x').map(Number);
 const engine = flags.includes('--browser=webkit') ? webkit : chromium;
 const mobile = flags.includes('--mobile');
+const url = flags.find((f) => f.startsWith('--url='))?.slice(6) ?? 'http://127.0.0.1:4321/cutout-website/';
 const browser = await engine.launch();
-const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: mobile ? 3 : 1, isMobile: mobile, hasTouch: mobile });
+const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: mobile ? 3 : 1, isMobile: mobile, hasTouch: mobile, reducedMotion: flags.includes('--reduced') ? 'reduce' : 'no-preference' });
 const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
-await page.goto('http://127.0.0.1:4321/cutout-website/', { waitUntil: 'load' });
+await page.goto(url, { waitUntil: 'load' });
 await page.waitForTimeout(800);
 const plan = await page.$$eval('main > section', (els) =>
   els.map((e, i) => ({ i, scene: e.hasAttribute('data-scene'), top: e.getBoundingClientRect().top + scrollY, height: e.getBoundingClientRect().height })),

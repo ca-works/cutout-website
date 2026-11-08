@@ -1,0 +1,48 @@
+---
+import Kind from './Kind.astro';
+import { refs } from '../../data/science';
+const host = (u: string) => new URL(u).hostname.replace(/^www\./, '');
+---
+
+<section class="sci-sec sci-refs" aria-labelledby="references">
+  <div class="wrap">
+    <header class="ch ch--plain">
+      <div class="ch__text">
+        <p class="ch__scale">Sources</p>
+        <h2 class="title title--m" id="references">How we know.</h2>
+        <p class="ch__lede">Every statement on this page is one of three kinds, and is marked as such.</p>
+      </div>
+    </header>
+
+    <dl class="kinds">
+      <div><dt><Kind k="app" /></dt><dd>Checked line by line against CutOut 0.1's published source code (refs. 1–2), or measured by running it. Measurements name the machine, the date and the settings.</dd></div>
+      <div><dt><Kind k="paper" /></dt><dd>How the authors of the cited research describe their method. CutOut uses their published model but did not design it.</dd></div>
+      <div><dt><Kind k="concept" /></dt><dd>General background to make the rest understandable. Not a claim about what CutOut's code does.</dd></div>
+    </dl>
+
+    <ol class="refs" role="list">
+      {
+        refs.map((r, i) => (
+          <li class="ref" id={`ref-${r.id}`}>
+            <span class="ref__n tabular">{i + 1}</span>
+            <div>
+              <p class="ref__t">
+                <a href={r.url} rel="noopener">{r.title}</a>
+              </p>
+              <p class="ref__m">
+                {r.authors}. <em>{r.where}</em>, {r.year}. <span class="dim">{host(r.url)}</span>
+              </p>
+              {r.note && <p class="ref__note">{r.note}</p>}
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p class="refs__foot small dim">
+      Diagrams on this page are original and simplified; none reproduces a figure from the cited papers. Photographs: golden retriever puppy by SapphireDreamPhotography (CC BY 3.0); dandelion by
+      Adesolive (CC0); enamel mug by knoe (CC BY 3.0); wine glass by Paolo Neo (public domain) — all from Wikimedia Commons, with full credits in the <a href={`${import.meta.env.BASE_URL}docs/#credits`}>Guide</a>.
+      Cutouts and mattes derived from CC BY works are adaptations by ca-works.
+    </p>
+  </div>
+</section>

@@ -8,7 +8,7 @@ import { chromium } from '@playwright/test';
 import { writeFile, mkdir } from 'node:fs/promises';
 import { SITE_BASE } from '../site.config.mjs';
 
-const pages = ['', 'docs/'];
+const pages = ['', 'docs/', 'science/'];
 await mkdir('reports/lighthouse', { recursive: true });
 // A fresh browser per run: a long-lived headless Chrome's screen capture can stall on later runs,
 // which inflates Speed Index without the page doing anything different.

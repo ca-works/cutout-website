@@ -1,0 +1,226 @@
+---
+import Chapter from './Chapter.astro';
+import Eq from './Eq.astro';
+import Kind from './Kind.astro';
+import Cite from './Cite.astro';
+import Deep from './Deep.astro';
+import input from '../../assets/generated/science/open-input.webp?url';
+import { pipeline } from '../../data/science';
+
+// The diagram is original and simplified. Structure, strides and channel widths follow the
+// BiRefNet paper (Swin-L backbone: C = 192, strides 4–32) and the Swin paper; nothing here is an
+// extracted activation. Grid positions: [column 1–9, row 1–5] of the U.
+type Node = { id: string; c: number; r: number; t: string; dim: string; kind: 'app' | 'paper'; plain: string; tech: string; group: 'io' | 'enc' | 'lm' | 'dec' };
+const nodes: Node[] = [
+  {
+    id: 'in', c: 1, r: 1, t: 'Input', dim: '3 × 1024²', kind: 'app', group: 'io',
+    plain: 'The squeezed, normalised photo from chapter 1. Three planes of numbers, one per colour.',
+    tech: 'Tensor 1 × 3 × 1024 × 1024, ImageNet-standardised, in FP32 (ONNX) or converted to the Core ML model’s FP16 input.',
+  },
+  {
+    id: 'e1', c: 2, r: 2, t: 'Encoder 1', dim: '192 × 256²', kind: 'paper', group: 'enc',
+    plain: 'The image is cut into 4 × 4-pixel patches. Each patch becomes a list of 192 numbers describing local texture: edges, fur, carpet.',
+    tech: 'Swin Transformer Large, stage 1: patch embedding at stride 4, then shifted-window self-attention blocks. Output 192 channels at 256 × 256.',
+  },
+  {
+    id: 'e2', c: 3, r: 3, t: 'Encoder 2', dim: '384 × 128²', kind: 'paper', group: 'enc',
+    plain: 'Neighbouring patches are merged. Fewer positions, richer descriptions: parts of things rather than texture.',
+    tech: 'Patch merging (2 × 2 → 1) doubles channels and halves resolution: stride 8, 384 channels.',
+  },
+  {
+    id: 'e3', c: 4, r: 4, t: 'Encoder 3', dim: '768 × 64²', kind: 'paper', group: 'enc',
+    plain: 'The deepest stack of attention layers. Each position now relates to a large part of the picture.',
+    tech: 'Stride 16, 768 channels; the stage with most Swin blocks (18 in Swin-L). Attention is computed within shifted local windows, which keeps the cost linear in image size.',
+  },
+  {
+    id: 'e4', c: 5, r: 5, t: 'Encoder 4', dim: '1536 × 32²', kind: 'paper', group: 'enc',
+    plain: 'A coarse 32 × 32 map. Each cell stands for a 32 × 32-pixel block of the input and carries the most abstract description.',
+    tech: 'Stride 32, 1536 channels. Global context is cheapest here, so this is where the network decides what the object is and where it is.',
+  },
+  {
+    id: 'lm', c: 6, r: 4, t: 'Localisation', dim: 'where is it?', kind: 'paper', group: 'lm',
+    plain: 'The localisation module answers the first question: which thing in the picture is the subject, and roughly where.',
+    tech: 'Works on the deepest encoder features: ASPP (parallel dilated convolutions) at the bottleneck fuses context at several scales. During training a classification head is also supervised (a cross-entropy loss over object categories); it is not needed to produce the mask.',
+  },
+  {
+    id: 'd3', c: 7, r: 3, t: 'Reconstruct ⅛', dim: 'BiRef block', kind: 'paper', group: 'dec',
+    plain: 'Now the outline is rebuilt step by step, at ever finer scales. At each step the decoder looks again at the original pixels.',
+    tech: 'Reconstruction block with deformable convolutions of several receptive fields (1 × 1, 3 × 3, 7 × 7) plus pooling. Inward reference: patches of the full-resolution image, cropped to this stage’s grid, are stacked with the features. Encoder features arrive through lateral connections (FPN-style).',
+  },
+  {
+    id: 'd2', c: 8, r: 2, t: 'Reconstruct ¼', dim: 'BiRef block', kind: 'paper', group: 'dec',
+    plain: 'A second, finer pass. The decoder is guided to look where the image has strong edges.',
+    tech: 'Outward reference: a branch predicts an image-gradient map, supervised during training with gradients of the input; its sigmoid attention multiplies the features so detail-rich areas get more weight. Every block also emits an intermediate prediction for multi-stage supervision.',
+  },
+  {
+    id: 'out', c: 9, r: 1, t: 'Prediction', dim: '1 × 1024²', kind: 'paper', group: 'io',
+    plain: 'One number per input pixel: how strongly the network believes the pixel belongs to the subject.',
+    tech: 'A 1 × 1 convolution on the last decoder features gives the map at 1024 × 1024. CutOut reads the model’s final output and applies a sigmoid if the values are logits.',
+  },
+];
+const strides = [4, 8, 16, 32];
+---
+
+<section class="sci-sec" aria-labelledby="model">
+  <div class="wrap">
+    <Chapter
+      n="03"
+      id="model"
+      scale="Scale: 1024 → 32 → 1024"
+      title="Inside the network."
+      lede="CutOut's Best Quality mode runs BiRefNet, a neural network published in 2024 for finding the exact outline of the main object in high-resolution images."
+    />
+
+    <div class="prose-grid">
+      <div class="prose">
+        <p>
+          BiRefNet was designed for <em>dichotomous image segmentation</em>: split an image into exactly two parts, object and not-object, with the outline accurate down to single hairs and
+          spokes.<Cite ids="dis birefnet" /> Its authors frame the problem as two questions, asked in order: <strong>where</strong> is the object, and <strong>what exactly</strong> is its boundary? CutOut
+          uses the general-purpose weights its authors published under the MIT licence, unchanged.<Cite ids="birefnet-weights" /> <Kind k="app" />
+        </p>
+      </div>
+    </div>
+
+    <figure class="arch" data-sci="model">
+      <div class="arch__bar">
+        <div class="seg" role="radiogroup" aria-label="Explanation depth" hidden data-arch-modes>
+          <button type="button" class="seg__btn" role="radio" aria-checked="true" tabindex="0" data-arch-mode="plain">Plain</button>
+          <button type="button" class="seg__btn" role="radio" aria-checked="false" tabindex="-1" data-arch-mode="tech">Technical</button>
+        </div>
+        <p class="arch__legend">
+          <span class="lg lg--enc">Encoder</span><span class="lg lg--lm">Localisation</span><span class="lg lg--dec">Reconstruction</span><span class="lg lg--skip">Lateral link</span>
+        </p>
+      </div>
+      <div class="arch__body">
+        <div class="arch__u">
+          <svg class="arch__wires" viewBox="0 0 900 500" preserveAspectRatio="none" aria-hidden="true">
+            <path class="w w--main" d="M50 50 L150 150 L250 250 L350 350 L450 450 L550 350 L650 250 L750 150 L850 50"></path>
+            <path class="w w--skip" d="M250 250 L650 250"></path>
+            <path class="w w--skip" d="M150 150 L750 150"></path>
+            <path class="w w--skip" d="M350 350 L550 350"></path>
+            <path class="w w--ref" d="M50 50 C 300 20, 520 120, 650 250"></path>
+            <path class="w w--ref" d="M50 50 C 380 0, 640 40, 750 150"></path>
+          </svg>
+          <ol class="arch__nodes" role="list">
+            {
+              nodes.map((n) => (
+                <li class={`an an--${n.group} an--c${n.c} an--r${n.r}`}>
+                  <button type="button" class="an__btn" aria-pressed={n.id === 'in' ? 'true' : 'false'} aria-controls="arch-detail" data-arch-node={n.id}>
+                    <span class="an__t">{n.t}</span>
+                    <span class="an__d tabular">{n.dim}</span>
+                  </button>
+                </li>
+              ))
+            }
+          </ol>
+          <p class="arch__ref" aria-hidden="true">Image patches and gradients feed the reconstruction</p>
+        </div>
+        <div class="arch__detail" id="arch-detail" aria-live="polite" data-arch-detail>
+          {
+            nodes.map((n) => (
+              <div class="ad" data-arch-for={n.id} hidden={n.id !== 'in'}>
+                <p class="ad__k">
+                  {n.t} <span class="ad__dim tabular">{n.dim}</span>
+                </p>
+                <p class="ad__plain">{n.plain}</p>
+                <p class="ad__tech">{n.tech}</p>
+                <p class="ad__src">
+                  <Kind k={n.kind} />
+                </p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+      <figcaption class="lab__cap">
+        <Kind k="paper" /> An original, simplified drawing of BiRefNet's structure as its paper describes it.<Cite ids="birefnet swin" /> Choose a block to read what it does. The boxes are not pictures of
+        what the network computes.
+      </figcaption>
+    </figure>
+
+    <figure class="grid-demo" data-sci="grid">
+      <div class="grid-demo__img" data-grid-img>
+        <img src={input} width="1024" height="1024" alt="The squeezed 1024 by 1024 input with a grid drawn over it." loading="lazy" decoding="async" />
+        <div class="grid-demo__lines" data-grid-lines aria-hidden="true"></div>
+      </div>
+      <div class="grid-demo__text">
+        <p class="tensor__k">One grid cell, one feature vector <Kind k="concept" /></p>
+        <p>
+          At each encoder stage the network keeps one list of numbers per grid cell. The deeper the stage, the bigger each cell, and the more of the picture each list can describe.
+        </p>
+        <div class="seg seg--wrap" role="radiogroup" aria-label="Encoder stage" hidden data-grid-stages>
+          {strides.map((s, i) => <button type="button" class="seg__btn" role="radio" aria-checked={i === 3 ? 'true' : 'false'} tabindex={i === 3 ? 0 : -1} data-grid-stride={s}>Stage {i + 1}</button>)}
+        </div>
+        <p class="grid-demo__out tabular" data-grid-out>Stage 4: stride 32, a 32 × 32 grid, 1,024 positions.</p>
+        <p class="dim small">
+          The grid shows where each feature vector sits, not what it “sees”: through attention and convolution, a vector's receptive field is much wider than its cell. These are not the network's real activations.
+        </p>
+      </div>
+    </figure>
+
+    <h3 class="sci-h3" id="matte-from-prediction">From prediction to matte: what CutOut adds</h3>
+    <ol class="post" role="list">
+      <li class="post__s">
+        <span class="post__n tabular">1</span>
+        <p class="post__t">Probabilities</p>
+        <p class="post__d">If the network returns logits, a sigmoid turns them into values between 0 and 1.</p>
+        <Eq tex={String.raw`p=\frac{1}{1+e^{-z}}`} />
+      </li>
+      <li class="post__s">
+        <span class="post__n tabular">2</span>
+        <p class="post__t">Upscale</p>
+        <p class="post__d">The 1024 × 1024 map is stretched to the photo's own size with a cubic (Catmull–Rom) kernel.<Cite ids="keys" /></p>
+      </li>
+      <li class="post__s">
+        <span class="post__n tabular">3</span>
+        <p class="post__t">Refine the edge</p>
+        <p class="post__d">A colour-guided filter<Cite ids="guided" /> re-fits the uncertain band to the photo's real edges at full resolution. Pixels that are certain keep exactly 0 or 255.</p>
+      </li>
+      <li class="post__s">
+        <span class="post__n tabular">4</span>
+        <p class="post__t">Mask</p>
+        <p class="post__d">The result, 8 bits per pixel, becomes the layer mask. One undoable step.</p>
+      </li>
+    </ol>
+    <p class="post__kind"><Kind k="app" /> These four steps are CutOut's own code.<Cite ids="cutout-src" /> Both runtimes, Core ML and ONNX Runtime, share it, so only the network itself differs between them.</p>
+
+    <div class="deeps">
+      <Deep level="technical" title="Training, losses and what CutOut does not do">
+        <p>
+          CutOut does not train or fine-tune anything; it runs the published weights. Their authors trained BiRefNet with four losses, at the pixel, region, structure and semantic levels, and
+          supervised every decoder stage, not just the last.<Cite ids="birefnet" /> <Kind k="paper" />
+        </p>
+        <Eq display n={9} tex={String.raw`\begin{aligned}\mathcal{L}&=\lambda_{1}\mathcal{L}_{\text{BCE}}+\lambda_{2}\mathcal{L}_{\text{IoU}}+\lambda_{3}\mathcal{L}_{\text{SSIM}}+\lambda_{4}\mathcal{L}_{\text{CE}}\\ \boldsymbol{\lambda}&=(30,\,0.5,\,10,\,5)\end{aligned}`} />
+        <p>
+          The general-purpose weights were trained on a mix of public segmentation and matting datasets listed in the model's repository.<Cite ids="birefnet-code" /> They were not trained on
+          your photos, and CutOut sends nothing anywhere to run them.
+        </p>
+        <p>
+          <Kind k="app" /> To run on Core ML, CutOut converts the same weights itself. Core ML has no deformable convolution, so each of the network's 20 modulated deformable convolutions is rewritten as one
+          bilinear <code>grid_sample</code> per kernel tap, weighted by its modulation mask and summed with 1 × 1 convolutions. In FP32 the rewrite differs from the reference operator by at most 8 × 10⁻⁵.
+          Swin's six-dimensional reshapes are rewritten in five dimensions, Core ML's limit.
+        </p>
+      </Deep>
+      <Deep level="maths" title="Attention, deformable convolution, cubic upscaling and the guided filter">
+        <p>Swin's self-attention within a local window, with a learned relative-position bias <Eq tex="B" />:<Cite ids="swin" /> <Kind k="paper" /></p>
+        <Eq display n={10} tex={String.raw`\operatorname{Attention}(Q,K,V)=\operatorname{SoftMax}\!\left(\frac{QK^{\mathsf T}}{\sqrt{d}}+B\right)V`} />
+        <p>A modulated deformable convolution samples the input at learned offsets <Eq tex={String.raw`\Delta p_{k}`} />, weighted by learned masks <Eq tex={String.raw`\Delta m_{k}\in[0,1]`} />:<Cite ids="dcn" /></p>
+        <Eq display n={11} tex={String.raw`y(p)=\sum_{k=1}^{K}w_{k}\,x\!\left(p+p_{k}+\Delta p_{k}\right)\Delta m_{k}`} />
+        <p>The upscaling kernel is Keys' cubic with <Eq tex="a=-\tfrac12" />, the Catmull–Rom spline: <Cite ids="keys" /> <Kind k="app" /></p>
+        <Eq display n={12} tex={String.raw`k(t)=\begin{cases}\tfrac32|t|^{3}-\tfrac52|t|^{2}+1, & |t|<1\\[2pt] -\tfrac12|t|^{3}+\tfrac52|t|^{2}-4|t|+2, & 1\le|t|<2\\[2pt] 0, & \text{otherwise}\end{cases}`} />
+        <p>
+          The colour guided filter models the matte <Eq tex="q" /> as a linear function of the photo's colour <Eq tex="\mathbf{I}" /> inside every small window <Eq tex={String.raw`\omega_{k}`} />, fitted
+          by least squares to the upscaled prediction <Eq tex="p" />:<Cite ids="guided" />
+        </p>
+        <Eq display n={13} tex={String.raw`\begin{aligned}\mathbf{a}_{k}&=\left(\Sigma_{k}+\varepsilon U\right)^{-1}\!\left(\frac{1}{|\omega|}\sum_{i\in\omega_{k}}\mathbf{I}_{i}\,p_{i}-\boldsymbol{\mu}_{k}\,\bar{p}_{k}\right)\\ b_{k}&=\bar{p}_{k}-\mathbf{a}_{k}^{\mathsf T}\boldsymbol{\mu}_{k}\\ q_{i}&=\bar{\mathbf{a}}_{i}^{\mathsf T}\mathbf{I}_{i}+\bar{b}_{i}\end{aligned}`} />
+        <p>
+          <Kind k="app" /> CutOut uses <Eq tex={String.raw`\varepsilon=10^{-4}`} /> and a radius that grows with the photo, <Eq tex={String.raw`r=\operatorname{clamp}\!\left(2\max(W,H)/1024,\;2,\;12\right)`} /> pixels.
+          It runs the filter on a working copy of at most {pipeline.workingMegapixels} megapixels, computes all window means with running-sum box filters, and inverts the 3 × 3 covariance
+          <Eq tex={String.raw`\Sigma_{k}+\varepsilon U`} /> in closed form. Then it writes the result back only inside the uncertain band:
+        </p>
+        <Eq display n={14} tex={String.raw`\mathcal{B}=\left\{\,i\;:\;(\alpha\oplus D)_{i}\ge 4\;\wedge\;(\alpha\ominus D)_{i}\le 251\,\right\}`} />
+        <p>Here <Eq tex={String.raw`\oplus`} /> and <Eq tex={String.raw`\ominus`} /> are grey-scale dilation and erosion by a square of radius <Eq tex={String.raw`\max(\lceil r\rceil,2)`} />. Everywhere else the prediction is kept.</p>
+      </Deep>
+    </div>
+  </div>
+</section>

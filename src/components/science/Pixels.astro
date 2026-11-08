@@ -1,0 +1,146 @@
+---
+import Chapter from './Chapter.astro';
+import Eq from './Eq.astro';
+import Kind from './Kind.astro';
+import Cite from './Cite.astro';
+import Deep from './Deep.astro';
+import data from '../../assets/generated/science/science.json';
+import pixels from '../../assets/generated/science/pixels.png?url';
+import planeR from '../../assets/generated/science/plane-r.webp?url';
+import planeG from '../../assets/generated/science/plane-g.webp?url';
+import planeB from '../../assets/generated/science/plane-b.webp?url';
+
+const crop = data.pixels;
+---
+
+<section class="sci-sec" aria-labelledby="pixels">
+  <div class="wrap">
+    <Chapter
+      n="01"
+      id="pixels"
+      scale="Scale: one pixel"
+      title="A photograph is a table of numbers."
+      lede="Zoom in far enough and every image dissolves into a grid of coloured squares. Each square is three integers. Everything CutOut does is arithmetic on those integers."
+    />
+
+    <figure class="lab" data-sci="pixels" data-src={pixels} data-x0={crop.left} data-y0={crop.top} data-fw={data.open.w}>
+      <div class="lab__stage lab__stage--px">
+        <canvas class="px__canvas" width="640" height="480" data-px-canvas aria-label="Magnified photo of the puppy's eye and nose. Use the arrow keys to move the selected pixel." tabindex="0" role="img"></canvas>
+        <img class="lab__fallback" src={pixels} width={crop.width} height={crop.height} alt="A 256 by 192 pixel crop of the puppy's eye and nose." loading="lazy" decoding="async" />
+      </div>
+      <div class="lab__panel" hidden data-lab-panel>
+        <div class="readout" aria-live="polite" data-px-readout>
+          <p class="readout__k">Selected pixel</p>
+          <p class="readout__xy tabular"><span data-px-x>–</span>, <span data-px-y>–</span></p>
+          <div class="readout__swatch" data-px-swatch></div>
+          <math class="readout__math" display="block" aria-hidden="true">
+            <mrow>
+              <mi>I</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo><mo>=</mo>
+              <mrow>
+                <mo>[</mo>
+                <mtable>
+                  <mtr><mtd><mn class="v-r" data-px-r>0</mn></mtd></mtr>
+                  <mtr><mtd><mn class="v-g" data-px-g>0</mn></mtd></mtr>
+                  <mtr><mtd><mn class="v-bl" data-px-b>0</mn></mtd></mtr>
+                </mtable>
+                <mo>]</mo>
+              </mrow>
+            </mrow>
+          </math>
+          <div class="bars" aria-hidden="true">
+            <span class="bar bar--r"><span data-px-bar="r"></span></span>
+            <span class="bar bar--g"><span data-px-bar="g"></span></span>
+            <span class="bar bar--b"><span data-px-bar="b"></span></span>
+          </div>
+          <p class="readout__hex tabular" data-px-hex></p>
+        </div>
+
+        <div class="ctl">
+          <label class="ctl__row" for="px-zoom"><span>Magnification</span><output class="tabular" data-px-zoom-out>×4</output></label>
+          <input id="px-zoom" class="range" type="range" min="0" max="100" value="36" data-px-zoom />
+        </div>
+        <div class="ctl">
+          <span class="ctl__row" id="px-ch-label"><span>Channels</span></span>
+          <div class="chips" role="group" aria-labelledby="px-ch-label">
+            <button type="button" class="chip chip--r" aria-pressed="true" data-px-ch="0">Red</button>
+            <button type="button" class="chip chip--g" aria-pressed="true" data-px-ch="1">Green</button>
+            <button type="button" class="chip chip--b" aria-pressed="true" data-px-ch="2">Blue</button>
+          </div>
+        </div>
+        <div class="ctl">
+          <label class="ctl__row" for="px-res"><span>Resolution</span><output class="tabular" data-px-res-out>Full</output></label>
+          <input id="px-res" class="range" type="range" min="0" max="5" step="1" value="0" data-px-res />
+        </div>
+      </div>
+      <figcaption class="lab__cap">
+        <Kind k="app" /> A lossless 256 × 192 crop of the photograph above, decoded exactly as an image file is decoded. Choose a pixel with a click, a tap or the arrow keys; switch channels off to see how the three
+        numbers mix; lower the resolution to average blocks of pixels together <Kind k="concept" />.
+      </figcaption>
+    </figure>
+
+    <div class="prose-grid">
+      <div class="prose">
+        <p>
+          A colour photograph is a function from positions to colours. CutOut stores it the way almost every image library does: row after row, four bytes per pixel for red, green, blue and alpha
+          (opacity), each between 0 and 255. <Kind k="app" />
+        </p>
+        <Eq display n={1} tex={String.raw`\begin{aligned}I(x,y)&=\begin{bmatrix}\cR{R(x,y)}\\ \cG{G(x,y)}\\ \cBl{B(x,y)}\end{bmatrix}\\[4pt] &\in\{0,1,\dots,255\}^{3}\end{aligned}`} />
+        <p>
+          with <Eq tex={String.raw`0\le x<W`} /> and <Eq tex={String.raw`0\le y<H`} />. Here <Eq tex="x" /> counts columns from the left edge and <Eq tex="y" /> counts rows from the top — down, not up, unlike a school graph. The byte for channel <Eq tex="c" /> of pixel
+          <Eq tex="(x,y)" /> sits at offset <Eq tex="4(yW+x)+c" />.
+        </p>
+      </div>
+    </div>
+
+    <figure class="tensor">
+      <div class="tensor__planes" aria-hidden="true">
+        <img class="tensor__plane tensor__plane--r" src={planeR} width="320" height="320" alt="" loading="lazy" decoding="async" />
+        <img class="tensor__plane tensor__plane--g" src={planeG} width="320" height="320" alt="" loading="lazy" decoding="async" />
+        <img class="tensor__plane tensor__plane--b" src={planeB} width="320" height="320" alt="" loading="lazy" decoding="async" />
+        <span class="tensor__dim tensor__dim--w tabular">1024</span>
+        <span class="tensor__dim tensor__dim--h tabular">1024</span>
+        <span class="tensor__dim tensor__dim--c tabular">3</span>
+      </div>
+      <div class="tensor__text">
+        <p class="tensor__k">From photograph to tensor <Kind k="app" /><Cite ids="cutout-src" /></p>
+        <ol class="steps" role="list">
+          <li><span class="steps__n tabular">1</span><span>Any existing transparency is flattened onto neutral grey (128), so hidden pixels cannot confuse the network.</span></li>
+          <li><span class="steps__n tabular">2</span><span>The image is resampled to 1024 × 1024 with a triangle filter — squeezed if it is not square.</span></li>
+          <li><span class="steps__n tabular">3</span><span>Each channel is scaled to 0–1 and standardised with the ImageNet mean and spread the weights were trained with.<Cite ids="birefnet-weights" /></span></li>
+          <li><span class="steps__n tabular">4</span><span>The three channels are split into separate planes: a tensor of 1 × 3 × 1024 × 1024 = 3,145,728 numbers.</span></li>
+        </ol>
+        <Eq display n={2} tex={String.raw`\begin{aligned}\hat{x}_{c}(i,j)&=\frac{x_{c}(i,j)/255-\mu_{c}}{\sigma_{c}}\\[4pt] \boldsymbol{\mu}&=(0.485,\,0.456,\,0.406)\\ \boldsymbol{\sigma}&=(0.229,\,0.224,\,0.225)\end{aligned}`} />
+      </div>
+    </figure>
+
+    <div class="deeps">
+      <Deep level="technical" title="Why squeeze the photo into a square?">
+        <p>
+          The network was trained on 1024 × 1024 inputs, and both of CutOut's runtimes compile it for exactly that shape: Core ML with a static input shape, ONNX Runtime with the shape stored in the
+          model file. CutOut therefore does not pad or crop. It resamples the whole photo to the square, accepting a temporary change of proportions, and later stretches the prediction back to the
+          photo's own size. <Kind k="app" />
+        </p>
+        <p>
+          The result is that a 36-megapixel portrait and a 0.9-megapixel bicycle cost the network the same work. On CutOut's reference Mac, inference time does not depend on the photo's size. Only the
+          final full-resolution steps do. <Kind k="app" />
+        </p>
+        <p>
+          In memory the tensor is <em>planar</em> (all red values, then all green, then all blue), whereas the photo was <em>interleaved</em> (R, G, B, A for one pixel, then the next). At 4 bytes
+          per number that is 12 MiB of FP32 input, and half that when the model takes FP16.
+        </p>
+      </Deep>
+      <Deep level="maths" title="Resampling with a triangle filter">
+        <p>
+          Each output pixel is a weighted average of the input pixels near its centre. CutOut's resampler (the Rust <code>image</code> library) uses the triangle, or tent, kernel. When it shrinks an
+          image by a factor <Eq tex="s>1" />, it widens the kernel by the same factor, so that every input pixel contributes. <Kind k="app" />
+        </p>
+        <Eq display n={3} tex={String.raw`\begin{aligned}\tilde{x}(u)&=\frac{\sum_{k} w\!\left(\tfrac{u_{0}-k}{s}\right)x(k)}{\sum_{k} w\!\left(\tfrac{u_{0}-k}{s}\right)}\\[4pt] w(t)&=\max(0,\,1-|t|),\qquad u_{0}=s\left(u+\tfrac12\right)-\tfrac12\end{aligned}`} />
+        <p>
+          The filter is applied horizontally and then vertically, because the two-dimensional kernel is the product of two one-dimensional ones. Flattening transparency onto grey happens before
+          resampling. For each channel <Eq tex="c" /> with straight alpha <Eq tex="a" />:
+        </p>
+        <Eq display n={4} tex={String.raw`c'=\left\lfloor\frac{c\,a+128\,(255-a)+127}{255}\right\rfloor`} />
+      </Deep>
+    </div>
+  </div>
+</section>
