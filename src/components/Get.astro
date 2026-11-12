@@ -86,6 +86,7 @@ const licence = release.repo.license;
 
   .get__inner {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     gap: 22px;
   }
@@ -106,6 +107,7 @@ const licence = release.repo.license;
 
   .get__action {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     gap: 14px;
   }
@@ -114,6 +116,20 @@ const licence = release.repo.license;
     min-height: 60px;
     padding: 0 32px;
     font-size: 1.125rem;
+  }
+
+  @media (max-width: 540px) {
+    .get__btn {
+      max-width: 100%;
+      flex-wrap: wrap;
+      gap: 3px 8px;
+      padding: 10px 18px;
+      white-space: normal;
+    }
+
+    .get__btn .btn__meta {
+      flex-basis: 100%;
+    }
   }
 
   .pill {
