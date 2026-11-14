@@ -41,7 +41,6 @@ async function scrollScene(page: Page, selector: string, fraction: number) {
     },
     [selector, fraction],
   );
-  await page.waitForTimeout(700);
 }
 
 for (const path of PAGES) {
@@ -181,10 +180,16 @@ test.describe('hero', () => {
 
   test('scrolling through the hero cuts, lifts and peels', async ({ page }) => {
     await page.goto('');
+    const hero = page.locator('[data-hero]');
+    await expect(hero).toHaveClass(/is-(live|lite)/);
     await scrollScene(page, '[data-hero]', 0.98);
-    const v = await page.locator('[data-hero]').evaluate((e) => ['--cut', '--lift', '--peel'].map((n) => Number(getComputedStyle(e).getPropertyValue(n))));
-    for (const x of v) expect(x).toBeGreaterThan(0.95);
-    await expect(page.locator('[data-hero]')).toHaveClass(/is-(live|lite)/);
+    await expect.poll(() => hero.evaluate((el) => {
+      const style = getComputedStyle(el);
+      return Math.min(...['--cut', '--lift', '--peel'].map((name) => Number(style.getPropertyValue(name))));
+    }), {
+      message: 'cut, lift and peel should each complete after scrolling',
+      timeout: 10_000,
+    }).toBeGreaterThan(0.95);
   });
 
   test('without WebGL it falls back to the simple version', async ({ page }) => {
