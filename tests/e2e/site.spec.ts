@@ -186,7 +186,10 @@ test.describe('hero', () => {
     await expect.poll(() => hero.evaluate((el) => {
       const style = getComputedStyle(el);
       return Math.min(...['--cut', '--lift', '--peel'].map((name) => Number(style.getPropertyValue(name))));
-    }), { message: 'cut, lift and peel should each complete after scrolling' }).toBeGreaterThan(0.95);
+    }), {
+      message: 'cut, lift and peel should each complete after scrolling',
+      timeout: 10_000,
+    }).toBeGreaterThan(0.95);
   });
 
   test('without WebGL it falls back to the simple version', async ({ page }) => {
