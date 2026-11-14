@@ -292,6 +292,14 @@ math { font-family: 'STIX Two Math', 'Cambria Math', 'Latin Modern Math', math; 
 .deep__body > * + * { margin-top: 1em; }
 @media (min-width: 820px) { .deep__body { padding-left: calc(20px + 6.2em); } }
 
+@media (min-width: 1080px) {
+  /* Long MathML can use the available column without widening the surrounding text. */
+  .prose:has(> .eq), .deep__body:has(> .eq) { max-width: none; }
+  .prose:has(> .eq) > :not(.eq) { max-width: 66ch; }
+  .prose > .eq { max-width: 860px; }
+  .deep__body:has(> .eq) > :not(.eq) { max-width: calc(72ch - 40px - 6.2em); }
+}
+
 /* ------------------------------------------------------------------ labs (interactive figures) */
 
 .lab {

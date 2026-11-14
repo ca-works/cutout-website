@@ -13,7 +13,7 @@ async function reach(page: Page, selector: string) {
 
 test('the page is in the navigation and the footer', async ({ page, isMobile }) => {
   await page.goto('');
-  if (!isMobile) await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Science' })).toHaveAttribute('href', /\/science\/$/);
+  if (!isMobile) await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'How it works', exact: true })).toHaveAttribute('href', /\/science\/$/);
   await expect(page.getByRole('contentinfo').getByRole('link', { name: 'The Science Behind CutOut' })).toHaveAttribute('href', /\/science\/$/);
   await page.goto(PATH);
   await expect(page.locator('h1')).toContainText('The Science Behind CutOut');
@@ -38,7 +38,11 @@ test('equations are MathML, rendered at build time, and never overflow on deskto
   const html = await (await page.request.get(PATH)).text();
   expect(html).not.toMatch(/\sstyle="/);
   test.skip(isMobile, 'phones may scroll a long equation inside its own box');
-  const wide = await page.locator('.eq__math').evaluateAll((els) => els.filter((e) => e.scrollWidth > e.clientWidth + 1).map((e) => e.textContent!.slice(0, 40)));
+  await page.locator('details:has(.eq__math)').evaluateAll(async (details) => {
+    for (const el of details) (el as HTMLDetailsElement).open = true;
+    await document.fonts.ready;
+  });
+  const wide = await page.locator('.eq__math').evaluateAll((els) => els.filter((e) => e.clientWidth === 0 || e.scrollWidth > e.clientWidth + 1).map((e) => e.textContent!.slice(0, 40)));
   expect(wide).toEqual([]);
 });
 
